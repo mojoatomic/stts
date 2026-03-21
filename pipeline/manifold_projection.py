@@ -2,6 +2,14 @@
 
 Projects causally-weighted features to a lower-dimensional embedding space
 that preserves trajectory similarity.
+
+IMPORTANT: The StandardScaler here normalizes raw features BEFORE causal
+weighting. It must NOT be applied after weighting, as that would undo
+the causal weight amplification. The pipeline order is:
+  1. F(T) — extract raw features
+  2. StandardScaler — equalize sensor scales
+  3. W — apply causal weights (amplifies upstream features)
+  4. M — optional dimensionality reduction (PCA/UMAP), NO additional scaling
 """
 
 from __future__ import annotations
@@ -13,31 +21,44 @@ from sklearn.preprocessing import StandardScaler
 from pipeline.config import EMBEDDING_DIM, PROJECTION_METHOD
 
 
+def fit_scaler(raw_features: np.ndarray) -> StandardScaler:
+    """Fit a StandardScaler on raw (pre-weighted) features.
+
+    This scaler equalizes sensor scales before causal weighting is applied.
+    It must be fitted on training data and applied to both train and test.
+    """
+    scaler = StandardScaler()
+    scaler.fit(raw_features)
+    return scaler
+
+
 def fit_projection(
     weighted_features: np.ndarray,
     method: str = PROJECTION_METHOD,
     dim: int = EMBEDDING_DIM,
-) -> tuple[object, StandardScaler]:
-    """Fit dimensionality reduction on training data.
+) -> object | None:
+    """Fit optional dimensionality reduction on causally-weighted features.
 
-    Pre-scales features before projection so PCA/UMAP operates on
-    standardized inputs.
+    No additional scaling is applied — the causal weights must be preserved
+    in the distance computation.
 
     Args:
-        weighted_features: (n_samples, feature_dim)
-        method: "pca" or "umap"
-        dim: target embedding dimension
+        weighted_features: (n_samples, feature_dim) — already scaled and weighted
+        method: "pca", "umap", or "none"
+        dim: target embedding dimension (ignored if method="none")
 
     Returns:
-        (projector, scaler) — fitted transformer objects
+        Fitted projector, or None if method="none"
     """
-    scaler = StandardScaler()
-    scaled = scaler.fit_transform(weighted_features)
+    if method == "none":
+        return None
 
     if method == "pca":
         projector = PCA(n_components=dim, random_state=42)
-        projector.fit(scaled)
-    elif method == "umap":
+        projector.fit(weighted_features)
+        return projector
+
+    if method == "umap":
         import umap
         projector = umap.UMAP(
             n_components=dim,
@@ -46,27 +67,25 @@ def fit_projection(
             min_dist=0.1,
             random_state=42,
         )
-        projector.fit(scaled)
-    else:
-        raise ValueError(f"Unknown projection method: {method}")
+        projector.fit(weighted_features)
+        return projector
 
-    return projector, scaler
+    raise ValueError(f"Unknown projection method: {method}")
 
 
 def project(
     weighted_features: np.ndarray,
-    projector: object,
-    scaler: StandardScaler,
+    projector: object | None,
 ) -> np.ndarray:
-    """Apply fitted projection to (possibly new) weighted features.
+    """Apply fitted projection (or pass through if projector is None).
 
     Args:
         weighted_features: (n_samples, feature_dim)
-        projector: fitted PCA or UMAP object
-        scaler: fitted StandardScaler
+        projector: fitted PCA/UMAP, or None for no projection
 
     Returns:
         (n_samples, embedding_dim) array
     """
-    scaled = scaler.transform(weighted_features)
-    return projector.transform(scaled)
+    if projector is None:
+        return weighted_features
+    return projector.transform(weighted_features)

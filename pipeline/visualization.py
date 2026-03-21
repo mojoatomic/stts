@@ -137,3 +137,39 @@ def plot_feature_ablation(
     ax.set_title("V3 Verification: Feature Class Importance")
     ax.axvline(x=0, color="gray", linestyle="-", alpha=0.3)
     _save(fig, filename)
+
+
+def plot_precision_recall(
+    pr_results: dict,
+    filename: str = "precision_recall",
+):
+    """Precision-recall curve with F1-optimal point marked."""
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+    # PR curve
+    ax1.plot(pr_results["recall"], pr_results["precision"], "b-", linewidth=1.5)
+    ax1.scatter(
+        [pr_results["best_recall"]], [pr_results["best_precision"]],
+        c="red", s=100, zorder=5,
+        label=f"Best F1={pr_results['best_f1']:.2f}\n"
+              f"P={pr_results['best_precision']:.2f}, R={pr_results['best_recall']:.2f}\n"
+              f"ε={pr_results['best_epsilon']:.2f}",
+    )
+    ax1.set_xlabel("Recall")
+    ax1.set_ylabel("Precision")
+    ax1.set_title(f"Precision-Recall (n+={pr_results['n_positive']}, n-={pr_results['n_negative']})")
+    ax1.legend(fontsize=9)
+    ax1.set_xlim(-0.02, 1.02)
+    ax1.set_ylim(-0.02, 1.02)
+
+    # F1 vs epsilon
+    ax2.plot(pr_results["epsilons"], pr_results["f1"], "g-", linewidth=1.5)
+    ax2.axvline(x=pr_results["best_epsilon"], color="red", linestyle="--",
+                label=f"Best ε={pr_results['best_epsilon']:.2f}")
+    ax2.set_xlabel("ε (distance threshold)")
+    ax2.set_ylabel("F1 score")
+    ax2.set_title("F1 vs ε")
+    ax2.legend()
+
+    fig.tight_layout()
+    _save(fig, filename)

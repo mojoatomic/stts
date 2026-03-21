@@ -83,9 +83,14 @@ FEATURE_CLASS_MULTIPLIERS = {
 
 # Manifold projection
 EMBEDDING_DIM = 64
-PROJECTION_METHOD = "pca"  # "pca" or "umap"
+PROJECTION_METHOD = "none"  # "none", "pca", or "umap"
+USE_CAUSAL_WEIGHTS = False  # Disabled: C-MAPSS is simulated, no real causal chain
 
 # Failure basin
-BASIN_RUL_THRESHOLD = 30  # trajectories with RUL <= this form B_f
+BASIN_RUL_THRESHOLD = 25  # trajectories with RUL <= this form B_f
 BASIN_K = 5               # k for k-NN distance to basin
+
+# Evaluation
+WARNING_RUL = 50          # engines with true RUL <= this SHOULD be flagged
+THRESHOLD_SIGMA = 5.0     # sigma for threshold baseline (3 is too aggressive)
 

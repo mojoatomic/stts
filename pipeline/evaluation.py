@@ -184,3 +184,70 @@ def calibrate_epsilon(
     idx = int(np.ceil(target_recall * len(approach_distances))) - 1
     idx = max(0, min(idx, len(approach_distances) - 1))
     return float(approach_distances[idx])
+
+
+def precision_recall_sweep(
+    test_final_distances: np.ndarray,
+    test_true_rul: np.ndarray,
+    warning_rul: int,
+    n_thresholds: int = 200,
+) -> dict:
+    """Sweep epsilon and compute precision/recall at each threshold.
+
+    An engine is a "true positive" if STTS fires (distance < epsilon)
+    AND the engine's true RUL <= warning_rul. A "false positive" if
+    STTS fires but true RUL > warning_rul.
+
+    Args:
+        test_final_distances: (n_engines,) final basin distance per engine
+        test_true_rul: (n_engines,) true RUL at end of test sequence
+        warning_rul: engines with true RUL <= this should be flagged
+        n_thresholds: number of epsilon values to test
+
+    Returns:
+        dict with 'epsilons', 'precision', 'recall', 'f1', 'best_epsilon',
+              'best_f1', 'best_precision', 'best_recall'
+    """
+    should_fire = test_true_rul <= warning_rul
+    n_positive = should_fire.sum()
+
+    epsilons = np.linspace(
+        test_final_distances.min() * 0.5,
+        test_final_distances.max() * 1.1,
+        n_thresholds,
+    )
+    precisions = []
+    recalls = []
+    f1s = []
+
+    for eps in epsilons:
+        fired = test_final_distances < eps
+        tp = (fired & should_fire).sum()
+        fp = (fired & ~should_fire).sum()
+        fn = (~fired & should_fire).sum()
+
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 1.0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+
+        precisions.append(precision)
+        recalls.append(recall)
+        f1s.append(f1)
+
+    precisions = np.array(precisions)
+    recalls = np.array(recalls)
+    f1s = np.array(f1s)
+    best_idx = np.argmax(f1s)
+
+    return {
+        "epsilons": epsilons,
+        "precision": precisions,
+        "recall": recalls,
+        "f1": f1s,
+        "best_epsilon": float(epsilons[best_idx]),
+        "best_f1": float(f1s[best_idx]),
+        "best_precision": float(precisions[best_idx]),
+        "best_recall": float(recalls[best_idx]),
+        "n_positive": int(n_positive),
+        "n_negative": int(len(test_true_rul) - n_positive),
+    }

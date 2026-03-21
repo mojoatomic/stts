@@ -13,6 +13,7 @@ The comparison answers: does STTS's framework (feature extraction + embedding
 from __future__ import annotations
 
 import numpy as np
+import pandas as pd
 from scipy.spatial.distance import cdist
 
 

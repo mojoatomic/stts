@@ -1,7 +1,7 @@
 # State Topology and Trajectory Storage:
 ## A Geometric Framework for Monitoring Complex Dynamic Systems
 
-*[Author] · Preprint · 2025 · arXiv:cs.LG, eess.SY*
+*[Author] · Preprint · 2026 · arXiv:cs.LG, eess.SY, cs.DB*
 
 ---
 
@@ -61,7 +61,7 @@ The relationship to Codd's relational model clarifies the nature of this contrib
 
 ### 1.4 Paper organization
 
-Section 2 develops the epistemological argument — why the relational model is structurally late and what that means for any system built on it. Section 3 presents the mathematical framework: formal definitions of trajectory, embedding, failure basin, the monitoring query, out-of-distribution detection, and the intervention window proposition. Section 4 develops the embedding function φ in depth, including the verification requirements that distinguish STTS from naive machine learning approaches. Section 5 instantiates the framework across eight domains. Section 6 presents illustrative analyses of three historical events on publicly available data. Section 7 shows that the AI statefulness problem is a direct instantiation of STTS — the mathematics is identical, the measurement and validation burden is categorically different, and that difference is addressed directly. Section 8 describes the corpus architecture. Section 9 discusses implications.
+Section 2 develops the epistemological argument — why the relational model is structurally late and what that means for any system built on it. Section 3 presents the mathematical framework: formal definitions of trajectory, embedding, failure basin, the monitoring query, out-of-distribution detection, and the intervention window proposition. Section 4 develops the embedding function φ in depth, including the verification requirements that distinguish STTS from naive machine learning approaches. Section 5 instantiates the framework across eight domains. Section 6 presents illustrative analyses of three historical events on publicly available data. Section 7 shows that the AI statefulness problem is a direct instantiation of STTS — the mathematics is identical, the measurement and validation burden is categorically different, and that difference is addressed directly. Section 8 describes the corpus architecture. Section 9 discusses implications and concludes.
 
 ---
 

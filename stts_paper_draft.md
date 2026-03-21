@@ -1,7 +1,7 @@
 # State Topology and Trajectory Storage:
 ## A Geometric Framework for Monitoring Complex Dynamic Systems
 
-*[Author] · Preprint · 2026 · arXiv:cs.LG, eess.SY, cs.DB*
+*Doug Fennell · Preprint · 2026 · arXiv:cs.LG, eess.SY, cs.DB*
 
 ---
 

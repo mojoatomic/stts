@@ -1,0 +1,4 @@
+test,FD001,FD002,FD003,FD004
+universal (all 4),0.969,0.926,0.945,0.905
+held-out (FD001+FD003 only),0.955,0.88,0.966,0.883
+TSBP baseline,0.903,0.898,0.824,0.857

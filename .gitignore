@@ -1,5 +1,6 @@
 data/
-results/
+results/*.png
 .DS_Store
 __pycache__/
 *.pyc
+docs/

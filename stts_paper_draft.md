@@ -143,7 +143,7 @@ A reasonable question is why, if the trajectory-based model is superior, it has 
 
 Vector databases capable of billion-scale nearest-neighbor search at sub-millisecond latency have only reached production maturity in the period 2020–2024.[^7] The infrastructure to implement STTS at operational scale did not exist until recently. The threshold model, built when real-time computation was expensive and storage was scarce, was not merely adequate — it was the only viable option. Its limitations were accepted because there was no alternative.
 
-The PHM field's framing of the problem as a prediction problem — estimating remaining useful life — has directed research toward algorithm improvement rather than representation change. When a field defines its problem as "predict better," it searches for better predictors. It does not question whether the representation on which prediction operates is correct.
+The PHM field's framing of the problem as a prediction problem — estimating remaining useful life — has directed research toward better algorithms and better embeddings within single domains, rather than toward a cross-domain storage and monitoring architecture. This is natural: domain experts solve domain problems. The observation that the same mathematical primitive applies across eight domains, and that trajectory embedding should be the storage primitive rather than an analytical tool, requires stepping outside any single domain — which is not how domain-specific research programs are organized.
 
 Finally, there is the conservatism appropriate to safety-critical systems. The threshold model is transparent, auditable, and understood. Replacing it with a geometric similarity model requires trust in a more complex system — trust that takes time and evidence to build. This paper aims to provide the theoretical foundation that makes that trust justified and the verification protocol that makes it auditable. Section 4 addresses these requirements directly.
 
@@ -265,7 +265,7 @@ Definition 6 addresses the detection of known failure modes — trajectories app
 
 This is the Challenger problem. The STS-51-L launch configuration was not near the failure basin constructed from prior O-ring erosion incidents. It was beyond the farthest point in that basin — in a region of embedding space the corpus had never seen. Under Definition 6 alone, it would have appeared safely distant from known failures.
 
-**Definition 9 (Corpus coverage and OOD detection).** *Define the corpus convex hull:*
+**Definition 7 (Corpus coverage and OOD detection).** *Define the corpus convex hull:*
 
 ```
 𝒦(𝒞)  =  convex hull of  { φ(𝒯ᵢ) : (φ(𝒯ᵢ), oᵢ, mᵢ) ∈ 𝒞 }
@@ -668,7 +668,7 @@ These are different questions. They require different storage models to answer. 
 
 We define AI cognitive state by direct analogy with physical system state, applying the STTS framework to the interaction record.
 
-**Definition 6 (Cognitive state vector).** *The cognitive state of an AI system S at interaction turn t is a vector:*
+**Definition 8 (Cognitive state vector).** *The cognitive state of an AI system S at interaction turn t is a vector:*
 
 ```
 c(t) = [ v(t),  drift(t),  σ(t),  coherence(t) ]  ∈  ℝᵐ
@@ -680,7 +680,7 @@ These four feature classes are the cognitive domain analogues of the four physic
 
 **The measurement problem.** An honest difference from physical systems must be stated here. Bearing temperature can be measured to arbitrary precision with a thermocouple. "Semantic position" requires an embedding model to produce — it is itself a learned representation, not a direct measurement. "Uncertainty signal" requires access to model internals (logit distributions, attention entropy) or proxy measurements that are model-architecture-dependent. The components of c(t) are not measurements in the physical sense; they are computed features that inherit the assumptions and limitations of whatever models produce them. This does not invalidate the framework — physical feature extraction F also computes derived quantities from raw sensor data — but it adds a layer of indirection that is absent in physical systems. The embedding φ for cognitive state is a composition of learned representations, each carrying its own error, and the verification protocol of Section 4.5 must account for this compounding.
 
-**Definition 7 (Cognitive state trajectory).** *The trajectory of AI system S over a session [t₀, t₁] is:*
+**Definition 9 (Cognitive state trajectory).** *The trajectory of AI system S over a session [t₀, t₁] is:*
 
 ```
 𝒯_session  =  { c(t) : t ∈ [t₀, t₁] }  ⊂  ℝᵐ
@@ -692,7 +692,7 @@ The session trajectory is a curve through cognitive state space. Two sessions th
 
 The failure basin of physical systems becomes an outcome basin for AI cognitive state.
 
-**Definition 8 (Outcome basin).** *For a labeled session outcome o ∈ {productive resolution, confusion spiral, breakthrough insight, user disengagement, ...}, the outcome basin is:*
+**Definition 10 (Outcome basin).** *For a labeled session outcome o ∈ {productive resolution, confusion spiral, breakthrough insight, user disengagement, ...}, the outcome basin is:*
 
 ```
 ℬ_outcome  =  { φ(𝒯_session) : outcome o occurred within Δt of 𝒯_session }

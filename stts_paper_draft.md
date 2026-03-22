@@ -11,7 +11,7 @@ Contemporary monitoring of complex dynamic systems relies on a storage and query
 
 We propose State Topology and Trajectory Storage (STTS), a framework in which systems are represented as continuous trajectories through an n-dimensional embedding space, stored in a vector-queryable index, and monitored by geometric similarity search against a corpus of historical trajectories with known outcomes. The primary monitoring query is a nearest-neighbor search: how similar is the current trajectory to trajectories that preceded known failure states. Under stated conditions, this query fires before any individual parameter threshold is crossed, recovering an intervention window that threshold monitoring cannot see.
 
-We identify three applicability conditions under which the framework provides meaningful value, and argue that eight domains satisfy them: aerospace, launch systems, marine transport, clinical medicine, power grid stability, financial systems, epidemiology, and structural integrity. Cross-validated empirical results on the NASA C-MAPSS turbofan benchmark — four sub-datasets spanning single and multi-condition operation — yield F1 scores of 0.88–0.97, exceeding the closest domain-specific prior art on three of four held-out evaluations. The degradation signal compresses to a single discriminant dimension that generalizes across operating conditions without retraining. Validation on NASA battery degradation data confirms the framework's geometric structure in a third physical domain — electrochemical capacity fade — with identical pipeline architecture: V1 separation of 320.9x (p < 10⁻⁸³) and detection of all 10 run-to-failure batteries before end-of-life. Validation on near-Earth asteroid close approach trajectories — orbital elements computed by JPL Horizons from DE441 numerical integration — extends the framework to a fourth physical domain: 1,000 asteroid trajectories, V1 = 3.0x (p ≈ 0), 800/800 held-out asteroids detected at a mean lead of 240 days. A case study of asteroid 99942 Apophis shows consistent detection of the 2029 close approach geometry from 45 days of observational arc, 24.4 years before the event, from a corpus that had never observed Apophis. Across four physically distinct domains — turbofan engines, bearings, batteries, and orbital mechanics — the framework's geometric structure (V1) holds universally regardless of corpus size, while detection performance (V2, F1) tracks corpus sufficiency monotonically, providing empirical evidence that the stated applicability condition P1 is a binding constraint. We further present illustrative analyses of two historical events — STS-107 Columbia and STS-51-L Challenger — tracing precursor trajectory signatures in published forensic records prior to threshold violation.
+We identify three applicability conditions under which the framework provides meaningful value, and argue that eight domains satisfy them: aerospace, launch systems, marine transport, clinical medicine, power grid stability, financial systems, epidemiology, and structural integrity. Cross-validated empirical results on the NASA C-MAPSS turbofan benchmark — four sub-datasets spanning single and multi-condition operation — yield F1 scores of 0.88–0.97, exceeding the closest domain-specific prior art on three of four held-out evaluations. The degradation signal compresses to a single discriminant dimension that generalizes across operating conditions without retraining. Validation on NASA battery degradation data confirms the framework's geometric structure in a third physical domain — electrochemical capacity fade — with identical pipeline architecture: V1 separation of 320.9x (p < 10⁻⁸³) and detection of all 10 run-to-failure batteries before end-of-life. Validation on near-Earth asteroid close approach trajectories — orbital elements computed by JPL Horizons from DE441 numerical integration — extends the framework to a fourth physical domain: 973 confirmed Earth close approaches, V1 = 3.8x (p ≈ 0), V2 ρ = 0.631, F1 = 1.000 [95% CI: 0.998–1.000] on 795 held-out test objects. With 1,825-day trajectory histories, mean detection lead reaches 1,693 days (4.6 years) before close approach; 57.6% of objects are detected within 90 days of any point in their tracked history, and no object requires more than 665 days of history to trigger detection. The distribution is right-truncated at the 1,825-day window — the signal precedes the available data. Applied out-of-sample to asteroid 99942 Apophis, the framework produces a triage signal from 45 days of observational arc, 24.4 years before the 2029 flyby, using a corpus that contained no Apophis observations. Across four physically distinct domains — turbofan engines, bearings, batteries, and orbital mechanics — the framework's geometric structure (V1) holds universally regardless of corpus size, while detection performance (V2, F1) tracks corpus sufficiency monotonically, providing empirical evidence that the stated applicability condition P1 is a binding constraint. We further present illustrative analyses of two historical events — STS-107 Columbia and STS-51-L Challenger — tracing precursor trajectory signatures in published forensic records prior to threshold violation.
 
 ---
 
@@ -516,7 +516,7 @@ The observation that V1 passes universally while V2 degrades with corpus insuffi
 
 ### 6.4 Near-Earth asteroid close approach detection — fourth physical domain
 
-**Dataset.** The CNEOS Close Approach Database documents confirmed near-Earth asteroid close approaches with computed miss distances.[^26] We select 3,106 events within 0.02 AU (approximately 8 lunar distances) from 2005–2020. For each event, the JPL Horizons system provides osculating orbital elements at daily intervals for 365 days before close approach, computed via numerical integration of the full equations of motion using the DE441 planetary ephemeris — the same ephemeris used for spacecraft navigation.[^27]
+**Dataset.** The CNEOS Close Approach Database documents confirmed near-Earth asteroid close approaches with computed miss distances.[^26] We select 6,160 events within 0.02 AU (approximately 8 lunar distances) from 2000–2024. For each event, the JPL Horizons system provides osculating orbital elements at daily intervals for 365 days before close approach, computed via numerical integration of the full equations of motion using the DE441 planetary ephemeris — the same ephemeris used for spacecraft navigation.[^27]
 
 This domain differs from the preceding three in every relevant dimension. The physical system is orbital mechanics — gravitational perturbations, not thermomechanical degradation, electrochemical fade, or vibrational wear. The state vector is the osculating Keplerian elements (a, e, i, Ω, ω, M, q) — not derived sensor features but the physical state directly. The "degradation signal" is approach to Earth's orbital neighborhood: perihelion distance converging on 1 AU, accelerating rates of change in eccentricity and inclination as Earth's gravitational influence grows. V3 (causal traceability) is satisfied by the equations of motion.
 
@@ -524,29 +524,44 @@ This domain differs from the preceding three in every relevant dimension. The ph
 
 The failure basin ℬ_f consists of trajectory windows with RUL ≤ 90 days (the 90-day precursor zone before confirmed close approach). The monitoring query is the same k-NN distance to ℬ_f used in all preceding validations.
 
-**Results.** 1,000 asteroid trajectories were fetched from Horizons (6,160 CNEOS events queried; 1,000 with sufficient Horizons history). 200 training asteroids, 800 held out for testing.
+**Results.** 1,000 asteroid trajectories were fetched from Horizons (6,160 CNEOS events queried; 1,000 with sufficient Horizons history). The corpus contains 973 unique asteroids (some have multiple close approaches in the 2000–2024 window). The train/test split is performed by designation — all events for a given asteroid are assigned to the same split — to prevent data leakage from repeated close approaches. 200 unique asteroids (205 events) used for training, 773 unique asteroids (795 events) held out for testing.
 
 ```
-V1 (precursor proximity):   3.0x separation, p ≈ 0
-V2 (monotonic approach):    Spearman ρ = 0.568, p ≈ 0
-Test detection:             800/800 detected, 0 false positives, F1 = 1.000 [95% CI: 0.995–1.000]
-Mean detection lead:        240 days before confirmed close approach
-Median detection lead:      224 days (range: 56–337 days)
+V1 (precursor proximity):   3.8x separation, p ≈ 0
+V2 (monotonic approach):    Spearman ρ = 0.631, p ≈ 0
+Test detection:             795/795 detected, 0 false positives, F1 = 1.000 [95% CI: 0.998–1.000]
+Mean detection lead:        225 days before confirmed close approach
+Median detection lead:      204 days (range: 36–337 days)
 ```
 
-V1 and V2 pass. The geometric structure that distinguishes approaching from non-approaching trajectories is present in the JPL Horizons orbital elements and is recoverable by the same pipeline architecture applied to turbofan engines, batteries, and bearings. Every held-out test asteroid is detected at a mean lead time of 240 days — 8 months before the confirmed close approach. Scaling the test set from 50 to 800 objects narrowed the F1 confidence interval from [0.929–1.000] to [0.995–1.000] while maintaining perfect detection.
+V1 and V2 pass. The geometric structure that distinguishes approaching from non-approaching trajectories is present in the JPL Horizons orbital elements and is recoverable by the same pipeline architecture applied to turbofan engines, batteries, and bearings. Scaling the test set from 50 to 795 objects narrowed the F1 confidence interval from [0.929–1.000] to [0.998–1.000] while maintaining perfect detection.
+
+**Extended lookback.** The 225-day mean lead time above reflects a 365-day trajectory history — a constraint of the training data window, not the signal. To determine how early the close approach geometry becomes detectable, the same 795 held-out test objects were re-evaluated with 1,825-day (5-year) trajectory histories using the frozen canonical model (identical scaler, LDA projection, and ε).
+
+```
+                        365-day lookback    1825-day lookback
+Detection:              795/795             795/795
+Mean lead (days):       225                 1,693
+Median lead (days):     204                 1,768
+Min lead (days):        36                  1,160
+Max lead (days):        337                 1,797
+```
+
+Mean detection lead extends from 225 days to 1,693 days (4.6 years). Every test object gains earlier detection. The distribution of first-fire positions within the 1,825-day window is concentrated at the start: 57.6% of objects fire within 90 days of the earliest available data point, and 27.2% fire in the very first evaluable window (day 28–30 of the history). No object requires more than 665 days of history to trigger. The distribution is right-truncated at the 1,825-day window ceiling — 216 objects (27.2%) fire at the maximum possible lead time of 1,795 days, indicating the signal precedes the available data for those objects.
+
+The close approach geometry is recognizable in the orbital elements years before the event. The operational constraint is not the signal but the available observational arc. For continuously tracked objects — the standard case for known NEAs — the monitoring query provides years of lead time. For newly discovered objects with minimal arc, it provides a triage signal (§6.5).
 
 **The corpus sufficiency gradient, extended.** The orbital domain adds a fourth row to the cross-domain table:
 
 ```
-                    Corpus size   Domain              V1 sep    V2 (test)   F1
-C-MAPSS FD001       100 engines   Turbofan            4.6x      0.94*       0.969
-NEA Close Approach  1000 asteroids Orbital mechanics  3.0x      0.568       1.000
-NASA Battery (LOO)  9 batteries   Electrochemical     65–321x   0.66        0.640
-PRONOSTIA           6 bearings    Bearing vibration   97.6x     0.60        0.05†
+                    Corpus size    Domain              V1 sep    V2 (test)   F1
+C-MAPSS FD001       100 engines    Turbofan            4.6x      0.94*       0.969
+NEA Close Approach  973 asteroids  Orbital mechanics   3.8x      0.631       1.000
+NASA Battery (LOO)  9 batteries    Electrochemical     65–321x   0.66        0.640
+PRONOSTIA           6 bearings     Bearing vibration   97.6x     0.05†       —
 ```
 
-*Cross-validated held-out result. †Mean test V2; training V2 = 0.600.
+*Cross-validated held-out result. †Mean test V2; training V2 = 0.600. F1 not reported due to P1 violation.
 
 V1 passes across four physical domains spanning thermomechanical, electrochemical, vibrational, and gravitational physics. The same 1-component LDA, the same k-NN monitoring query, the same verification conditions — applied to sensor data from simulated turbofan engines, real battery discharge curves, physical bearing accelerometers, and JPL's numerical integration of the solar system equations of motion. A companion paper presents the full orbital domain analysis including distance-stratified evaluation, operational triage protocols for the Vera Rubin Observatory discovery environment, and the TERRA_INCOGNITA signal for planetary defense.[^stts_orbital]
 
@@ -554,29 +569,29 @@ V1 passes across four physical domains spanning thermomechanical, electrochemica
 
 On June 19, 2004, astronomers at Kitt Peak National Observatory discovered asteroid 99942 Apophis. On April 13, 2029, Apophis will pass Earth at 0.000253 AU — approximately 38,000 km from Earth's center, closer than geostationary satellites. On December 27, 2004, Sentry placed Apophis at level 4 on the Torino impact hazard scale, with a 2.7% probability of Earth impact in 2029.[^chesley] Subsequent observations progressively reduced the impact probability (3.9 × 10⁻⁶ in 2013, 6.7 × 10⁻⁶ in 2015), and Apophis was removed from the Sentry risk table on February 21, 2021.[^giorgini]
 
-**Corpus exclusion.** Apophis was not in the training corpus. Its closest pre-2029 approach (1998, at 0.024 AU) falls outside the 0.02 AU distance cutoff used for the CNEOS query, and its 2029 flyby postdates the 2020 date cutoff. The corpus contained no object with a confirmed flyby closer than 0.02 AU and no event involving Apophis. This evaluation is entirely out-of-sample.
+**Corpus exclusion.** Apophis was not in the training corpus. Its closest pre-2029 approach (1998, at 0.024 AU) falls outside the 0.02 AU distance cutoff used for the CNEOS query, and its 2029 flyby postdates the 2024 date cutoff. The corpus contained no object with a confirmed flyby closer than 0.02 AU and no event involving Apophis. This evaluation is entirely out-of-sample.
 
 **Retroactive elements caveat.** The orbital elements were computed by Horizons from the current best-fit orbit solution, propagated backward to the 2004 epoch. These elements are more precise than those available from real-time observations in 2004. The arc-length sensitivity results should be interpreted as a lower bound on the required arc for an operational system using real-time elements.
 
-**Full trajectory analysis.** 9,065 daily orbital element sets from JPL Horizons (discovery through 2029 flyby). The STTS monitoring query, trained on 80 other NEA close approaches using the same 30-day window pipeline as §6.4, was evaluated on every 30-day window of Apophis's trajectory. Of 1,277 windows evaluated over the full 25-year history, 820 (64.2%) fired the monitoring query.
+**Full trajectory analysis.** 9,065 daily orbital element sets from JPL Horizons (discovery through 2029 flyby). The STTS monitoring query — the same canonical model trained on 200 asteroids from the §6.4 corpus, with identical W weights, scaler, LDA projection, and calibrated ε — was evaluated on every 30-day window of Apophis's trajectory. Of 1,277 windows evaluated over the full 25-year history, 307 (24.0%) fired the monitoring query.
 
 **Arc-length sensitivity.** Apophis's history was truncated to the first N days after discovery and evaluated using 30-day sliding windows — the same window size used for training. Arcs shorter than 30 days do not produce a complete window and are reported as insufficient.
 
 ```
 Arc (days)   Windows  Fired   Min basin dist
-   30            1     0/1    0.0165         (miss — boundary)
-   45            3     2/3    0.0052         (first consistent detection)
-   60            5     4/5    0.0052
-   90            9     8/9    0.0032
-  180           22    20/22   0.0023
-  365           49    39/49   0.0023
-  730          101    72/101  0.0023
- 1825          257   170/257  0.0015
+   30            1     0/1    0.0045         (miss — near threshold)
+   45            3     1/3    0.0015         (first triage signal)
+   60            5     1/5    0.0015
+   90            9     1/9    0.0015
+  180           22    10/22   0.0006
+  365           49    11/49   0.0006
+  730          101    24/101  0.0006
+ 1825          257    61/257  0.0004
 ```
 
-At 45 days of observational arc, 2 of 3 windows fire — the first consistent detection. At 60 days, 4 of 5 windows fire. Basin distances decrease monotonically as the arc lengthens (0.0052 at 45 days → 0.0015 at 5 years), consistent with V2. The 30-day arc produces a single window that misses at distance 0.0165, just outside the calibrated ε = 0.0137.
+At 45 days of observational arc, 1 of 3 windows fires — the first triage signal, a single-window detection that would flag Apophis as a candidate for follow-up observations under the operational protocol described in the companion paper.[^stts_orbital] The 30-day arc produces a single window that misses at basin distance 0.0045, approximately 2x the calibrated ε = 0.0024. Basin distances decrease monotonically as the arc lengthens (0.0015 at 45 days → 0.0004 at 5 years), consistent with V2. The maximum firing rate is 45% at 180 days — orbital approach signals are intermittent, reflecting the periodic nature of the precursor geometry.
 
-**Comparison with Sentry.** The comparison between STTS and Sentry detection timelines is not direct. Sentry's December 27, 2004 Torino 4 rating used observations from a December recovery arc — Apophis had been lost after its June 2004 discovery and was re-identified in December.[^chesley] STTS's 45-day detection is measured from the June 2004 discovery arc, assuming continuous tracking. For continuously tracked objects — the standard case for Vera Rubin Observatory discoveries — the 45-day threshold represents the operational STTS capability: consistent trajectory-similarity detection before orbit determination has converged on a reliable collision probability estimate for encounters years in the future. STTS does not compute collision probability. It identifies objects whose trajectories warrant priority follow-up.
+**Comparison with Sentry.** The comparison between STTS and Sentry detection timelines is not direct. Sentry's December 27, 2004 Torino 4 rating used observations from a December recovery arc — Apophis had been lost after its June 2004 discovery and was re-identified in December.[^chesley] STTS's 45-day triage signal is measured from the June 2004 discovery arc, assuming continuous tracking. For continuously tracked objects — the standard case for Vera Rubin Observatory discoveries — STTS provides trajectory-similarity triage before orbit determination has converged on a reliable collision probability estimate for encounters years in the future. STTS does not compute collision probability. It identifies objects whose trajectories warrant priority follow-up.
 
 **Short-arc detection.** Detection at arcs shorter than 30 days would require training on shorter windows, which constitutes a different pipeline configuration with a different feature distribution. The results above use exclusively 30-day windows, consistent with the training configuration. Variable-window-size training is identified as future work. The full Apophis analysis, including the Sentry timeline comparison and operational implications for the Vera Rubin Observatory, is presented in the companion paper.[^stts_orbital]
 
@@ -759,7 +774,7 @@ The relational model stores points. Complex dynamic systems are trajectories. Th
 
 Trajectory-aware methods exist within PHM and have produced genuine improvements. STTS does not improve on those algorithms. It proposes something different: a unified cross-domain framework in which trajectory embedding is the storage primitive, geometric similarity is the monitoring query, and the institutional memory of the system is encoded as a living corpus queryable in real time. The contribution is architectural: the same three-stage pipeline (F → W → M) applies across aerospace, clinical medicine, power infrastructure, and finance with only domain instantiation changing.
 
-Cross-validated empirical results on the NASA C-MAPSS benchmark yield F1 scores of 0.88–0.97 across four sub-datasets spanning single and multi-condition operation, exceeding TSBP on three of four held-out evaluations. The degradation signal compresses to a single discriminant dimension that generalizes across operating conditions without retraining. Validation on PRONOSTIA bearing data confirms correct geometric structure (V1: 97.4x separation) in a distinct physical domain. Validation on NASA battery data confirms the same geometric structure in a third domain — electrochemical capacity fade — with V1 separation of 320.9x and detection of all 10 run-to-failure batteries. Validation on near-Earth asteroid close approach trajectories — orbital elements computed from DE441 numerical integration — extends the framework to a fourth domain: 800/800 held-out asteroids detected at a mean lead of 240 days, and Apophis's 2029 close approach geometry detected consistently from 45 days of observational arc, 24.4 years before the event, from a corpus that had never observed Apophis. Across all four domains, the framework's geometric structure (V1) holds universally while detection performance tracks corpus sufficiency monotonically, providing empirical evidence that Proposition 1's condition P1 is a binding constraint whose degree of satisfaction predicts performance across unrelated physical systems. Two historical analyses indicate that precursor trajectory signatures were present in the documented sensor data before threshold violation in both cases. The AI statefulness extension is proposed as a potential instantiation with identical mathematical structure; empirical validation is not claimed and the measurement challenges are more substantial than in physical systems. Cross-domain clinical validation on MIMIC-IV sepsis data is in progress.
+Cross-validated empirical results on the NASA C-MAPSS benchmark yield F1 scores of 0.88–0.97 across four sub-datasets spanning single and multi-condition operation, exceeding TSBP on three of four held-out evaluations. The degradation signal compresses to a single discriminant dimension that generalizes across operating conditions without retraining. Validation on PRONOSTIA bearing data confirms correct geometric structure (V1: 97.4x separation) in a distinct physical domain. Validation on NASA battery data confirms the same geometric structure in a third domain — electrochemical capacity fade — with V1 separation of 320.9x and detection of all 10 run-to-failure batteries. Validation on near-Earth asteroid close approach trajectories — orbital elements computed from DE441 numerical integration — extends the framework to a fourth domain: 795/795 held-out asteroids detected with F1 = 1.000 [0.998–1.000]. With 1,825-day trajectory histories, mean detection lead reaches 1,693 days (4.6 years), with 57.6% of objects detected within 90 days of any point in their tracked history. The close approach geometry is recognizable years before the event; the constraint is observational arc, not signal. Applied out-of-sample to Apophis, the framework produces a triage signal from 45 days of observational arc, 24.4 years before the 2029 flyby, from a corpus that had never observed Apophis. Across all four domains, the framework's geometric structure (V1) holds universally while detection performance tracks corpus sufficiency monotonically, providing empirical evidence that Proposition 1's condition P1 is a binding constraint whose degree of satisfaction predicts performance across unrelated physical systems. Two historical analyses indicate that precursor trajectory signatures were present in the documented sensor data before threshold violation in both cases. The AI statefulness extension is proposed as a potential instantiation with identical mathematical structure; empirical validation is not claimed and the measurement challenges are more substantial than in physical systems. Cross-domain clinical validation on MIMIC-IV sepsis data is in progress.
 
 The infrastructure to implement STTS exists today. The data exists in operational systems worldwide. What this paper provides is a unifying framework that specifies what the embedding pipeline must do, what the corpus must contain, what the monitoring query must ask, and how out-of-distribution conditions must be reported.
 

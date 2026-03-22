@@ -395,30 +395,14 @@ def build_dataset(
     return np.array(all_feats), np.array(all_ruls), np.array(all_labels)
 
 
-def run_pipeline(
-    train_trajectories: List[Tuple[List[OrbitalElements], float]],
-    test_trajectories:  List[Tuple[List[OrbitalElements], float]],
-    verbose: bool = True
-) -> Dict:
+def canonical_weights() -> np.ndarray:
     """
-    Full F->W->M pipeline:
-    1. Extract features from training trajectories
-    2. Fit LDA projection
-    3. Build failure basin from precursor windows
-    4. Evaluate detection on test trajectories
-    5. Report V1, V2, detection lead time
+    Canonical physics-informed W weight vector.
+
+    This is the single authoritative weight matrix for the orbital STTS
+    pipeline. All analyses (corpus validation, Apophis case study) must
+    use this identical vector.
     """
-    # Extract training features
-    X_train, r_train, y_train = build_dataset(train_trajectories)
-    
-    if verbose:
-        print(f"  Training windows: {len(X_train)} "
-              f"({y_train.sum():.0f} precursor, {(y_train==0).sum():.0f} nominal)")
-    
-    if y_train.sum() < 5 or (y_train==0).sum() < 5:
-        return {"error": "Insufficient training data"}
-    
-    # W: physics-informed weights
     W = np.ones(30)
     W[0:4]   *= 0.5   # q summaries — important but noisy
     W[4:8]   *= 0.3   # a, e summaries
@@ -433,36 +417,60 @@ def run_pipeline(
     W[26]    *= 0.2   # inclination (not approach signal)
     W[27]    *= 1.0   # mean motion
     W[28:30] *= 2.0   # time to perihelion
-    
-    # Standardize then weight
+    return W
+
+
+def train_model(
+    train_trajectories: List[Tuple[List[OrbitalElements], float]],
+    verbose: bool = True
+) -> Optional[Dict]:
+    """
+    Train the canonical STTS orbital model.
+
+    Returns a frozen model dict containing scaler, W, LDA, basin,
+    epsilon, and verification metrics. This model can be applied to
+    any trajectory via evaluate_trajectory() or evaluate_test_set().
+
+    Returns None if training data is insufficient.
+    """
+    X_train, r_train, y_train = build_dataset(train_trajectories)
+
+    if verbose:
+        print(f"  Training windows: {len(X_train)} "
+              f"({y_train.sum():.0f} precursor, {(y_train==0).sum():.0f} nominal)")
+
+    if y_train.sum() < 5 or (y_train==0).sum() < 5:
+        if verbose:
+            print("  ERROR: Insufficient training data")
+        return None
+
+    W = canonical_weights()
+
     scaler   = StandardScaler()
     X_scaled = scaler.fit_transform(X_train)
     X_w      = X_scaled * W
-    
-    # LDA
+
     lda = LinearDiscriminantAnalysis(n_components=1, solver='svd')
     lda.fit(X_w, y_train)
     X_proj = lda.transform(X_w).ravel()
-    
-    # Failure basin
+
     basin = X_proj[y_train == 1]
-    
-    # Compute training distances
+
     def dist_to_basin(p, k=5):
         if len(basin) == 0:
             return 999.0
         dists = np.abs(basin - p)
         return np.mean(np.sort(dists)[:min(k, len(basin))])
-    
+
     train_dists = np.array([dist_to_basin(p) for p in X_proj])
-    
+
     # V1: separation
     nom_d  = train_dists[y_train == 0]
     pre_d  = train_dists[y_train == 1]
     sep    = np.median(nom_d) / (np.median(pre_d) + 1e-10)
     _, p1  = mannwhitneyu(nom_d, pre_d, alternative='greater')
     v1_pass = sep > 2.0 and p1 < 0.05
-    
+
     # V2: monotonic approach
     mask   = r_train < 365
     if mask.sum() > 5:
@@ -470,7 +478,7 @@ def run_pipeline(
         v2_pass = rho > 0.3 and p2 < 0.05
     else:
         rho, p2, v2_pass = 0.0, 1.0, False
-    
+
     # Calibrate epsilon (maximize F1 on training)
     thresholds = np.percentile(train_dists, np.linspace(5, 95, 40))
     best_f1, best_eps = 0.0, thresholds[0]
@@ -483,41 +491,71 @@ def run_pipeline(
         f1 = 2*pr*re/max(1e-10,pr+re)
         if f1 > best_f1:
             best_f1, best_eps = f1, eps
-    
+
     if verbose:
         print(f"  V1 separation: {sep:.1f}x (p={p1:.2e}) {'PASS' if v1_pass else 'FAIL'}")
         print(f"  V2 Spearman ρ: {rho:.3f} (p={p2:.2e}) {'PASS' if v2_pass else 'FAIL'}")
         print(f"  Training F1: {best_f1:.3f} at ε={best_eps:.4f}")
-    
-    # Evaluate on test trajectories
+
+    return {
+        "scaler":     scaler,
+        "W":          W,
+        "lda":        lda,
+        "basin":      basin,
+        "epsilon":    best_eps,
+        "dist_to_basin": dist_to_basin,
+        "v1_separation": sep,
+        "v1_p":       p1,
+        "v1_pass":    v1_pass,
+        "v2_rho":     rho,
+        "v2_p":       p2,
+        "v2_pass":    v2_pass,
+        "train_f1":   best_f1,
+    }
+
+
+def evaluate_test_set(
+    model: Dict,
+    test_trajectories: List[Tuple[List[OrbitalElements], float]],
+) -> Dict:
+    """
+    Evaluate a frozen model on a set of test trajectories.
+    Returns detection metrics and per-object lead times.
+    """
+    scaler = model["scaler"]
+    W      = model["W"]
+    lda    = model["lda"]
+    eps    = model["epsilon"]
+    dist_to_basin = model["dist_to_basin"]
+
     tp_count = fp_count = fn_count = tn_count = 0
     lead_times = []
-    
+
     for elements, ca_jd in test_trajectories:
         if len(elements) < WINDOW_DAYS:
             continue
-        
-        is_close_approach = True  # All test trajectories are labeled events
+
+        is_close_approach = True
         fired = False
         fire_rul = None
-        
+
         for start in range(0, len(elements) - WINDOW_DAYS + 1, STRIDE_DAYS):
             window = elements[start:start + WINDOW_DAYS]
             rul = ca_jd - window[-1].jd
             if rul < 0:
                 break
-            
+
             feat = extract_features(window, ca_jd)
             x_s  = scaler.transform(feat.reshape(1,-1))
             x_w  = x_s * W
             proj = lda.transform(x_w).ravel()[0]
             d    = dist_to_basin(proj)
-            
-            if d < best_eps and not fired:
+
+            if d < eps and not fired:
                 fired    = True
                 fire_rul = rul
                 break
-        
+
         if is_close_approach:
             if fired and fire_rul and fire_rul > 0:
                 tp_count += 1
@@ -529,20 +567,12 @@ def run_pipeline(
                 fp_count += 1
             else:
                 tn_count += 1
-    
+
     prec = tp_count / max(1, tp_count + fp_count)
     rec  = tp_count / max(1, tp_count + fn_count)
     f1   = 2*prec*rec / max(1e-10, prec+rec)
-    
+
     return {
-        "v1_separation": sep,
-        "v1_p":          p1,
-        "v1_pass":       v1_pass,
-        "v2_rho":        rho,
-        "v2_p":          p2,
-        "v2_pass":       v2_pass,
-        "train_f1":      best_f1,
-        "epsilon":       best_eps,
         "test_f1":       f1,
         "test_precision":prec,
         "test_recall":   rec,
@@ -553,6 +583,36 @@ def run_pipeline(
         "median_lead_days": np.median(lead_times) if lead_times else 0.0,
         "lead_times":    lead_times,
     }
+
+
+def run_pipeline(
+    train_trajectories: List[Tuple[List[OrbitalElements], float]],
+    test_trajectories:  List[Tuple[List[OrbitalElements], float]],
+    verbose: bool = True
+) -> Dict:
+    """
+    Full F->W->M pipeline: train, then evaluate on test set.
+    Returns combined training metrics and test results.
+    """
+    model = train_model(train_trajectories, verbose=verbose)
+    if model is None:
+        return {"error": "Insufficient training data"}
+
+    test_results = evaluate_test_set(model, test_trajectories)
+
+    # Merge model metrics and test results
+    result = {
+        "v1_separation": model["v1_separation"],
+        "v1_p":          model["v1_p"],
+        "v1_pass":       model["v1_pass"],
+        "v2_rho":        model["v2_rho"],
+        "v2_p":          model["v2_p"],
+        "v2_pass":       model["v2_pass"],
+        "train_f1":      model["train_f1"],
+        "epsilon":       model["epsilon"],
+    }
+    result.update(test_results)
+    return result
 
 
 # ─────────────────────────────────────────────────────────────

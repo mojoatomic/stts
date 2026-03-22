@@ -1,0 +1,162 @@
+{
+  "config": {
+    "corpus": {
+      "dist_max_au": 0.02,
+      "date_min": "2000-01-01",
+      "date_max": "2024-01-01",
+      "v_inf_max": 15.0,
+      "random_seed": 42,
+      "n_train": 200,
+      "fetch_limit": 1000
+    },
+    "features": {
+      "window_days": 30,
+      "stride_days": 7,
+      "warning_days": 90,
+      "n_features": 30
+    },
+    "model": {
+      "lda_components": 1,
+      "k_neighbors": 5,
+      "lookback_days": 365
+    },
+    "weights": {
+      "W[0:4]": {
+        "multiplier": 0.5,
+        "justification": "q summaries (mean/std/min/max): useful but dominated by rate features"
+      },
+      "W[4:8]": {
+        "multiplier": 0.3,
+        "justification": "a, e summaries: slow-varying, low signal-to-noise"
+      },
+      "W[8:10]": {
+        "multiplier": 3.0,
+        "justification": "dq/dt (mean, std): primary perihelion approach signal"
+      },
+      "W[12:16]": {
+        "multiplier": 2.0,
+        "justification": "da/dt, de/dt: secondary perturbation indicators"
+      },
+      "W[16:18]": {
+        "multiplier": 3.0,
+        "justification": "|q - 1 AU|: direct distance from Earth's orbit"
+      },
+      "W[18:20]": {
+        "multiplier": 3.0,
+        "justification": "d|q-1AU|/dt: rate of perihelion approach to Earth orbit"
+      },
+      "W[20:22]": {
+        "multiplier": 2.0,
+        "justification": "d\u00b2q/dt\u00b2: acceleration of perihelion evolution"
+      },
+      "W[22:24]": {
+        "multiplier": 2.0,
+        "justification": "e-q, a-q correlation: coupled orbital evolution under perturbation"
+      },
+      "W[24:25]": {
+        "multiplier": 3.0,
+        "justification": "q linear trend: directional approach signal over window"
+      },
+      "W[25:26]": {
+        "multiplier": 4.0,
+        "justification": "late/early |q-1AU| ratio: most discriminating precursor feature"
+      },
+      "W[26:27]": {
+        "multiplier": 0.2,
+        "justification": "mean inclination: orbital geometry context, not approach signal"
+      },
+      "W[27:28]": {
+        "multiplier": 1.0,
+        "justification": "mean motion: neutral weight, included for completeness"
+      },
+      "W[28:30]": {
+        "multiplier": 2.0,
+        "justification": "time to perihelion: approach phase context"
+      }
+    },
+    "apophis": {
+      "designation": "99942",
+      "flyby_jd": 2462136.5,
+      "flyby_dist_au": 0.000253
+    }
+  },
+  "artifact_checksums": {
+    "scaler": "900486a58146720c3c8e7d59f3018bb4",
+    "lda": "dbafa5a020d04990d2a2ed8e53169988",
+    "basin": "60e18bc52a96537c445b8ce59de43b67"
+  },
+  "apophis": {
+    "designation": "99942",
+    "flyby_jd": 2462136.5,
+    "flyby_dist_au": 0.000253,
+    "n_elements": 9065
+  },
+  "full_history": {
+    "first_fire_jd": 2453211.5,
+    "first_fire_rul_days": 8925.0,
+    "n_windows": 1277,
+    "n_fired": 307
+  },
+  "arc_sensitivity": [
+    {
+      "arc_days": 7,
+      "status": "insufficient_arc"
+    },
+    {
+      "arc_days": 14,
+      "status": "insufficient_arc"
+    },
+    {
+      "arc_days": 21,
+      "status": "insufficient_arc"
+    },
+    {
+      "arc_days": 30,
+      "n_windows": 1,
+      "n_fired": 0,
+      "min_basin_dist": 0.0044934738106251594
+    },
+    {
+      "arc_days": 45,
+      "n_windows": 3,
+      "n_fired": 1,
+      "min_basin_dist": 0.001526821254395072
+    },
+    {
+      "arc_days": 60,
+      "n_windows": 5,
+      "n_fired": 1,
+      "min_basin_dist": 0.001526821254395072
+    },
+    {
+      "arc_days": 90,
+      "n_windows": 9,
+      "n_fired": 1,
+      "min_basin_dist": 0.001526821254395072
+    },
+    {
+      "arc_days": 180,
+      "n_windows": 22,
+      "n_fired": 10,
+      "min_basin_dist": 0.0005997389216998439
+    },
+    {
+      "arc_days": 365,
+      "n_windows": 49,
+      "n_fired": 11,
+      "min_basin_dist": 0.0005997389216998439
+    },
+    {
+      "arc_days": 730,
+      "n_windows": 101,
+      "n_fired": 24,
+      "min_basin_dist": 0.0005997389216998439
+    },
+    {
+      "arc_days": 1825,
+      "n_windows": 257,
+      "n_fired": 61,
+      "min_basin_dist": 0.00038361742560355516
+    }
+  ]
+}

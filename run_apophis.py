@@ -2,46 +2,41 @@
 """
 STTS Apophis Case Study — The Canonical Planetary Defense Event
 
-Fetches the complete orbital history of 99942 Apophis from JPL Horizons
-(discovery 2004-06-19 through 2029-04-01) and runs the STTS pipeline
-to answer two questions:
+Uses the SAME canonical model (W weights, scaler, LDA, epsilon) trained
+on the SAME 200-object corpus from the 2000–2024 CNEOS pool as the
+800-object corpus validation in horizons_stts_pipeline.py.
 
-  1. At what date does the 2029 close approach first appear in the
-     geometric signature? (Full-history analysis)
+This script does NOT train its own model. It:
+  1. Fetches the same CNEOS events and Horizons trajectories
+  2. Applies the same seed-42 split to get the same 200 training objects
+  3. Trains the canonical model via train_model()
+  4. Fetches Apophis's full orbital history
+  5. Evaluates Apophis against the frozen canonical model
 
-  2. How soon after discovery could STTS have flagged Apophis?
-     (Arc-length sensitivity: truncate to 14, 30, 60, 90, 180, 365 days)
-
-Apophis specifics:
-  - Discovered June 19, 2004
-  - 2029 close approach: April 13, 2029, at 0.000253 AU
-    (closer than geostationary orbit — ~38,000 km from Earth center)
-  - Initial calculations showed 2.7% impact probability (later ruled out)
-  - Complete orbital history from 2004 to present in Horizons
+Both results — the 800-object validation and Apophis — come from one
+trained model. One set of W weights. One training corpus.
 
 Usage:
     python3 run_apophis.py
 
-Requires the 250-asteroid pipeline to have run first (uses its trained
-LDA + failure basin as the reference corpus).
+Requires: pip install requests numpy scipy scikit-learn pandas
+No JPL authentication required.
 """
 
 import json
 import time
 import numpy as np
-import requests
 from datetime import datetime, timedelta
 from horizons_stts_pipeline import (
     HORIZONS_URL, REQUEST_DELAY,
     OrbitalElements, parse_horizons_elements,
-    extract_features, run_pipeline, build_dataset,
+    extract_features, build_dataset,
+    train_model,
     fetch_close_approaches, fetch_orbital_elements_history,
     jd_to_horizons_date,
     WINDOW_DAYS, STRIDE_DAYS, WARNING_DAYS,
 )
-from scipy.stats import spearmanr, mannwhitneyu
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.preprocessing import StandardScaler
+import requests
 
 
 # ─────────────────────────────────────────────────────────────
@@ -91,77 +86,106 @@ def fetch_apophis_full_history():
     if elements:
         print(f"  First epoch: JD {elements[0].jd:.1f}")
         print(f"  Last epoch:  JD {elements[-1].jd:.1f}")
-        print(f"  a range: {elements[0].a:.6f} – {elements[-1].a:.6f} AU")
-        print(f"  e range: {elements[0].e:.6f} – {elements[-1].e:.6f}")
         print(f"  q range: {elements[0].q:.6f} – {elements[-1].q:.6f} AU")
 
     return elements
 
 
-def run_full_history_analysis(elements, corpus_trajs):
+def build_canonical_corpus(verbose=True):
     """
-    Run STTS on full Apophis history.
-    Train on the corpus of other NEA close approaches,
-    then walk through Apophis's trajectory and detect when
-    the 2029 flyby geometry first appears.
+    Build the same 200-object training corpus used by the 1000-object
+    validation run. Same CNEOS query, same Horizons fetch, same seed-42
+    split. Returns (train_trajs, test_trajs, all_trajectories).
+    """
+    # Same CNEOS query as horizons_stts_pipeline.py main()
+    events = fetch_close_approaches(
+        dist_max_au=0.02,
+        date_min="2000-01-01",
+        date_max="2024-01-01",
+        v_inf_max=15.0,
+    )
+
+    if not events:
+        raise RuntimeError("No events fetched from CNEOS")
+
+    print(f"\nFetching orbital histories from Horizons (365d lookback)...")
+
+    trajectories = []
+    failed = 0
+    fetch_limit = 1000
+
+    for i, event in enumerate(events[:fetch_limit]):
+        # Exclude Apophis from the corpus
+        if "99942" in event.designation or "apophis" in event.designation.lower():
+            if verbose:
+                print(f"  [{i+1:3d}/{min(fetch_limit,len(events))}] "
+                      f"{event.designation} — EXCLUDED (Apophis)")
+            continue
+
+        if verbose:
+            print(f"  [{i+1:3d}/{min(fetch_limit,len(events))}] "
+                  f"{event.designation} CA:{event.cd[:10]} "
+                  f"dist={event.dist_au:.4f} AU", end="")
+
+        try:
+            jd_start = event.jd - 365
+            jd_end   = event.jd - 1
+            elements = fetch_orbital_elements_history(
+                event.designation, jd_start, jd_end, step="1d"
+            )
+            if len(elements) >= WINDOW_DAYS + 10:
+                trajectories.append((elements, event.jd))
+                if verbose:
+                    print(f" → {len(elements)} epochs OK")
+            else:
+                if verbose:
+                    print(f" → only {len(elements)} epochs, skip")
+                failed += 1
+        except Exception as ex:
+            if verbose:
+                print(f" → ERROR: {ex}")
+            failed += 1
+
+        time.sleep(REQUEST_DELAY)
+
+    print(f"\n  Usable trajectories: {len(trajectories)}")
+    print(f"  Failed/insufficient: {failed}")
+
+    # Same split as horizons_stts_pipeline.py main()
+    np.random.seed(42)
+    idx = np.random.permutation(len(trajectories))
+    n_train = min(200, int(0.8 * len(trajectories)))
+
+    train_trajs = [trajectories[i] for i in idx[:n_train]]
+    test_trajs  = [trajectories[i] for i in idx[n_train:]]
+
+    print(f"  Train: {len(train_trajs)}, Test: {len(test_trajs)}")
+
+    return train_trajs, test_trajs, trajectories
+
+
+def run_full_history_analysis(elements, model):
+    """
+    Run the frozen canonical model on Apophis's full trajectory.
+    Walk through every 30-day window and record when the monitoring
+    query fires.
     """
     print("\n=== Full History Analysis ===")
     print(f"  Apophis trajectory: {len(elements)} days")
-    print(f"  Corpus: {len(corpus_trajs)} other NEA trajectories")
 
-    # Build training set from corpus (other asteroids, not Apophis)
-    X_train, r_train, y_train = build_dataset(corpus_trajs)
-    print(f"  Training windows: {len(X_train)} "
-          f"({y_train.sum():.0f} precursor, {(y_train==0).sum():.0f} nominal)")
+    scaler = model["scaler"]
+    W      = model["W"]
+    lda    = model["lda"]
+    eps    = model["epsilon"]
+    dist_to_basin = model["dist_to_basin"]
 
-    if y_train.sum() < 5:
-        print("  ERROR: insufficient precursor windows in corpus")
-        return None
-
-    # Fit pipeline on corpus
-    W = np.ones(30)
-    W[8:10]  *= 3.0   # dq/dt
-    W[16:18] *= 3.0   # q distance from 1 AU
-    W[18:20] *= 3.0   # dq toward 1 AU
-    W[20:22] *= 2.0   # d2q/dt2
-    W[24]    *= 3.0   # q slope
-    W[25]    *= 4.0   # late/early ratio
-
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X_train)
-    X_w = X_scaled * W
-
-    lda = LinearDiscriminantAnalysis(n_components=1, solver='svd')
-    lda.fit(X_w, y_train)
-    X_proj = lda.transform(X_w).ravel()
-
-    basin = X_proj[y_train == 1]
-
-    # Calibrate epsilon on training data
-    thresholds = np.percentile(X_proj, np.linspace(5, 95, 40))
-    best_f1, best_eps = 0.0, thresholds[0]
-    for eps in thresholds:
-        preds = (np.array([np.mean(np.sort(np.abs(basin - p))[:min(5, len(basin))])
-                           for p in X_proj]) < eps).astype(int)
-        tp = ((preds==1)&(y_train==1)).sum()
-        fp = ((preds==1)&(y_train==0)).sum()
-        fn = ((preds==0)&(y_train==1)).sum()
-        pr = tp/max(1,tp+fp); re = tp/max(1,tp+fn)
-        f1 = 2*pr*re/max(1e-10,pr+re)
-        if f1 > best_f1:
-            best_f1, best_eps = f1, eps
-
-    print(f"  Calibrated ε: {best_eps:.4f} (training F1: {best_f1:.3f})")
-
-    # Walk through Apophis trajectory
-    print(f"\n  Walking through Apophis trajectory...")
     first_fire_jd = None
     first_fire_rul = None
     detection_history = []
 
     for start in range(0, len(elements) - WINDOW_DAYS + 1, STRIDE_DAYS):
         window = elements[start:start + WINDOW_DAYS]
-        rul = FLYBY_JD - window[-1].jd  # days until 2029 flyby
+        rul = FLYBY_JD - window[-1].jd
 
         if rul < 0:
             break
@@ -170,9 +194,9 @@ def run_full_history_analysis(elements, corpus_trajs):
         x_s = scaler.transform(feat.reshape(1, -1))
         x_w = x_s * W
         proj = lda.transform(x_w).ravel()[0]
-        dist = np.mean(np.sort(np.abs(basin - proj))[:min(5, len(basin))])
+        dist = np.mean(np.sort(np.abs(model["basin"] - proj))[:min(5, len(model["basin"]))])
 
-        fired = dist < best_eps
+        fired = dist < eps
 
         detection_history.append({
             "jd": window[-1].jd,
@@ -187,7 +211,6 @@ def run_full_history_analysis(elements, corpus_trajs):
             first_fire_jd = window[-1].jd
             first_fire_rul = rul
 
-    # Report
     if first_fire_jd:
         days_from_j2000 = first_fire_jd - 2451545.0
         fire_date = datetime(2000, 1, 1, 12) + timedelta(days=days_from_j2000)
@@ -198,7 +221,6 @@ def run_full_history_analysis(elements, corpus_trajs):
     else:
         print(f"\n  STTS did not fire on Apophis trajectory")
 
-    # Summary of detection history
     n_fired = sum(1 for d in detection_history if d["fired"])
     n_total = len(detection_history)
     print(f"\n  Windows evaluated: {n_total}")
@@ -210,53 +232,27 @@ def run_full_history_analysis(elements, corpus_trajs):
         "n_windows": n_total,
         "n_fired": n_fired,
         "detection_history": detection_history,
-        "epsilon": best_eps,
     }
 
 
-def run_arc_length_sensitivity(elements, corpus_trajs):
+def run_arc_length_sensitivity(elements, model):
     """
-    Arc-length sensitivity: truncate Apophis history to N days after
-    discovery and check if STTS fires at each truncation.
-
-    Answers: how soon after discovery could STTS have flagged Apophis?
+    Arc-length sensitivity using the frozen canonical model.
+    Truncate Apophis history to first N days after discovery,
+    check if the monitoring query fires at each truncation.
     """
     print("\n=== Arc-Length Sensitivity ===")
     print("  Truncating Apophis history to first N days after discovery")
-    print("  At each truncation: does the monitoring query fire?")
+    print("  Using frozen canonical model (same as corpus validation)")
     print()
 
+    scaler = model["scaler"]
+    W      = model["W"]
+    lda    = model["lda"]
+    eps    = model["epsilon"]
+    basin  = model["basin"]
+
     arc_lengths = [7, 14, 21, 30, 45, 60, 90, 180, 365, 730, 1825]
-
-    # Build corpus-trained pipeline (same as full history)
-    X_train, r_train, y_train = build_dataset(corpus_trajs)
-    W = np.ones(30)
-    W[8:10] *= 3.0; W[16:18] *= 3.0; W[18:20] *= 3.0
-    W[20:22] *= 2.0; W[24] *= 3.0; W[25] *= 4.0
-
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X_train)
-    X_w = X_scaled * W
-    lda = LinearDiscriminantAnalysis(n_components=1, solver='svd')
-    lda.fit(X_w, y_train)
-    X_proj = lda.transform(X_w).ravel()
-    basin = X_proj[y_train == 1]
-
-    # Calibrate epsilon
-    thresholds = np.percentile(X_proj, np.linspace(5, 95, 40))
-    best_f1, best_eps = 0.0, thresholds[0]
-    for eps in thresholds:
-        dists_t = np.array([np.mean(np.sort(np.abs(basin - p))[:min(5, len(basin))])
-                           for p in X_proj])
-        preds = (dists_t < eps).astype(int)
-        tp = ((preds==1)&(y_train==1)).sum()
-        fp = ((preds==1)&(y_train==0)).sum()
-        fn = ((preds==0)&(y_train==1)).sum()
-        pr = tp/max(1,tp+fp); re = tp/max(1,tp+fn)
-        f1 = 2*pr*re/max(1e-10,pr+re)
-        if f1 > best_f1:
-            best_f1, best_eps = f1, eps
-
     discovery_jd = elements[0].jd
     results = []
 
@@ -265,12 +261,15 @@ def run_arc_length_sensitivity(elements, corpus_trajs):
     print("  " + "-" * 68)
 
     for arc in arc_lengths:
-        # Truncate to first `arc` days
         truncated = [e for e in elements if e.jd <= discovery_jd + arc]
         if len(truncated) < WINDOW_DAYS:
-            print(f"  {arc:>12d}  insufficient_arc (need >= {WINDOW_DAYS} days for {WINDOW_DAYS}-day window)")
-            results.append({"arc_days": arc, "status": "insufficient_arc",
-                            "reason": f"arc ({len(truncated)} days) < window size ({WINDOW_DAYS} days)"})
+            print(f"  {arc:>12d}  insufficient_arc "
+                  f"(need >= {WINDOW_DAYS} days for {WINDOW_DAYS}-day window)")
+            results.append({
+                "arc_days": arc,
+                "status": "insufficient_arc",
+                "reason": f"arc ({len(truncated)} days) < window size ({WINDOW_DAYS} days)",
+            })
             continue
 
         # Evaluate the last window
@@ -281,9 +280,9 @@ def run_arc_length_sensitivity(elements, corpus_trajs):
         x_w = x_s * W
         proj = lda.transform(x_w).ravel()[0]
         dist = np.mean(np.sort(np.abs(basin - proj))[:min(5, len(basin))])
-        fired = dist < best_eps
+        fired = dist < eps
 
-        # Also check all windows in the truncated arc
+        # Check all windows in the truncated arc
         n_fired = 0
         min_dist = float('inf')
         for start in range(0, len(truncated) - WINDOW_DAYS + 1, max(1, STRIDE_DAYS)):
@@ -293,7 +292,7 @@ def run_arc_length_sensitivity(elements, corpus_trajs):
             xw = xs * W
             p = lda.transform(xw).ravel()[0]
             d = np.mean(np.sort(np.abs(basin - p))[:min(5, len(basin))])
-            if d < best_eps:
+            if d < eps:
                 n_fired += 1
             min_dist = min(min_dist, d)
 
@@ -318,8 +317,9 @@ def run_arc_length_sensitivity(elements, corpus_trajs):
 
 def main():
     print("=" * 60)
-    print("STTS Apophis Case Study")
+    print("STTS Apophis Case Study — Canonical Model")
     print("99942 Apophis — 2029 Close Approach at 0.000253 AU")
+    print("Using same model as 800-object corpus validation")
     print("=" * 60)
     print()
 
@@ -329,50 +329,31 @@ def main():
         print("ERROR: Could not fetch Apophis data")
         return
 
-    # ── Step 2: Build corpus from other NEAs ────────────────
-    print("\nStep 2: Build corpus from other NEA close approaches")
-    events = fetch_close_approaches(
-        dist_max_au=0.02,
-        date_min="2005-01-01",
-        date_max="2020-01-01",
-        v_inf_max=15.0,
-    )
+    # ── Step 2: Build same corpus as 1000-object run ──────
+    print("\nStep 2: Build canonical 200-object training corpus")
+    print("  (Same CNEOS query, same seed-42 split, Apophis excluded)")
+    train_trajs, test_trajs, all_trajs = build_canonical_corpus(verbose=True)
 
-    corpus_trajs = []
-    fetch_limit = 80  # enough for a solid corpus
-    failed = 0
-    for i, event in enumerate(events[:fetch_limit]):
-        # Skip Apophis itself
-        if "99942" in event.designation or "Apophis" in event.designation.lower():
-            continue
-
-        try:
-            jd_start = event.jd - 365
-            jd_end = event.jd - 1
-            els = fetch_orbital_elements_history(
-                event.designation, jd_start, jd_end, step="1d"
-            )
-            if len(els) >= WINDOW_DAYS + 10:
-                corpus_trajs.append((els, event.jd))
-                if (i + 1) % 20 == 0:
-                    print(f"  [{i+1}/{fetch_limit}] {len(corpus_trajs)} usable")
-            time.sleep(REQUEST_DELAY)
-        except Exception:
-            failed += 1
-
-    print(f"  Corpus: {len(corpus_trajs)} NEA trajectories ({failed} failed)")
-
-    if len(corpus_trajs) < 10:
-        print("ERROR: Insufficient corpus")
+    # ── Step 3: Train canonical model ─────────────────────
+    print("\nStep 3: Train canonical model")
+    model = train_model(train_trajs, verbose=True)
+    if model is None:
+        print("ERROR: Failed to train model")
         return
 
-    # ── Step 3: Full history analysis ───────────────────────
-    full_results = run_full_history_analysis(elements, corpus_trajs)
+    print(f"\n  Canonical model trained:")
+    print(f"    V1 separation: {model['v1_separation']:.1f}x")
+    print(f"    V2 Spearman ρ: {model['v2_rho']:.3f}")
+    print(f"    Epsilon:       {model['epsilon']:.4f}")
+    print(f"    Training F1:   {model['train_f1']:.3f}")
 
-    # ── Step 4: Arc-length sensitivity ──────────────────────
-    arc_results = run_arc_length_sensitivity(elements, corpus_trajs)
+    # ── Step 4: Full history analysis ─────────────────────
+    full_results = run_full_history_analysis(elements, model)
 
-    # ── Save results ────────────────────────────────────────
+    # ── Step 5: Arc-length sensitivity ────────────────────
+    arc_results = run_arc_length_sensitivity(elements, model)
+
+    # ── Save results ──────────────────────────────────────
     def jsonify(obj):
         if isinstance(obj, (np.bool_, np.integer)):
             return int(obj)
@@ -383,13 +364,21 @@ def main():
         return obj
 
     output = {
+        "model": {
+            "description": "Canonical model: same 200-object training corpus "
+                           "as 800-object validation (seed 42, 2000-2024 CNEOS)",
+            "train_size": len(train_trajs),
+            "v1_separation": model["v1_separation"],
+            "v2_rho": model["v2_rho"],
+            "epsilon": model["epsilon"],
+            "train_f1": model["train_f1"],
+        },
         "apophis": {
             "designation": APOPHIS_DESIGNATION,
             "flyby_jd": FLYBY_JD,
             "flyby_dist_au": FLYBY_DIST_AU,
             "n_elements": len(elements),
         },
-        "corpus_size": len(corpus_trajs),
         "full_history": {
             "first_fire_rul_days": full_results["first_fire_rul_days"] if full_results else None,
             "n_windows": full_results["n_windows"] if full_results else 0,

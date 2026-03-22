@@ -1,0 +1,2 @@
+v1_sep_ratio,v1_p,v2_train_rho,v2_train_p,epsilon,n_train_windows,basin_size,n_test_bearings,mean_test_v2_rho,positive_rho_count
+97.574905,6.507120538753001e-119,0.5999616493625081,0.0,1.3130840063095093,7420,186,11,0.05359010896318366,6

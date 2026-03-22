@@ -1,0 +1,78 @@
+{
+  "apophis": {
+    "designation": "99942",
+    "flyby_jd": 2462136.5,
+    "flyby_dist_au": 0.000253,
+    "n_elements": 9065
+  },
+  "corpus_size": 79,
+  "full_history": {
+    "first_fire_rul_days": 8932.0,
+    "n_windows": 1277,
+    "n_fired": 918
+  },
+  "arc_sensitivity": [
+    {
+      "arc_days": 14,
+      "status": "too_short"
+    },
+    {
+      "arc_days": 30,
+      "status": "too_short"
+    },
+    {
+      "arc_days": 60,
+      "n_windows": 5,
+      "n_fired": 5,
+      "min_basin_dist": 0.0057888006314466885,
+      "final_basin_dist": 0.013615423111351032,
+      "fired_final": true,
+      "rul_at_end": 8901.0
+    },
+    {
+      "arc_days": 90,
+      "n_windows": 9,
+      "n_fired": 9,
+      "min_basin_dist": 0.005002760116543081,
+      "final_basin_dist": 0.007231645503686201,
+      "fired_final": true,
+      "rul_at_end": 8871.0
+    },
+    {
+      "arc_days": 180,
+      "n_windows": 22,
+      "n_fired": 22,
+      "min_basin_dist": 0.0032753696555169578,
+      "final_basin_dist": 0.016979517339962592,
+      "fired_final": false,
+      "rul_at_end": 8781.0
+    },
+    {
+      "arc_days": 365,
+      "n_windows": 49,
+      "n_fired": 43,
+      "min_basin_dist": 0.0032753696555169578,
+      "final_basin_dist": 0.005731044967417653,
+      "fired_final": true,
+      "rul_at_end": 8596.0
+    },
+    {
+      "arc_days": 730,
+      "n_windows": 101,
+      "n_fired": 80,
+      "min_basin_dist": 0.0030223861180152856,
+      "final_basin_dist": 0.008907915570041636,
+      "fired_final": true,
+      "rul_at_end": 8231.0
+    },
+    {
+      "arc_days": 1825,
+      "n_windows": 257,
+      "n_fired": 190,
+      "min_basin_dist": 0.001169493034413449,
+      "final_basin_dist": 0.01584334851986131,
+      "fired_final": true,
+      "rul_at_end": 7136.0
+    }
+  ]
+}

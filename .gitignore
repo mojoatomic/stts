@@ -1,4 +1,6 @@
 data/
+docs/
+artifacts/corpus.pkl
 results/*.png
 .DS_Store
 __pycache__/

@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+title: "State Topology and Trajectory Storage (STTS)"
+message: "If you use this software, please cite the paper."
+authors:
+  - family-names: Fennell
+    given-names: Doug
+version: 1.0.0
+date-released: 2026-03-22
+url: "https://github.com/mojoatomic/stts"
+license: Apache-2.0
+preferred-citation:
+  type: article
+  title: "State Topology and Trajectory Storage: A Geometric Framework for Monitoring Complex Dynamic Systems"
+  authors:
+    - family-names: Fennell
+      given-names: Doug
+  year: 2026
+  # doi: "10.48550/arXiv.XXXX.XXXXX"  # Fill after posting

@@ -529,9 +529,9 @@ The failure basin ℬ_f consists of trajectory windows with RUL ≤ 90 days (the
 ```
 V1 (precursor proximity):   3.4x separation, p ≈ 0
 V2 (monotonic approach):    Spearman ρ = 0.574, p ≈ 0
-Test detection:             50/50 detected, 0 false positives, F1 = 1.000
+Test detection:             50/50 detected, 0 false positives, F1 = 1.000 [95% CI: 0.929–1.000]
 Mean detection lead:        221 days before confirmed close approach
-Median detection lead:      214 days before confirmed close approach
+Median detection lead:      214 days (range: 84–337 days)
 ```
 
 V1 and V2 pass. The geometric structure that distinguishes approaching from non-approaching trajectories is present in the JPL Horizons orbital elements and is recoverable by the same pipeline architecture applied to turbofan engines, batteries, and bearings. Every held-out test asteroid is detected at a mean lead time of 221 days — over 7 months before the confirmed close approach.

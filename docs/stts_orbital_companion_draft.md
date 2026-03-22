@@ -7,7 +7,7 @@
 
 ## Abstract
 
-Current planetary defense monitoring systems — Sentry, Scout, CNEOS — detect close approach candidates by computing collision probability from orbit determinations that require weeks to months of observational arc to converge. We propose applying the State Topology and Trajectory Storage (STTS) framework to near-Earth asteroid orbital mechanics, asking a different question: does the current trajectory resemble trajectories that preceded confirmed close approaches? Applied to JPL Horizons orbital element histories for 200 confirmed Earth close approaches, STTS achieves V1 basin separation of 3.4x and V2 monotonic approach ρ = 0.574. Applied out-of-sample to asteroid 99942 Apophis, the framework achieves consistent detection of the 2029 close approach geometry from 45 days of observational arc — 24.4 years before the event — before orbit determination systems had converged on a reliable collision probability for the 2029 encounter. As the Vera Rubin Observatory begins full operations, discovering an estimated 5 million new solar system objects, trajectory-similarity triage provides a computationally tractable method for prioritizing follow-up observations of newly discovered objects whose preliminary orbital trajectories resemble prior confirmed close approachers. The complete implementation uses JPL's public Horizons and CNEOS APIs with no authentication required.
+Current planetary defense monitoring systems — Sentry, Scout, CNEOS — detect close approach candidates by computing collision probability from orbit determinations that require weeks to months of observational arc to converge. We propose applying the State Topology and Trajectory Storage (STTS) framework to near-Earth asteroid orbital mechanics, asking a different question: does the current trajectory resemble trajectories that preceded confirmed close approaches? Applied to JPL Horizons orbital element histories for 200 confirmed Earth close approaches, STTS achieves V1 basin separation of 3.4x and V2 monotonic approach ρ = 0.574. Applied out-of-sample to asteroid 99942 Apophis, the framework achieves consistent detection of the 2029 close approach geometry from 45 days of observational arc — 24.4 years before the event — before orbit determination had converged on a reliable collision probability for an encounter 24 years in the future. As the Vera Rubin Observatory begins full operations, discovering an estimated 5 million new solar system objects, trajectory-similarity triage provides a computationally tractable method for prioritizing follow-up observations of newly discovered objects whose preliminary orbital trajectories resemble prior confirmed close approachers. The complete implementation uses JPL's public Horizons and CNEOS APIs with no authentication required.
 
 ---
 
@@ -15,7 +15,7 @@ Current planetary defense monitoring systems — Sentry, Scout, CNEOS — detect
 
 ### 1.1 The planetary defense monitoring problem
 
-The discovery rate of near-Earth objects is accelerating. The Vera Rubin Observatory is projected to discover new solar system objects per night at a rate that will overwhelm current follow-up capacity.[^lsst] Objects are routinely lost — discovered, given a preliminary orbit solution, never observed again because follow-up resources were allocated elsewhere. Some fraction of those lost objects are close approachers.
+The discovery rate of near-Earth objects is accelerating. The Vera Rubin Observatory is projected to discover approximately 5 million new asteroids over its 10-year survey, with roughly 100 NEO candidates identified per night.[^lsst] Current follow-up observation capacity cannot scale to match this discovery rate. Objects are routinely lost — discovered, given a preliminary orbit solution, never observed again because follow-up resources were allocated elsewhere. Some fraction of those lost objects are close approachers.
 
 Current alert systems (Sentry, Scout) require sufficient observational arc to constrain an orbit solution to the precision where Monte Carlo propagation distinguishes impact trajectories from miss trajectories.[^milani][^farnocchia] For a newly discovered object with a short arc, orbit uncertainty spans a large volume of orbital element space — the object might pass within 0.001 AU or miss by 0.5 AU, and the current observation set cannot distinguish these cases. Sentry requires typically weeks to months of arc before issuing reliable probability estimates for encounters years in the future.
 
@@ -121,18 +121,19 @@ V1 (precursor proximity), V2 (monotonic approach), and V3 (causal traceability) 
 ```
 V1 (precursor proximity):   3.4x separation, p ≈ 0
 V2 (monotonic approach):    Spearman ρ = 0.574, p ≈ 0
-Test detection:             50/50 detected, 0 false positives, F1 = 1.000
+Test detection:             50/50 detected, 0 false positives, F1 = 1.000 [95% CI: 0.929–1.000]
 Mean detection lead:        221 days before confirmed close approach
 Median detection lead:      214 days before confirmed close approach
+Lead time range:            84–337 days
 ```
 
 V1 confirms that 30-day orbital element windows preceding close approaches are geometrically distinct from nominal asteroid trajectories in the LDA-projected embedding space. V2 confirms monotonic approach: as the close approach date nears, the trajectory embedding moves steadily toward ℬ_f.
 
-The V1 separation of 3.4x is lower than C-MAPSS (4.6x) and Battery (320.9x). This reflects genuine variability in close approach geometry: objects approach Earth from diverse orbital configurations, producing a wider spread of precursor trajectories than the single-fault-mode degradation in engineered systems. The separation is nonetheless highly significant (p ≈ 0) and sufficient for detection.
+The V1 separation of 3.4x is lower than C-MAPSS (4.6x) and Battery (320.9x). This reflects genuine variability in close approach geometry: objects approach Earth from diverse orbital configurations, producing a wider spread of precursor trajectories than the single-fault-mode degradation in engineered systems. The separation is statistically significant (p ≈ 0) and sufficient for reliable detection.
 
 ### 4.2 Apophis — out-of-sample detection
 
-**Object.** 99942 Apophis. Discovered June 19, 2004, at Kitt Peak National Observatory. The 2029 close approach on April 13 will pass at 0.000254 AU — approximately 38,000 km from Earth's center, closer than geostationary satellites. In December 2004, initial orbital calculations indicated a 2.7% probability of Earth impact in 2029, briefly making Apophis the highest-rated object on the Torino impact hazard scale.[^chesley]
+**Object.** 99942 Apophis. Discovered June 19, 2004, at Kitt Peak National Observatory. The 2029 close approach on April 13 will pass at 0.000254 AU — approximately 38,000 km from Earth's center, closer than geostationary satellites. On December 27, 2004, Sentry placed Apophis at level 4 on the Torino impact hazard scale with a 2.7% probability of Earth impact in 2029.[^chesley]
 
 **Corpus exclusion.** Apophis was not in the training corpus. Its closest pre-2029 approach (1998, at 0.024 AU) falls outside the 0.02 AU distance cutoff. Its 2029 flyby postdates the 2020 date cutoff. The explicit filter in the pipeline also excluded Apophis by designation. Detection is entirely out-of-sample.
 
@@ -198,7 +199,7 @@ CNEOS adds new confirmed close approach events continuously. Each confirmed flyb
 
 ### 5.3 The TERRA_INCOGNITA signal in planetary defense
 
-Objects on genuinely novel orbital trajectories — outside the convex hull of the training corpus — receive the TERRA_INCOGNITA signal: the current trajectory is outside the historical operational envelope. In planetary defense, this is the appropriate response to a potentially unprecedented event. The Chelyabinsk impactor (2013, ~20 m, undetected before atmospheric entry) represents the class of trajectory for which no prior corpus existed. STTS correctly identifies such objects as terra incognita rather than silently classifying them as nominal.
+Objects on genuinely novel orbital trajectories — outside the convex hull of the training corpus — receive the TERRA_INCOGNITA signal: the current trajectory is outside the historical operational envelope. In planetary defense, this is the appropriate response to a potentially unprecedented event. STTS applies only to discovered objects with sufficient orbital arc. Objects smaller than current survey detection thresholds — such as the Chelyabinsk impactor (2013, ~20 m, undetected before atmospheric entry) — remain outside the scope of any trajectory-monitoring system. For discovered objects on genuinely novel trajectories, STTS reports TERRA_INCOGNITA rather than silently classifying them as nominal.
 
 ---
 
@@ -206,7 +207,7 @@ Objects on genuinely novel orbital trajectories — outside the convex hull of t
 
 ### 6.1 Trajectory similarity in the planetary defense literature
 
-[Review existing trajectory-based approaches in planetary defense. This may be a sparse literature. The absence of trajectory-similarity methods applied to NEA detection is itself a finding worth noting.]
+Trajectory-similarity methods have not previously been applied to near-Earth asteroid close approach detection. The existing literature frames the problem as orbit determination followed by collision probability computation — Sentry's virtual impactor method,[^milani] Scout's short-arc constrained fitting,[^farnocchia] and Sentry-II's integration of the Yarkovsky effect into impact monitoring. Machine learning approaches to orbital prediction (LSTM on TLE sequences, physics-informed neural ODEs for orbit propagation) treat the problem as time-series regression, not as corpus-based similarity search. Dynamic Time Warping and nearest-neighbor methods are established for trajectory similarity in other domains but have not been applied to NEA orbital element trajectories in the published literature. The present work proposes a complementary approach: rather than computing what the orbit predicts, ask what historical trajectories the current orbit most resembles.
 
 ### 6.2 Limitations
 
@@ -226,8 +227,8 @@ The corpus sufficiency gradient, extended:
 
 ```
 Domain              Corpus         V1      V2 (test)   F1
-Turbofan (C-MAPSS)  100 engines    4.6x    0.94        0.969
 Orbital (NEA)       200 asteroids  3.4x    0.574       1.000
+Turbofan (C-MAPSS)  100 engines    4.6x    0.94        0.969
 Battery             10 batteries   320.9x  0.66        0.640
 Bearing (PRONOSTIA) 6 bearings     97.6x   0.05        —
 ```
@@ -238,11 +239,11 @@ V1 passes across four physical domains. The same framework that detects turbofan
 
 ## 7. Conclusion
 
-The close approach geometry of asteroid 99942 Apophis was recoverable from orbital mechanics 24.4 years before the 2029 flyby, from 45 days of observational arc, using a corpus of prior confirmed close approaches that contained no object with a flyby closer than 0.02 AU and no event involving Apophis. The detection required no collision probability calculation. It required only the nearest-neighbor query: what does this trajectory resemble?
+The close approach geometry of asteroid 99942 Apophis was detectable in the orbital element trajectory 24.4 years before the 2029 flyby, from 45 days of observational arc, using a corpus of prior confirmed close approaches that contained no object with a flyby closer than 0.02 AU and no event involving Apophis. The detection required no collision probability calculation. It required only the nearest-neighbor query: what does this trajectory resemble?
 
 As the Vera Rubin Observatory transforms the discovery rate of solar system objects, trajectory-similarity triage provides a computationally tractable method for prioritizing follow-up observations. The complete implementation uses public JPL APIs, requires no authentication, and the corpus improves automatically with each new confirmed close approach.
 
-The implementation is available at [GitHub URL].
+The implementation is available at https://github.com/dougfennell/stts.
 
 ---
 
@@ -250,7 +251,7 @@ The implementation is available at [GitHub URL].
 
 [^stts]: Fennell, D. (2026). State Topology and Trajectory Storage: A Geometric Framework for Monitoring Complex Dynamic Systems. arXiv preprint.
 
-[^chesley]: Chesley, S.R. (2006). Potential impact detection for near-Earth asteroids: the case of 99942 Apophis (2004 MN4). *Proceedings of the International Astronomical Union*, 2(S236), 215-228.
+[^chesley]: Chesley, S.R. (2006). Potential impact detection for near-Earth asteroids: the case of 99942 Apophis (2004 MN4). *Proceedings of IAU Symposium 229*, 215-228.
 
 [^giorgini]: Giorgini, J.D., et al. (2008). Predicting the Earth encounters of (99942) Apophis. *Icarus*, 193(1), 1-19.
 

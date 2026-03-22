@@ -226,7 +226,7 @@ def run_arc_length_sensitivity(elements, corpus_trajs):
     print("  At each truncation: does the monitoring query fire?")
     print()
 
-    arc_lengths = [14, 30, 60, 90, 180, 365, 730, 1825]  # days
+    arc_lengths = [7, 14, 21, 30, 45, 60, 90, 180, 365, 730, 1825]
 
     # Build corpus-trained pipeline (same as full history)
     X_train, r_train, y_train = build_dataset(corpus_trajs)
@@ -267,9 +267,10 @@ def run_arc_length_sensitivity(elements, corpus_trajs):
     for arc in arc_lengths:
         # Truncate to first `arc` days
         truncated = [e for e in elements if e.jd <= discovery_jd + arc]
-        if len(truncated) < WINDOW_DAYS + 2:
-            print(f"  {arc:>12d}  {'(too short)':>8s}")
-            results.append({"arc_days": arc, "status": "too_short"})
+        if len(truncated) < WINDOW_DAYS:
+            print(f"  {arc:>12d}  insufficient_arc (need >= {WINDOW_DAYS} days for {WINDOW_DAYS}-day window)")
+            results.append({"arc_days": arc, "status": "insufficient_arc",
+                            "reason": f"arc ({len(truncated)} days) < window size ({WINDOW_DAYS} days)"})
             continue
 
         # Evaluate the last window

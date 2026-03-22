@@ -570,8 +570,8 @@ def main():
     print("Step 1: Fetch close approach corpus from CNEOS")
     events = fetch_close_approaches(
         dist_max_au = 0.02,        # within ~8 lunar distances
-        date_min    = "2005-01-01",
-        date_max    = "2020-01-01",
+        date_min    = "2000-01-01",
+        date_max    = "2024-01-01",
         v_inf_max   = 15.0,
     )
     
@@ -594,7 +594,7 @@ def main():
     trajectories = []
     failed = 0
     
-    fetch_limit = 250
+    fetch_limit = 1000
     for i, event in enumerate(events[:fetch_limit]):
         print(f"  [{i+1:3d}/{min(fetch_limit,len(events))}] {event.designation} "
               f"CA: {event.cd[:10]} dist={event.dist_au:.4f} AU", end="")
@@ -633,15 +633,15 @@ def main():
     
     # ── Step 3: Split train/test ──────────────────────────────
     print()
-    print("Step 3: Train/test split (80/20)")
-    
+    print("Step 3: Train/test split (200 train, rest test)")
+
     np.random.seed(42)
     idx = np.random.permutation(len(trajectories))
-    n_train = int(0.8 * len(trajectories))
-    
+    n_train = min(200, int(0.8 * len(trajectories)))
+
     train_trajs = [trajectories[i] for i in idx[:n_train]]
     test_trajs  = [trajectories[i] for i in idx[n_train:]]
-    
+
     print(f"  Train: {len(train_trajs)} trajectories")
     print(f"  Test:  {len(test_trajs)} trajectories")
     
@@ -707,10 +707,11 @@ def main():
             return obj.tolist()
         return obj
 
-    with open("orbital_stts_results.json", "w") as f:
+    outfile = f"orbital_stts_results_{len(trajectories)}.json"
+    with open(outfile, "w") as f:
         json.dump(output, f, indent=2, default=jsonify)
     print()
-    print("Results saved to orbital_stts_results.json")
+    print(f"Results saved to {outfile}")
 
 
 if __name__ == "__main__":

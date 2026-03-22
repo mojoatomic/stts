@@ -7,7 +7,7 @@
 
 ## Abstract
 
-Current planetary defense monitoring systems — Sentry, Scout, CNEOS — detect close approach candidates by computing collision probability from orbit determinations that require weeks to months of observational arc to converge. We propose applying the State Topology and Trajectory Storage (STTS) framework to near-Earth asteroid orbital mechanics, asking a different question: does the current trajectory resemble trajectories that preceded confirmed close approaches? Applied to JPL Horizons orbital element histories for 200 confirmed Earth close approaches, STTS achieves V1 basin separation of 3.4x and V2 monotonic approach ρ = 0.574. Applied out-of-sample to asteroid 99942 Apophis, the framework achieves consistent detection of the 2029 close approach geometry from 45 days of observational arc — 24.4 years before the event — before orbit determination had converged on a reliable collision probability for an encounter 24 years in the future. As the Vera Rubin Observatory begins full operations, discovering an estimated 5 million new solar system objects, trajectory-similarity triage provides a computationally tractable method for prioritizing follow-up observations of newly discovered objects whose preliminary orbital trajectories resemble prior confirmed close approachers. The complete implementation uses JPL's public Horizons and CNEOS APIs with no authentication required.
+Current planetary defense monitoring systems — Sentry, Scout, CNEOS — detect close approach candidates by computing collision probability from orbit determinations that require weeks to months of observational arc to converge. We propose applying the State Topology and Trajectory Storage (STTS) framework to near-Earth asteroid orbital mechanics, asking a different question: does the current trajectory resemble trajectories that preceded confirmed close approaches? Applied to JPL Horizons orbital element histories for 1,000 confirmed Earth close approaches, STTS achieves V1 basin separation of 3.0x and V2 monotonic approach ρ = 0.568. Applied out-of-sample to asteroid 99942 Apophis, the framework achieves consistent detection of the 2029 close approach geometry from 45 days of observational arc — 24.4 years before the event — before orbit determination had converged on a reliable collision probability for an encounter 24 years in the future. As the Vera Rubin Observatory begins full operations, discovering an estimated 5 million new solar system objects, trajectory-similarity triage provides a computationally tractable method for prioritizing follow-up observations of newly discovered objects whose preliminary orbital trajectories resemble prior confirmed close approachers. The complete implementation uses JPL's public Horizons and CNEOS APIs with no authentication required.
 
 ---
 
@@ -30,7 +30,7 @@ Applied to planetary defense, the query is: does this asteroid's preliminary orb
 ### 1.3 Contributions
 
 1. First application of trajectory similarity monitoring to near-Earth asteroid orbital mechanics
-2. Empirical validation on 200 confirmed CNEOS close approach events using JPL Horizons DE441 ephemerides
+2. Empirical validation on 1,000 confirmed CNEOS close approach events using JPL Horizons DE441 ephemerides
 3. Out-of-sample detection of Apophis's 2029 close approach geometry from 45 days of observational arc (consistent multi-window detection), 24.4 years before the event
 4. Arc-length sensitivity analysis demonstrating consistent detection from the earliest evaluable arc length
 5. Operational protocol for trajectory-similarity triage in high-volume discovery environments
@@ -73,7 +73,7 @@ The CNEOS close approach database provides thousands of labeled events since 190
 
 ### 3.1 The close approach corpus
 
-Close approach events from the CNEOS database via the public API (ssd-api.jpl.nasa.gov/cad.api).[^cneos] Selection criteria: Earth close approaches within 0.02 AU, 2005–2020. 200 confirmed events used for training, 50 held out for testing. Each event provides: asteroid designation, close approach date (Julian date), miss distance (AU), relative velocity (km/s).
+Close approach events from the CNEOS database via the public API (ssd-api.jpl.nasa.gov/cad.api).[^cneos] Selection criteria: Earth close approaches within 0.02 AU, 2000–2024, v∞ ≤ 15 km/s. 6,160 events returned; 1,000 trajectories successfully retrieved from JPL Horizons. 200 used for training, 800 held out for testing. Each event provides: asteroid designation, close approach date (Julian date), miss distance (AU), relative velocity (km/s).
 
 ### 3.2 Orbital element histories
 
@@ -116,20 +116,20 @@ V1 (precursor proximity), V2 (monotonic approach), and V3 (causal traceability) 
 
 ### 4.1 Corpus validation
 
-250 asteroid trajectories from JPL Horizons. 200 training, 50 held-out test. 9,600 trajectory windows (2,400 precursor, 7,200 nominal).
+1,000 asteroid trajectories from JPL Horizons (6,160 CNEOS events queried, 1,000 with sufficient Horizons history). 200 training, 800 held-out test.
 
 ```
-V1 (precursor proximity):   3.4x separation, p ≈ 0
-V2 (monotonic approach):    Spearman ρ = 0.574, p ≈ 0
-Test detection:             50/50 detected, 0 false positives, F1 = 1.000 [95% CI: 0.929–1.000]
-Mean detection lead:        221 days before confirmed close approach
-Median detection lead:      214 days before confirmed close approach
-Lead time range:            84–337 days
+V1 (precursor proximity):   3.0x separation, p ≈ 0
+V2 (monotonic approach):    Spearman ρ = 0.568, p ≈ 0
+Test detection:             800/800 detected, 0 false positives, F1 = 1.000 [95% CI: 0.995–1.000]
+Mean detection lead:        240 days before confirmed close approach
+Median detection lead:      224 days before confirmed close approach
+Lead time range:            56–337 days
 ```
 
 V1 confirms that 30-day orbital element windows preceding close approaches are geometrically distinct from nominal asteroid trajectories in the LDA-projected embedding space. V2 confirms monotonic approach: as the close approach date nears, the trajectory embedding moves steadily toward ℬ_f.
 
-The V1 separation of 3.4x is lower than C-MAPSS (4.6x) and Battery (320.9x). This reflects genuine variability in close approach geometry: objects approach Earth from diverse orbital configurations, producing a wider spread of precursor trajectories than the single-fault-mode degradation in engineered systems. The separation is statistically significant (p ≈ 0) and sufficient for reliable detection.
+The V1 separation of 3.0x is lower than C-MAPSS (4.6x) and Battery (320.9x). This reflects genuine variability in close approach geometry: objects approach Earth from diverse orbital configurations, producing a wider spread of precursor trajectories than the single-fault-mode degradation in engineered systems. The separation is statistically significant (p ≈ 0) and sufficient for reliable detection. Scaling the test set from 50 to 800 objects narrowed the F1 confidence interval from [0.929–1.000] to [0.995–1.000] while maintaining perfect detection — the result is robust, not an artifact of small sample size.
 
 ### 4.2 Apophis — out-of-sample detection
 
@@ -219,7 +219,7 @@ Trajectory-similarity methods have not previously been applied to near-Earth ast
 
 **Not a replacement for collision probability.** STTS detects geometric resemblance to prior close approachers. It does not compute collision probability. A positive STTS detection warrants priority follow-up observations, not a public alert.
 
-**Test set size.** The 50-object test set yields F1 = 1.000, but the confidence interval on F1 with 50 objects is wide. Scaling to 500+ test objects would narrow this interval.
+**Test set size.** The 800-object test set yields F1 = 1.000 with 95% CI [0.995–1.000], sufficient to confirm that perfect detection is not an artifact of small sample size.
 
 ### 6.3 Connection to the broader STTS framework
 
@@ -228,11 +228,11 @@ The orbital domain validates the STTS framework's cross-domain claim. The same 1
 The corpus sufficiency gradient, extended:
 
 ```
-Domain              Corpus         V1      V2 (test)   F1
-Orbital (NEA)       200 asteroids  3.4x    0.574       1.000
-Turbofan (C-MAPSS)  100 engines    4.6x    0.94        0.969
-Battery             10 batteries   320.9x  0.66        0.640
-Bearing (PRONOSTIA) 6 bearings     97.6x   0.05        —
+Domain              Corpus           V1      V2 (test)   F1
+Orbital (NEA)       1000 asteroids   3.0x    0.568       1.000
+Turbofan (C-MAPSS)  100 engines      4.6x    0.94        0.969
+Battery             10 batteries     320.9x  0.66        0.640
+Bearing (PRONOSTIA) 6 bearings       97.6x   0.05        —
 ```
 
 V1 passes across four physical domains. The same framework that detects turbofan degradation detects asteroid close approach geometry from the same mathematical primitive.

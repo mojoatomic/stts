@@ -21,7 +21,7 @@ Four physically distinct domains, one pipeline:
 | Dataset | Domain | Corpus | V1 sep | V2 (test) | F1 |
 |---------|--------|--------|--------|-----------|-----|
 | C-MAPSS FD001 | Turbofan (thermomechanical) | 100 engines | 4.6x | 0.94 | 0.969 |
-| NEA Close Approach | Orbital mechanics (JPL Horizons) | 200 asteroids | 3.4x | 0.574 | 1.000 |
+| NEA Close Approach | Orbital mechanics (JPL Horizons) | 1000 asteroids | 3.0x | 0.568 | 1.000 |
 | NASA Battery | Electrochemical capacity fade | 10 batteries | 320.9x | 0.66 | 0.640 |
 | PRONOSTIA | Bearing vibrational wear | 6 bearings | 97.6x | 0.05 | — |
 
@@ -76,8 +76,8 @@ python -m pipeline.run_battery
 ### 4. Run orbital pipeline
 
 ```bash
-# NEA close approach detection — 250 asteroids from CNEOS + Horizons (§6.4)
-# Fetches real data from JPL APIs. Takes ~5 minutes.
+# NEA close approach detection — 1000 asteroids from CNEOS + Horizons (§6.4)
+# Fetches real data from JPL APIs. Takes ~20 minutes.
 python3 horizons_stts_pipeline.py
 
 # Apophis case study — full 25-year history + arc-length sensitivity (§6.5)
@@ -123,7 +123,8 @@ stts/
 ├── scripts/
 │   └── download_data.sh             # PHM dataset download script
 ├── results/                         # Computed results (CSV)
-├── orbital_stts_results.json        # 250-asteroid results
+├── orbital_stts_results.json        # 250-asteroid results (legacy)
+├── orbital_stts_results_1000.json   # 1000-asteroid results
 ├── apophis_stts_results.json        # Apophis case study results
 ├── requirements.txt
 └── LICENSE                          # Apache 2.0

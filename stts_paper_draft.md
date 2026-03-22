@@ -534,7 +534,7 @@ Mean detection lead:        225 days before confirmed close approach
 Median detection lead:      204 days (range: 36–337 days)
 ```
 
-V1 and V2 pass. The geometric structure that distinguishes approaching from non-approaching trajectories is present in the JPL Horizons orbital elements and is recoverable by the same pipeline architecture applied to turbofan engines, batteries, and bearings. Scaling the test set from 50 to 795 objects narrowed the F1 confidence interval from [0.929–1.000] to [0.998–1.000] while maintaining perfect detection.
+V1 and V2 pass. The geometric structure that distinguishes approaching from non-approaching trajectories is present in the JPL Horizons orbital elements and is recoverable by the same pipeline architecture applied to turbofan engines, batteries, and bearings. A prototype evaluation using an earlier pipeline configuration on 50 test objects yielded F1 = 1.000 [95% CI: 0.929–1.000]; the canonical pipeline on 795 designation-level test objects yields F1 = 1.000 [95% CI: 0.998–1.000], confirming the result is not an artifact of small sample size.
 
 **Extended lookback.** The 225-day mean lead time above reflects a 365-day trajectory history — a constraint of the training data window, not the signal. To determine how early the close approach geometry becomes detectable, the same 795 held-out test objects were re-evaluated with 1,825-day (5-year) trajectory histories using the frozen canonical model (identical scaler, LDA projection, and ε).
 

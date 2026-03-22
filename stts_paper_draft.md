@@ -57,7 +57,7 @@ The relationship to Codd's relational model clarifies the nature of the contribu
 
 ### 1.4 Paper organization
 
-Section 2 develops the epistemological argument for why the relational model is structurally limited for trajectory-based monitoring. Section 3 presents the mathematical framework: formal definitions, the monitoring query, out-of-distribution detection, and the intervention window proposition. Section 4 develops the embedding function φ in depth. Section 5 instantiates the framework across eight domains. Section 6 presents empirical validation on four physical domains — turbofan engines (C-MAPSS), bearings (PRONOSTIA), batteries (NASA Battery), and near-Earth asteroid close approaches (JPL Horizons) — including a named case study of asteroid 99942 Apophis, plus illustrative analyses of two historical events. Section 7 proposes AI cognitive state as a potential instantiation of the same framework, with important caveats about measurement and validation. Section 8 describes the corpus architecture. Section 9 discusses implications and concludes.
+Section 2 develops the epistemological argument for why the relational model is structurally limited for trajectory-based monitoring. Section 3 presents the mathematical framework: formal definitions, the monitoring query, out-of-distribution detection, and the intervention window proposition. Section 4 develops the embedding function φ in depth. Section 5 instantiates the framework across eight domains. Section 6 presents empirical validation on four physical domains — turbofan engines (C-MAPSS), bearings (PRONOSTIA), batteries (NASA Battery), and near-Earth asteroid close approaches (JPL Horizons) — including a named case study of asteroid 99942 Apophis, plus illustrative analyses of two historical events. Section 7 proposes AI cognitive state as a potential instantiation of the same framework, specifies an open research protocol, and invites independent validation. Section 8 describes the corpus architecture. Section 9 discusses implications and concludes.
 
 ---
 
@@ -641,9 +641,7 @@ The validation protocol for clinical sepsis detection using the MIMIC-IV dataset
 
 **Validation protocol.** The state vector s(t) includes heart rate, mean arterial pressure, respiratory rate, temperature, oxygen saturation, and lactate concentration, from a rolling 6-hour window advancing in 1-hour increments. F extracts time-domain summaries, rate features, and cross-vital covariance structure. W weights rate-of-change features and cross-vital covariance heavily. ℬ_f is built from labeled sepsis episodes in MIMIC-IV using the Sepsis-3 definition.
 
-Results should be reported using both AUROC and the PhysioNet 2019 clinical utility metric, which rewards early detection and penalizes false alarms — AUROC alone correlates poorly with clinical utility (Spearman ρ = 0.054 in the PhysioNet challenge).[^19i] Primary comparisons are against qSOFA, Moor et al.'s DTW-KNN, and published TREWS/InSight results.
-
-Researchers with credentialed MIMIC-IV access are invited to execute this protocol against the published framework. The implementation is available at https://github.com/mojoatomic/stts.
+Results should be reported using both AUROC and the PhysioNet 2019 clinical utility metric, which rewards early detection and penalizes false alarms — AUROC alone correlates poorly with clinical utility (Spearman ρ = 0.054 in the PhysioNet challenge).[^19i] Primary comparisons are against qSOFA, Moor et al.'s DTW-KNN, and published TREWS/InSight results. An invitation to independent researchers to execute this protocol is in §7.6.
 
 ---
 
@@ -693,17 +691,27 @@ The monitoring query is structurally identical to the physical systems case: dis
 
 A system operating on this proposal could, in principle, detect mid-session that the current trajectory resembles sessions that historically ended in user frustration or task failure. None of this is currently validated. The proposal provides the architectural specification; empirical validation against labeled session outcome corpora is required before operational claims can be made.
 
-### 7.4 Validation requirements
+### 7.4 Open research protocol
+
+The verification conditions V1, V2, and V3 specify exactly what constitutes a positive or negative result in this domain. Researchers with access to labeled conversation outcome corpora — session-level ratings, task completion signals, or longitudinal user satisfaction data — are invited to execute this protocol against the published framework. A negative result is as informative as a positive one: if V1 fails to separate outcome classes in cognitive trajectory embeddings, the framework does not extend to this domain, and the result should be reported as such. The implementation is available at https://github.com/mojoatomic/stts.
 
 The validation burden for AI cognitive state monitoring is higher than for physical systems in three respects. First, outcome labels are inherently softer: "productive resolution" requires a judgment about what productive means, unlike the unambiguous failure events available in physical systems. Second, V3 — causal traceability — must connect embedding proximity to ℬ_outcome to a plausible cognitive or conversational mechanism, not merely to a pattern in training data. Third, the cost asymmetry of C3 must be evaluated in terms appropriate to the cognitive monitoring context.
 
-These differences specify the application requirements more precisely. They do not invalidate the framework as a proposal, but they establish that the path from proposal to deployment is more demanding than in well-instrumented physical systems.
+These differences specify the validation requirements more precisely. They do not invalidate the framework as a proposal, but they establish that the path from proposal to deployment is more demanding than in well-instrumented physical systems.
 
 ### 7.5 The long-horizon question
 
 The most consequential potential application is longitudinal monitoring: trajectories over months and years of interaction between a specific user and a specific system. A user's cognitive state trajectory across hundreds of sessions could, in principle, constitute a record of how their thinking, expertise, and needs have evolved. The ethical dimensions of longitudinal cognitive trajectory data are significant and require careful treatment that is outside the scope of this paper.
 
-Researchers with access to labeled conversation outcome corpora are invited to test whether the verification conditions hold in this domain. The framework specifies exactly what to measure (V1, V2, V3) and what constitutes a passed result.
+### 7.6 Invitation to independent validation
+
+The AI statefulness extension proposed in this section is theoretical. No empirical validation is claimed. Two independent research programs could resolve the open questions:
+
+**Cognitive trajectory monitoring.** Researchers with access to labeled AI session outcome data — including teams at AI safety and alignment organizations with instrumented deployment pipelines — are invited to test whether the verification conditions hold. The protocol in §7.4 specifies the state vector, the feature extraction logic, the outcome labeling requirements, and the metrics that constitute a passed result.
+
+**Clinical validation.** The sepsis detection protocol in §6.7 is fully specified for execution against MIMIC-IV. Researchers with credentialed PhysioNet access are invited to run it. The framework makes a specific prediction: V1 will pass, V2 will pass, and detection performance will track corpus sufficiency. A result in either direction advances the science.
+
+Independent validation of framework extensions is more valuable than author validation. The framework specifies what to measure. The invitation is open.
 
 ---
 

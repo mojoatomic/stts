@@ -243,7 +243,7 @@ The close approach geometry of asteroid 99942 Apophis was detectable in the orbi
 
 As the Vera Rubin Observatory transforms the discovery rate of solar system objects, trajectory-similarity triage provides a computationally tractable method for prioritizing follow-up observations. The complete implementation uses public JPL APIs, requires no authentication, and the corpus improves automatically with each new confirmed close approach.
 
-The implementation is available at https://github.com/dougfennell/stts.
+The implementation is available at https://github.com/mojoatomic/stts.
 
 ---
 

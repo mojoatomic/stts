@@ -556,6 +556,8 @@ On June 19, 2004, astronomers at Kitt Peak National Observatory discovered aster
 
 **Corpus exclusion.** Apophis was not in the training corpus. Its closest pre-2029 approach (1998, at 0.024 AU) falls outside the 0.02 AU distance cutoff used for the CNEOS query, and its 2029 flyby postdates the 2020 date cutoff. The corpus contained no object with a confirmed flyby closer than 0.02 AU and no event involving Apophis. This evaluation is entirely out-of-sample.
 
+**Retroactive elements caveat.** The orbital elements were computed by Horizons from the current best-fit orbit solution, propagated backward to the 2004 epoch. These elements are more precise than those available from real-time observations in 2004. The arc-length sensitivity results should be interpreted as a lower bound on the required arc for an operational system using real-time elements.
+
 **Full trajectory analysis.** 9,065 daily orbital element sets from JPL Horizons (discovery through 2029 flyby). The STTS monitoring query, trained on 80 other NEA close approaches using the same 30-day window pipeline as §6.4, was evaluated on every 30-day window of Apophis's trajectory. Of 1,277 windows evaluated over the full 25-year history, 820 (64.2%) fired the monitoring query.
 
 **Arc-length sensitivity.** Apophis's history was truncated to the first N days after discovery and evaluated using 30-day sliding windows — the same window size used for training. Arcs shorter than 30 days do not produce a complete window and are reported as insufficient.

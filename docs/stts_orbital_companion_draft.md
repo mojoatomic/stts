@@ -104,7 +104,7 @@ Physics-informed weights amplify features causally upstream of close approach:
 
 ### 3.5 Projection and monitoring (M stage)
 
-1-component LDA (SVD solver) fitted on training trajectory windows with binary class labels: windows within 90 days of confirmed close approach (precursor) vs. windows more than 90 days before (nominal). The monitoring query computes mean 5-nearest-neighbor distance to the failure basin ℬ_f (projected precursor windows). Detection threshold ε calibrated by F1 sweep on training data.
+1-component LDA (SVD solver) fitted on training trajectory windows with binary class labels: windows within 90 days of confirmed close approach (precursor) vs. windows more than 90 days before (nominal). LDA was selected because it finds the linear projection that maximally discriminates precursor from nominal trajectories while minimizing within-class variance — the same architecture validated on the C-MAPSS, PRONOSTIA, and Battery benchmarks in the companion paper,[^stts] allowing direct comparison of the framework's behavior across domains. The monitoring query computes mean 5-nearest-neighbor distance to the failure basin ℬ_f (projected precursor windows). Detection threshold ε calibrated by F1 sweep on training data.
 
 ### 3.6 Verification conditions
 
@@ -136,6 +136,8 @@ The V1 separation of 3.4x is lower than C-MAPSS (4.6x) and Battery (320.9x). Thi
 **Object.** 99942 Apophis. Discovered June 19, 2004, at Kitt Peak National Observatory. The 2029 close approach on April 13 will pass at 0.000254 AU — approximately 38,000 km from Earth's center, closer than geostationary satellites. On December 27, 2004, Sentry placed Apophis at level 4 on the Torino impact hazard scale with a 2.7% probability of Earth impact in 2029.[^chesley]
 
 **Corpus exclusion.** Apophis was not in the training corpus. Its closest pre-2029 approach (1998, at 0.024 AU) falls outside the 0.02 AU distance cutoff. Its 2029 flyby postdates the 2020 date cutoff. The explicit filter in the pipeline also excluded Apophis by designation. Detection is entirely out-of-sample.
+
+**Retroactive elements caveat.** The orbital elements used in this analysis were computed by JPL Horizons from the current best-fit orbit solution, propagated backward to the June 2004 epoch. These elements are more precise than those that would have been available from real-time observations in 2004. An operational deployment would use elements derived from the available observational arc at the time of query, which for a newly discovered object would carry substantially larger uncertainties. The arc-length sensitivity results should be interpreted as a lower bound on the required arc — real-time elements from short arcs will have higher uncertainty than the Horizons retroactive solution.
 
 **Full trajectory analysis.** 9,065 daily orbital element sets from JPL Horizons (discovery through 2029 flyby). The STTS monitoring query, trained on 80 other NEA close approaches using 30-day sliding windows, was evaluated on every 30-day window of Apophis's trajectory. Of 1,277 windows evaluated over the full 25-year history, 820 (64.2%) fired the monitoring query.
 
@@ -173,7 +175,7 @@ STTS timeline (applied to June 2004 discovery arc, assuming continuous tracking)
 - 45 days: 2/3 windows fire — first consistent detection (August 2004)
 - 60 days: 4/5 windows fire
 
-The comparison is not direct. Sentry's December alert used a December recovery arc; STTS's 45-day detection uses the June discovery arc assuming continuous tracking. For continuously tracked objects — the standard operational case for the Vera Rubin Observatory, which will provide continuous coverage of the accessible sky — the 45-day threshold represents the operational STTS capability. STTS does not compute collision probability. It identifies objects whose trajectories warrant priority follow-up observations before orbit determination converges.
+The comparison is not direct. Sentry's December alert used a December recovery arc; STTS's 45-day detection uses the June discovery arc assuming continuous tracking. The operational value of STTS is not in replacing Sentry's collision probability calculation — Sentry's rapid detection demonstrates that collision probability methods can act quickly when the geometry is favorable. The value is in the triage case: the large population of newly discovered objects for which Sentry cannot yet issue a reliable probability estimate, where trajectory similarity provides a prioritization signal for follow-up observations. For continuously tracked objects — the standard operational case for the Vera Rubin Observatory — the 45-day threshold represents the operational STTS capability.
 
 ---
 

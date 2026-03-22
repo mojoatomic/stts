@@ -643,6 +643,8 @@ The validation protocol for clinical sepsis detection using the MIMIC-IV dataset
 
 Results should be reported using both AUROC and the PhysioNet 2019 clinical utility metric, which rewards early detection and penalizes false alarms — AUROC alone correlates poorly with clinical utility (Spearman ρ = 0.054 in the PhysioNet challenge).[^19i] Primary comparisons are against qSOFA, Moor et al.'s DTW-KNN, and published TREWS/InSight results.
 
+Researchers with credentialed MIMIC-IV access are invited to execute this protocol against the published framework. The implementation is available at https://github.com/mojoatomic/stts.
+
 ---
 
 ## 7. AI Statefulness as Proposed Instantiation
@@ -700,6 +702,8 @@ These differences specify the application requirements more precisely. They do n
 ### 7.5 The long-horizon question
 
 The most consequential potential application is longitudinal monitoring: trajectories over months and years of interaction between a specific user and a specific system. A user's cognitive state trajectory across hundreds of sessions could, in principle, constitute a record of how their thinking, expertise, and needs have evolved. The ethical dimensions of longitudinal cognitive trajectory data are significant and require careful treatment that is outside the scope of this paper.
+
+Researchers with access to labeled conversation outcome corpora are invited to test whether the verification conditions hold in this domain. The framework specifies exactly what to measure (V1, V2, V3) and what constitutes a passed result.
 
 ---
 

@@ -548,11 +548,11 @@ PRONOSTIA           6 bearings    Bearing vibration   97.6x     0.60        0.05
 
 *Cross-validated held-out result. †Mean test V2; training V2 = 0.600.
 
-V1 passes across four physical domains spanning thermomechanical, electrochemical, vibrational, and gravitational physics. The same 1-component LDA, the same k-NN monitoring query, the same verification conditions — applied to sensor data from simulated turbofan engines, real battery discharge curves, physical bearing accelerometers, and JPL's numerical integration of the solar system equations of motion.
+V1 passes across four physical domains spanning thermomechanical, electrochemical, vibrational, and gravitational physics. The same 1-component LDA, the same k-NN monitoring query, the same verification conditions — applied to sensor data from simulated turbofan engines, real battery discharge curves, physical bearing accelerometers, and JPL's numerical integration of the solar system equations of motion. A companion paper presents the full orbital domain analysis including distance-stratified evaluation, operational triage protocols for the Vera Rubin Observatory discovery environment, and the TERRA_INCOGNITA signal for planetary defense.[^stts_orbital]
 
 ### 6.5 Apophis — named case study
 
-On June 19, 2004, astronomers at Kitt Peak National Observatory discovered asteroid 99942 Apophis. On April 13, 2029, Apophis will pass Earth at 0.000253 AU — approximately 38,000 km from Earth's center, closer than geostationary satellites. On December 27, 2004, Sentry placed Apophis at Torino scale 4 — the highest rating ever assigned to any asteroid — with a 2.7% probability of Earth impact in 2029.[^chesley] Subsequent observations progressively reduced the impact probability (3.9 × 10⁻⁶ in 2013, 6.7 × 10⁻⁶ in 2015), and Apophis was removed from the Sentry risk table on February 21, 2021.[^giorgini]
+On June 19, 2004, astronomers at Kitt Peak National Observatory discovered asteroid 99942 Apophis. On April 13, 2029, Apophis will pass Earth at 0.000253 AU — approximately 38,000 km from Earth's center, closer than geostationary satellites. On December 27, 2004, Sentry placed Apophis at level 4 on the Torino impact hazard scale, with a 2.7% probability of Earth impact in 2029.[^chesley] Subsequent observations progressively reduced the impact probability (3.9 × 10⁻⁶ in 2013, 6.7 × 10⁻⁶ in 2015), and Apophis was removed from the Sentry risk table on February 21, 2021.[^giorgini]
 
 **Corpus exclusion.** Apophis was not in the training corpus. Its closest pre-2029 approach (1998, at 0.024 AU) falls outside the 0.02 AU distance cutoff used for the CNEOS query, and its 2029 flyby postdates the 2020 date cutoff. The corpus contained no object with a confirmed flyby closer than 0.02 AU and no event involving Apophis. This evaluation is entirely out-of-sample.
 
@@ -576,7 +576,7 @@ At 45 days of observational arc, 2 of 3 windows fire — the first consistent de
 
 **Comparison with Sentry.** The comparison between STTS and Sentry detection timelines is not direct. Sentry's December 27, 2004 Torino 4 rating used observations from a December recovery arc — Apophis had been lost after its June 2004 discovery and was re-identified in December.[^chesley] STTS's 45-day detection is measured from the June 2004 discovery arc, assuming continuous tracking. For continuously tracked objects — the standard case for Vera Rubin Observatory discoveries — the 45-day threshold represents the operational STTS capability: consistent trajectory-similarity detection before orbit determination has converged on a reliable collision probability estimate for encounters years in the future. STTS does not compute collision probability. It identifies objects whose trajectories warrant priority follow-up.
 
-**Short-arc detection.** Detection at arcs shorter than 30 days would require training on shorter windows, which constitutes a different pipeline configuration with a different feature distribution. The results above use exclusively 30-day windows, consistent with the training configuration. Variable-window-size training is identified as future work.
+**Short-arc detection.** Detection at arcs shorter than 30 days would require training on shorter windows, which constitutes a different pipeline configuration with a different feature distribution. The results above use exclusively 30-day windows, consistent with the training configuration. Variable-window-size training is identified as future work. The full Apophis analysis, including the Sentry timeline comparison and operational implications for the Vera Rubin Observatory, is presented in the companion paper.[^stts_orbital]
 
 ### 6.6 Illustrative analyses — historical events
 
@@ -831,7 +831,9 @@ The infrastructure to implement STTS exists today. The data exists in operationa
 
 [^25]: Saha, B. & Goebel, K. (2007). Battery Data Set. NASA Prognostics Data Repository. NASA Ames Research Center, Moffett Field, CA.
 
-[^chesley]: Chesley, S.R. (2006). Potential impact detection for near-Earth asteroids: the case of 99942 Apophis (2004 MN4). *Proceedings of the International Astronomical Union*, 2(S236), 215-228.
+[^stts_orbital]: Fennell, D. (2026). STTS-Orbital: Trajectory Similarity Monitoring for Planetary Defense. arXiv preprint.
+
+[^chesley]: Chesley, S.R. (2006). Potential impact detection for near-Earth asteroids: the case of 99942 Apophis (2004 MN4). *Proceedings of IAU Symposium 229*, 215-228.
 
 [^giorgini]: Giorgini, J.D., et al. (2008). Predicting the Earth encounters of (99942) Apophis. *Icarus*, 193(1), 1-19.
 

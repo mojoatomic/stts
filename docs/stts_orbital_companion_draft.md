@@ -7,7 +7,7 @@
 
 ## Abstract
 
-Current planetary defense monitoring systems — Sentry, Scout, CNEOS — detect close approach candidates by computing collision probability from orbit determinations that require weeks to months of observational arc to converge. We propose applying the State Topology and Trajectory Storage (STTS) framework to near-Earth asteroid orbital mechanics, asking a different question: does the current trajectory resemble trajectories that preceded confirmed close approaches? Applied to JPL Horizons orbital element histories for 200 confirmed Earth close approaches, STTS achieves V1 basin separation of 3.4x and V2 monotonic approach ρ = 0.574. Applied out-of-sample to asteroid 99942 Apophis, the framework detects the 2029 close approach geometry from 60 days of observational arc — every evaluation window fires — 24.5 years before the event, before orbit determination systems had converged on a reliable collision probability for the 2029 encounter. As the Vera Rubin Observatory begins full operations, discovering an estimated 5 million new solar system objects, trajectory-similarity triage provides a computationally tractable method for prioritizing follow-up observations of newly discovered objects whose preliminary orbital trajectories resemble prior confirmed close approachers. The complete implementation uses JPL's public Horizons and CNEOS APIs with no authentication required.
+Current planetary defense monitoring systems — Sentry, Scout, CNEOS — detect close approach candidates by computing collision probability from orbit determinations that require weeks to months of observational arc to converge. We propose applying the State Topology and Trajectory Storage (STTS) framework to near-Earth asteroid orbital mechanics, asking a different question: does the current trajectory resemble trajectories that preceded confirmed close approaches? Applied to JPL Horizons orbital element histories for 200 confirmed Earth close approaches, STTS achieves V1 basin separation of 3.4x and V2 monotonic approach ρ = 0.574. Applied out-of-sample to asteroid 99942 Apophis, the framework achieves consistent detection of the 2029 close approach geometry from 45 days of observational arc — 24.4 years before the event — before orbit determination systems had converged on a reliable collision probability for the 2029 encounter. As the Vera Rubin Observatory begins full operations, discovering an estimated 5 million new solar system objects, trajectory-similarity triage provides a computationally tractable method for prioritizing follow-up observations of newly discovered objects whose preliminary orbital trajectories resemble prior confirmed close approachers. The complete implementation uses JPL's public Horizons and CNEOS APIs with no authentication required.
 
 ---
 
@@ -31,7 +31,7 @@ Applied to planetary defense, the query is: does this asteroid's preliminary orb
 
 1. First application of trajectory similarity monitoring to near-Earth asteroid orbital mechanics
 2. Empirical validation on 200 confirmed CNEOS close approach events using JPL Horizons DE441 ephemerides
-3. Out-of-sample detection of Apophis's 2029 close approach geometry from 60 days of observational arc (every window fires), 24.5 years before the event
+3. Out-of-sample detection of Apophis's 2029 close approach geometry from 45 days of observational arc (consistent multi-window detection), 24.4 years before the event
 4. Arc-length sensitivity analysis demonstrating consistent detection from the earliest evaluable arc length
 5. Operational protocol for trajectory-similarity triage in high-volume discovery environments
 
@@ -136,40 +136,43 @@ The V1 separation of 3.4x is lower than C-MAPSS (4.6x) and Battery (320.9x). Thi
 
 **Corpus exclusion.** Apophis was not in the training corpus. Its closest pre-2029 approach (1998, at 0.024 AU) falls outside the 0.02 AU distance cutoff. Its 2029 flyby postdates the 2020 date cutoff. The explicit filter in the pipeline also excluded Apophis by designation. Detection is entirely out-of-sample.
 
-**Full trajectory analysis.** 9,065 daily orbital element sets from JPL Horizons (discovery through 2029 flyby). The STTS monitoring query, trained on 79 other NEA close approaches using 30-day sliding windows, was evaluated on every 30-day window of Apophis's trajectory.
+**Full trajectory analysis.** 9,065 daily orbital element sets from JPL Horizons (discovery through 2029 flyby). The STTS monitoring query, trained on 80 other NEA close approaches using 30-day sliding windows, was evaluated on every 30-day window of Apophis's trajectory. Of 1,277 windows evaluated over the full 25-year history, 820 (64.2%) fired the monitoring query.
 
-First detection: July 18, 2004 — 29 days after discovery. Of 1,277 trajectory windows evaluated over the full 25-year history, 918 (71.9%) fired the monitoring query.
-
-**Arc-length sensitivity.** The minimum observational arc for detection was assessed by truncating Apophis's history to the first N days after discovery and evaluating all 30-day sliding windows within the truncated arc. Arcs shorter than 32 days do not produce a complete 30-day window and are not evaluated — the pipeline uses the same window size for evaluation as for training.
+**Arc-length sensitivity.** Apophis's history was truncated to the first N days after discovery and evaluated using 30-day sliding windows — the same window size used for training. Arcs shorter than 30 days do not produce a complete window and are reported as insufficient.
 
 ```
 Arc (days)   Windows   Fired     Min basin dist
-   60            5      5/5      0.0058
-   90            9      9/9      0.0050
-  180           22     22/22     0.0033
-  365           49     43/49     0.0033
-  730          101     80/101    0.0030
- 1825          257    190/257    0.0012
+   30            1      0/1      0.0165         (miss — boundary)
+   45            3      2/3      0.0052         (first consistent detection)
+   60            5      4/5      0.0052
+   90            9      8/9      0.0032
+  180           22     20/22     0.0023
+  365           49     39/49     0.0023
+  730          101     72/101    0.0023
+ 1825          257    170/257    0.0015
 ```
 
-At 60 days of observational arc — the earliest point at which the 30-day window pipeline produces multiple windows — every window fires. Detection is consistent from the first evaluable arc length. Basin distances decrease monotonically as the arc lengthens (0.0058 at 60 days → 0.0012 at 5 years), consistent with V2.
+At 45 days of observational arc, 2 of 3 windows fire — the first consistent detection, 24.4 years before the 2029 flyby. At 60 days, 4 of 5 windows fire. Basin distances decrease monotonically as the arc lengthens (0.0052 at 45 days → 0.0015 at 5 years), consistent with V2. The 30-day arc produces a single window that misses at distance 0.0165, just outside the calibrated ε = 0.0137.
 
-**Short-arc detection.** Detection at arcs shorter than 30 days would require training and evaluating on shorter windows (e.g., 14-day windows), which constitutes a different pipeline configuration with a different feature distribution. The results above use exclusively 30-day windows, consistent with the training configuration. Variable-window-size training is identified as future work.
+**Short-arc detection.** Detection at arcs shorter than 30 days would require training on shorter windows, which constitutes a different pipeline configuration with a different feature distribution. The results above use exclusively 30-day windows, consistent with the training configuration. Variable-window-size training is identified as future work.
 
 ### 4.3 Comparison with the Sentry timeline
 
-The Sentry system timeline for Apophis:[^chesley][^giorgini]
+The comparison between STTS and Sentry detection timelines requires context. Apophis was discovered on June 19, 2004, but was subsequently lost due to observing conditions and re-identified in December 2004. Sentry's December 27, 2004 Torino 4 rating used observations from the December recovery arc — a 1.7-day arc from the re-identification, not a continuous 6-month track from June.[^chesley][^giorgini]
 
+Sentry timeline:
 - Discovery: June 19, 2004
-- First Sentry alert (Torino 4, 2.7% impact probability, 2029): December 27, 2004 (~6 months after discovery)
+- Object lost: summer 2004
+- Recovery and Sentry alert (Torino 4, 2.7% impact probability): December 27, 2004
 - Impact probability progressively reduced: 3.9 × 10⁻⁶ (2013), 6.7 × 10⁻⁶ (2015)
 - Removed from Sentry risk table: February 21, 2021
 
-STTS timeline:
-- Consistent multi-window detection: 60 days after discovery (August 2004)
-- Every evaluation window fires at this arc length
+STTS timeline (applied to June 2004 discovery arc, assuming continuous tracking):
+- 30 days: single window, miss (distance 0.0165 vs ε = 0.0137)
+- 45 days: 2/3 windows fire — first consistent detection (August 2004)
+- 60 days: 4/5 windows fire
 
-The distinction: Sentry's December 2004 alert required approximately 6 months of observations to compute a non-trivial collision probability. STTS's 60-day detection requires only that the preliminary trajectory, evaluated through 30-day windows, resembles prior close approachers — a geometrically different question, answerable from less data. STTS does not compute collision probability. It identifies objects whose trajectories warrant priority follow-up.
+The comparison is not direct. Sentry's December alert used a December recovery arc; STTS's 45-day detection uses the June discovery arc assuming continuous tracking. For continuously tracked objects — the standard operational case for the Vera Rubin Observatory, which will provide continuous coverage of the accessible sky — the 45-day threshold represents the operational STTS capability. STTS does not compute collision probability. It identifies objects whose trajectories warrant priority follow-up observations before orbit determination converges.
 
 ---
 
@@ -235,7 +238,7 @@ V1 passes across four physical domains. The same framework that detects turbofan
 
 ## 7. Conclusion
 
-The close approach geometry of asteroid 99942 Apophis was recoverable from orbital mechanics 24.5 years before the 2029 flyby, from 60 days of observational arc — every evaluation window firing — using a corpus of prior confirmed close approaches that contained no object with a flyby closer than 0.02 AU and no event involving Apophis. The detection required no collision probability calculation. It required only the nearest-neighbor query: what does this trajectory resemble?
+The close approach geometry of asteroid 99942 Apophis was recoverable from orbital mechanics 24.4 years before the 2029 flyby, from 45 days of observational arc, using a corpus of prior confirmed close approaches that contained no object with a flyby closer than 0.02 AU and no event involving Apophis. The detection required no collision probability calculation. It required only the nearest-neighbor query: what does this trajectory resemble?
 
 As the Vera Rubin Observatory transforms the discovery rate of solar system objects, trajectory-similarity triage provides a computationally tractable method for prioritizing follow-up observations. The complete implementation uses public JPL APIs, requires no authentication, and the corpus improves automatically with each new confirmed close approach.
 

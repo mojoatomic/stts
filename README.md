@@ -27,7 +27,7 @@ Four physically distinct domains, one pipeline:
 
 V1 (failure basin geometric separation) passes universally across all domains. V2 and F1 track corpus sufficiency — the framework's stated applicability condition P1 is empirically a binding constraint.
 
-**Apophis case study:** Asteroid 99942 Apophis detected as a close approacher from 60 days of observational arc (every evaluation window fires), 24.5 years before the 2029 flyby, from a corpus that had never seen it. See `run_apophis.py`.
+**Apophis case study:** Asteroid 99942 Apophis detected as a close approacher from 45 days of observational arc (2/3 windows fire), 24.4 years before the 2029 flyby, from a corpus that had never seen it. Entirely out-of-sample. See `run_apophis.py`.
 
 ## Reproducing results
 

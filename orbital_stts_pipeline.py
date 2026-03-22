@@ -20,9 +20,7 @@ from typing import List, Tuple, Dict, Optional
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import spearmanr, mannwhitneyu
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from orbital_stts.generate_synthetic_corpus import OrbitalState, decay_rate, RE
+from orbital_stts_generate_synthetic_corpus import OrbitalState, decay_rate, RE
 
 
 # ─────────────────────────────────────────────────────────────
@@ -439,7 +437,7 @@ def sweep_epsilon(basin: np.ndarray,
 
 
 if __name__ == "__main__":
-    from orbital_stts.generate_synthetic_corpus import generate_corpus
+    from orbital_stts_generate_synthetic_corpus import generate_corpus
 
     print("=== STTS Orbital Pipeline Test ===\n")
 

@@ -35,7 +35,6 @@ V1 (failure basin geometric separation) passes universally across all domains. V
 
 ```bash
 pip install -r requirements.txt
-pip install requests  # additional dependency for orbital pipeline
 ```
 
 Requires Python 3.9+. Dependencies: numpy, scipy, pandas, scikit-learn, faiss-cpu, matplotlib, requests.

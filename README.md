@@ -2,7 +2,7 @@
 
 A geometric framework for monitoring complex dynamic systems via trajectory embedding and nearest-neighbor similarity search. The same three-stage pipeline (F → W → M: feature extraction, causal weighting, LDA projection) applies across physically distinct domains with only the domain instantiation changing. The monitoring query asks "what does this trajectory resemble?" — not "what will happen next?"
 
-**DOI:** [10.5281/zenodo.19170896](https://doi.org/10.5281/zenodo.19170896)
+**DOI:** [10.5281/zenodo.19170897](https://doi.org/10.5281/zenodo.19170897)
 
 ## Results Summary
 
@@ -155,13 +155,13 @@ All pipelines enforce scientific rigor by construction:
          for Monitoring Complex Dynamic Systems},
   author={Fennell, Doug},
   year={2026},
-  doi={10.5281/zenodo.19170896}
+  doi={10.5281/zenodo.19170897}
 }
 ```
 
 ## Papers
 
-- **Main paper:** [Zenodo 10.5281/zenodo.19170896](https://doi.org/10.5281/zenodo.19170896)
+- **Main paper:** [Zenodo 10.5281/zenodo.19170897](https://doi.org/10.5281/zenodo.19170897)
 - **STTS-Orbital companion:** [Zenodo 10.5281/zenodo.19171384](https://doi.org/10.5281/zenodo.19171384)
 - **STTS-Reentry:** in preparation
 - **STTS-Conjunction:** in preparation

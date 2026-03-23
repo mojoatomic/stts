@@ -75,6 +75,9 @@ ls -lh *.zip
 # Total: ~5.6 GB
 ```
 
+If the Sync.com link is unavailable, bulk TLE files are also accessible
+from your Space-Track account under the Bulk Data downloads section.
+
 ### Step 2: Parse bulk TLEs into per-satellite cache
 
 ```bash
@@ -98,13 +101,17 @@ Derived orbital elements computed from TLE fields:
 
 Constants: R_Earth = 6378.137 km, mu_Earth = 398600.4418 km³/s²
 
-### Step 3: Fetch reentry labels (1 API call)
+### Step 3: Reentry labels
+
+`data/reentry/decay_records.json` is included in the repository (272
+confirmed reentry records, 36 KB). This step only applies if rebuilding
+labels from scratch with a Space-Track account:
 
 ```bash
-# Requires Space-Track account
-# This step was performed via the API before account suspension.
-# The cached result is at data/reentry/decay_records.json
-# If rebuilding from scratch, this is the only API call needed.
+# Only needed if rebuilding labels from scratch.
+# Requires Space-Track account credentials in .env.local.
+# This is 1 lightweight API call returning metadata only.
+python reentry/corpus.py --fetch-decay-labels
 ```
 
 **Space-Track rate limits — CRITICAL:** Space-Track enforces strict

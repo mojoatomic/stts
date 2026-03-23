@@ -1,169 +1,170 @@
 # State Topology and Trajectory Storage (STTS)
 
-A geometric framework for monitoring complex dynamic systems via trajectory embedding and nearest-neighbor similarity search.
+A geometric framework for monitoring complex dynamic systems via trajectory embedding and nearest-neighbor similarity search. The same three-stage pipeline (F → W → M: feature extraction, causal weighting, LDA projection) applies across physically distinct domains with only the domain instantiation changing. The monitoring query asks "what does this trajectory resemble?" — not "what will happen next?"
 
-**Paper:** Fennell, D. (2026). State Topology and Trajectory Storage: A Geometric Framework for Monitoring Complex Dynamic Systems. *arXiv preprint.*
+**DOI:** [10.5281/zenodo.19170897](https://doi.org/10.5281/zenodo.19170897)
 
-**Companion:** Fennell, D. (2026). STTS-Orbital: Trajectory Similarity Monitoring for Planetary Defense. *arXiv preprint.*
+## Results Summary
 
-## What this is
+Five physically distinct domains, one pipeline:
 
-STTS represents monitored systems as continuous trajectories through an embedding space and detects approaching failure by geometric similarity search against a corpus of historical trajectories with known outcomes. The monitoring query fires before any individual parameter crosses a threshold — recovering an intervention window that threshold monitoring cannot see.
+| Domain | Corpus | V1 sep | V2 | F1 | Notes |
+|--------|--------|--------|-----|-----|-------|
+| Turbofan (C-MAPSS) | 100 engines | 4.6x | 0.94 | 0.969 | |
+| NEA orbital (JPL Horizons) | 973 asteroids | 3.8x | 0.631 | 1.000 | |
+| Battery (NASA) | 10 batteries | 320.9x | 0.66 | 0.640 | |
+| Bearing (PRONOSTIA) | 6 bearings | 97.6x | 0.05 | — | |
+| Reentry (Starlink) | 257 reentry / 500 ops | 250.6x | N/A* | 0.555† | |
 
-The contribution is architectural, not methodological. The same three-stage pipeline (F → W → M) applies across domains with only the domain instantiation changing:
+\*V2 inapplicable — deliberate deorbit cliff structure (orbit raise → stable cruise → deorbit burn), not gradual monotonic approach. Documented as a domain-specific finding.
 
-- **F** — Feature extraction from raw sensor/state data (sliding windows)
-- **W** — Physics-informed causal weighting
-- **M** — Linear discriminant projection (1-component LDA)
-
-## Empirical results
-
-Four physically distinct domains, one pipeline:
-
-| Dataset | Domain | Corpus | V1 sep | V2 (test) | F1 |
-|---------|--------|--------|--------|-----------|-----|
-| C-MAPSS FD001 | Turbofan (thermomechanical) | 100 engines | 4.6x | 0.94 | 0.969 |
-| NEA Close Approach | Orbital mechanics (JPL Horizons) | 973 asteroids | 3.8x | 0.631 | 1.000 |
-| NASA Battery | Electrochemical capacity fade | 10 batteries | 320.9x | 0.66 | 0.640 |
-| PRONOSTIA | Bearing vibrational wear | 6 bearings | 97.6x | 0.05 | — |
+†Recall = 1.000 (78/78 reentry satellites detected, mean lead time 471 days). Precision reflects constellation health finding — 108 operational satellites showing sustained reentry-like signatures are not false positives. See below.
 
 V1 (failure basin geometric separation) passes universally across all domains. V2 and F1 track corpus sufficiency — the framework's stated applicability condition P1 is empirically a binding constraint.
 
-**Orbital domain highlights:**
-- 795/795 held-out test objects detected, F1 = 1.000 [95% CI: 0.998–1.000] (designation-level split)
-- With 1,825-day trajectory histories, mean detection lead reaches 1,693 days (4.6 years); 57.6% of objects detected within 90 days of any point in their tracked history
-- Distribution is right-truncated at the 1,825-day window — the signal precedes the available data
+**Orbital highlights:** 795/795 held-out test objects detected, F1 = 1.000 [0.998–1.000]. Asteroid 99942 Apophis produces a triage signal from 45 days of observational arc, 24.4 years before the 2029 flyby, entirely out-of-sample.
 
-**Apophis case study:** Asteroid 99942 Apophis produces a triage signal from 45 days of observational arc, 24.4 years before the 2029 flyby, from a corpus that had never observed it. Entirely out-of-sample.
+**Reentry highlights:** Mean detection lead time 471 days before confirmed reentry. Perfect recall on held-out test set.
 
-## Reproducing results
+## Constellation Health Finding
 
-### 1. Environment
+Applied to 15,170 operational Starlink satellites, STTS identifies 108 showing sustained reentry-like orbital signatures at nominal operational altitude — not in the deliberate deorbit campaign, correlated with Solar Cycle 25 (9x onset rate increase 2020→2025). Signal is driven by trajectory geometry (periapsis decline rate, mean motion evolution), not raw BSTAR drag coefficient.
 
-```bash
-pip install -r requirements.txt
-```
+- 38 satellites cluster at 450–500 km periapsis (50–100 km below nominal)
+- Excursion onsets: 4 (2020), 6 (2021), 17 (2022), 23 (2023), 21 (2024), 37 (2025)
+- These are operational satellites whose trajectories persistently resemble the approach to reentry
 
-Requires Python 3.9+. Dependencies: numpy, scipy, pandas, scikit-learn, faiss-cpu, matplotlib, requests.
+This is a constellation health monitoring capability that does not exist in current practice. See `results/reentry/patterns.md` for full investigation and `results/reentry/firing_satellites_categorized.json` for per-satellite data.
 
-### 2. PHM domains (C-MAPSS, Battery, PRONOSTIA)
+## TERRA_INCOGNITA Validation
 
-Download datasets:
+February 2022 geomagnetic storm: 6/6 evaluated storm objects flagged out-of-distribution at 570x mean training corpus distance. The framework correctly returns "I have never seen a trajectory like this" for storm-induced reentries — a model trained on deliberate deorbits should not confidently predict chaotic atmospheric drag events.
 
-```bash
-bash scripts/download_data.sh all
-```
+Of the ~38 confirmed storm casualties, only 6 generated individual TLE records. The remaining ~32 reentered too rapidly for NORAD to maintain TLE solutions — TERRA_INCOGNITA by definition (zero tracking data in the corpus).
 
-Or individually:
-
-```bash
-bash scripts/download_data.sh cmapss     # 12 MB — NASA C-MAPSS
-bash scripts/download_data.sh battery    # 200 MB — NASA Battery
-bash scripts/download_data.sh pronostia  # 728 MB — IEEE PHM 2012
-```
-
-Run pipelines:
-
-```bash
-python -m pipeline.run_cmapss      # C-MAPSS cross-validated LDA (§6.1)
-python -m pipeline.run_pronostia   # PRONOSTIA bearing degradation (§6.2)
-python -m pipeline.run_battery     # NASA Battery LOO validation (§6.3)
-```
-
-### 3. Orbital domain (§6.4, §6.5)
-
-No download required — data is fetched from JPL public APIs.
-
-**Full reproducibility run** (cached corpus — seconds if already fetched):
-
-```bash
-python3 run_all.py
-```
-
-This runs: corpus build → model training → test set validation → Apophis case study. Results are verified for config and artifact checksum consistency.
-
-**First run** fetches 1,000 trajectories from JPL Horizons (~17 minutes at 1 req/sec). The corpus is cached to `artifacts/corpus.pkl`. Subsequent runs load from cache.
-
-**Force re-fetch from APIs:**
-
-```bash
-python3 run_all.py --rebuild-corpus
-```
-
-**Extended lookback experiment** (requires cached corpus + trained model):
-
-```bash
-python3 lookback.py
-```
-
-Re-fetches test objects with 1,825-day histories (~14 minutes). Uses the frozen canonical model — no retraining.
-
-**Data sources:**
-- [CNEOS Close Approach Database](https://ssd-api.jpl.nasa.gov/cad.api) — labeled NEA close approach events
-- [JPL Horizons](https://ssd.jpl.nasa.gov/api/horizons.api) — osculating orbital elements from DE441 numerical integration
-- No authentication required for either API
-
-## Repository structure
+## Repository Structure
 
 ```
 stts/
-├── config.py                       # Single source of truth: all orbital hyperparameters
-├── corpus.py                       # Fetch, split (by designation), cache to disk
-├── train.py                        # The ONLY script that calls .fit(); serializes artifacts/
-├── validate.py                     # Frozen model evaluation on test set with Wilson CIs
-├── case_study.py                   # Apophis: frozen model, full history + arc sensitivity
+├── config.py                       # NEA orbital hyperparameters
+├── corpus.py                       # NEA corpus builder (JPL Horizons)
+├── train.py                        # NEA training (only script that calls .fit())
+├── validate.py                     # NEA validation with Wilson CIs
+├── case_study.py                   # Apophis case study
 ├── lookback.py                     # 1825-day extended lookback experiment
-├── run_all.py                      # Orchestrator: corpus → train → validate → case_study
-├── horizons_stts_pipeline.py       # Library: API fetchers, feature extraction, canonical weights
-├── pipeline/                       # PHM domain pipelines (C-MAPSS, Battery, PRONOSTIA)
-│   ├── run_cmapss.py               # C-MAPSS cross-validated LDA (§6.1)
-│   ├── run_pronostia.py            # PRONOSTIA bearing runner (§6.2)
-│   ├── run_battery.py              # NASA Battery LOO runner (§6.3)
+├── run_all.py                      # NEA full pipeline orchestrator
+├── horizons_stts_pipeline.py       # Library: API fetchers, features, weights
+├── reentry/                        # Reentry domain pipeline
+│   ├── config.py                   # Reentry hyperparameters (63 features, weight spec)
+│   ├── parse_bulk_tles.py          # Bulk TLE parser (Space-Track zip files)
+│   ├── corpus.py                   # Corpus builder from cached TLE data
+│   ├── features.py                 # Feature extraction (F stage)
+│   ├── train.py                    # Training (W + M stages)
+│   ├── validate.py                 # Validation with two-population metrics
+│   ├── terra_incognita_test.py     # Geomagnetic storm holdout evaluation
+│   └── run_all.py                  # Full pipeline orchestrator
+├── pipeline/                       # PHM domain pipelines
+│   ├── run_cmapss.py               # C-MAPSS turbofan degradation
+│   ├── run_pronostia.py            # PRONOSTIA bearing wear
+│   ├── run_battery.py              # NASA battery fade
 │   ├── feature_extraction.py       # Windowed feature extraction (F stage)
 │   ├── causal_weighting.py         # Causal weight vector (W stage)
 │   ├── manifold_projection.py      # LDA projection (M stage)
 │   ├── failure_basin.py            # Failure basin + k-NN query
-│   ├── evaluation.py               # V1, V2, V3, precision-recall
-│   ├── tsbp_baseline.py            # Wang et al. (2008) TSBP baseline
-│   └── ...
-├── artifacts/                      # Serialized model (generated by train.py)
-│   ├── model_meta.json             # Config snapshot + artifact checksums
-│   ├── corpus_train.json           # 200 training designations
-│   ├── corpus_test.json            # 773 test designations
-│   ├── scaler.pkl                  # Fitted StandardScaler
-│   ├── lda.pkl                     # Fitted LDA projector
-│   └── basin.npy                   # Failure basin embeddings
-├── results/
-│   ├── orbital/
-│   │   ├── validate.json           # 795-object test results + config snapshot
-│   │   ├── case_study.json         # Apophis results + config snapshot
-│   │   └── lookback.json           # 365d vs 1825d comparison
-│   ├── cmapss/                     # C-MAPSS results
-│   ├── battery/                    # Battery results
-│   └── pronostia/                  # PRONOSTIA results
+│   └── evaluation.py               # V1, V2, V3, precision-recall
 ├── scripts/
-│   └── download_data.sh            # PHM dataset download
+│   ├── download_data.sh            # PHM dataset download
+│   └── archive_starlink_ephemeris.py  # Starlink ephemeris archiver
+├── results/
+│   ├── orbital/                    # NEA validation + case study results
+│   └── reentry/                    # Reentry validation + investigation
+│       ├── validate.json           # Full confusion matrix + lead times
+│       ├── terra_incognita.json    # Storm object OOD results
+│       ├── patterns.md             # Constellation health investigation
+│       ├── firing_satellites_125.csv
+│       └── firing_satellites_categorized.json
+├── artifacts/                      # Serialized models (gitignored)
+├── DATA.md                         # Data acquisition guide (reentry)
 ├── requirements.txt
+├── CITATION.cff
 └── LICENSE                         # Apache 2.0
 ```
 
-## Pipeline integrity
+## Quick Start
 
-The orbital pipeline enforces scientific rigor by construction:
+### PHM domains (C-MAPSS, Battery, PRONOSTIA)
+
+```bash
+pip install -r requirements.txt
+bash scripts/download_data.sh all
+python -m pipeline.run_cmapss
+python -m pipeline.run_battery
+python -m pipeline.run_pronostia
+```
+
+### NEA orbital domain
+
+No download required — data fetched from JPL public APIs.
+
+```bash
+pip install -r requirements.txt
+python run_all.py
+```
+
+First run fetches 1,000 trajectories from JPL Horizons (~17 minutes). Cached to `artifacts/corpus.pkl` for subsequent runs.
+
+### Reentry domain
+
+Requires bulk TLE download (~5.6 GB) from Space-Track cloud storage. See [DATA.md](DATA.md) for step-by-step acquisition instructions.
+
+```bash
+pip install -r requirements.txt
+pip install python-dotenv
+
+# 1. Download bulk TLE files to data/reentry/bulk/
+#    (see DATA.md for URLs)
+
+# 2. Parse TLEs (~15 minutes)
+python reentry/parse_bulk_tles.py
+
+# 3. Run full pipeline
+python reentry/run_all.py --rebuild
+```
+
+## Reproducing Results
+
+For the NEA orbital pipeline, data is fetched automatically from JPL Horizons — no setup required beyond `pip install`.
+
+For the reentry pipeline, source data must be downloaded from Space-Track's public cloud storage. See [DATA.md](DATA.md) for complete data acquisition instructions, verification checksums, classification criteria, and known limitations.
+
+## Pipeline Integrity
+
+All pipelines enforce scientific rigor by construction:
 
 - **One model**: `train.py` is the only script that calls `.fit()`. All downstream scripts load serialized artifacts.
-- **One corpus**: `corpus.py` splits by asteroid designation (not by event) to prevent data leakage from repeated close approaches.
-- **One config**: `config.py` defines all hyperparameters. Consistency with library constants is verified at import time.
-- **Audit trail**: Every results JSON contains the full config snapshot and artifact MD5 checksums. `run_all.py` verifies these match across all outputs.
-- **Leakage checks**: `validate.py` verifies zero designation overlap between train and test sets. `case_study.py` verifies Apophis is not in the training corpus.
+- **One corpus**: split by object identity (asteroid designation / NORAD ID), not by record, to prevent temporal leakage.
+- **One config**: all hyperparameters in `config.py` with physical justifications. Import-time consistency checks.
+- **Audit trail**: every results JSON contains the full config snapshot and artifact MD5 checksums.
+- **Leakage checks**: `validate.py` verifies zero identity overlap between train and test.
 
-## Invitation to independent validation
+## Citation
 
-Two research programs are specified with open invitations:
+```bibtex
+@article{fennell2026stts,
+  title={State Topology and Trajectory Storage: A Geometric Framework
+         for Monitoring Complex Dynamic Systems},
+  author={Fennell, Doug},
+  year={2026},
+  doi={10.5281/zenodo.19170897}
+}
+```
 
-**Clinical sepsis detection (§6.7, §7.6):** The MIMIC-IV validation protocol is fully specified — state vector, feature extraction, evaluation metrics. Researchers with credentialed PhysioNet access are invited to execute it.
+## Papers
 
-**AI cognitive state monitoring (§7.4, §7.6):** The framework proposes trajectory embedding for AI session monitoring as an open research question. Researchers with labeled conversation outcome corpora are invited to test whether the verification conditions hold.
+- **Main paper:** [Zenodo 10.5281/zenodo.19170897](https://doi.org/10.5281/zenodo.19170897)
+- **STTS-Orbital companion:** [Zenodo 10.5281/zenodo.19171384](https://doi.org/10.5281/zenodo.19171384)
+- **STTS-Reentry:** in preparation
+- **STTS-Conjunction:** in preparation
 
 ## License
 

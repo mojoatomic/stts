@@ -103,8 +103,8 @@ Constants: R_Earth = 6378.137 km, mu_Earth = 398600.4418 km³/s²
 
 ### Step 3: Reentry labels
 
-`data/reentry/decay_records.json` is included in the repository (272
-confirmed reentry records, 36 KB). This step only applies if rebuilding
+`data/reentry/decay_records.json` is included in the repository (257
+confirmed reentry records with sufficient TLE data, 36 KB). This step only applies if rebuilding
 labels from scratch with a Space-Track account:
 
 ```bash

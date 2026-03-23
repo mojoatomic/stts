@@ -1,8 +1,13 @@
 data/
 docs/
 artifacts/corpus.pkl
+artifacts/reentry/corpus.pkl
+artifacts/reentry/*.pkl
+artifacts/reentry/*.npy
 results/*.png
+.env*
 .DS_Store
+.venv/
 __pycache__/
 *.pyc
 .claude/

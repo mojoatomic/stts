@@ -243,6 +243,26 @@ Random seed:                     42
    >= 2025-12-01 may exclude operational satellites with TLE gaps in
    the bulk data. The 15,170 count is a lower bound.
 
+6. **High-altitude anomalies (23 satellites >600 km).** 23 operational
+   satellites above 600 km show sustained reentry-like trajectory
+   signatures where atmospheric drag alone is insufficient explanation.
+   Excursion durations range from short (likely TLE artifact) to
+   sustained (20+ consecutive windows, physically anomalous). Of 23,
+   19 show >20 consecutive windows — inconsistent with TLE noise.
+   Thirteen are at 1,100–1,216 km (V-band shell region).
+
+   These objects are documented in:
+   `results/reentry/high_altitude_anomalies.csv`
+
+   Classification by excursion duration:
+   - <5 windows: likely artifact (1 satellite)
+   - 5–20 windows: ambiguous (3 satellites)
+   - >20 windows: requires physical explanation (19 satellites)
+
+   Independent verification recommended before operational conclusions
+   are drawn. SpaceX internal telemetry would definitively distinguish
+   managed operations from genuine anomalies.
+
 ## Reproducing from Scratch
 
 ```bash

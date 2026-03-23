@@ -114,12 +114,9 @@ labels from scratch with a Space-Track account:
 python reentry/corpus.py --fetch-decay-labels
 ```
 
-**Space-Track rate limits — CRITICAL:** Space-Track enforces strict
-rate limits (30 requests/minute, 300/hour). Violating these limits
-results in account suspension. The decay class query is 1 request.
-For any future gp_history queries, use comma-delimited NORAD IDs
-in batch queries (never send individual queries per object). Download
-bulk TLE history from the cloud storage zip files, not the API.
+**Space-Track rate limits — CRITICAL:** Space-Track enforces strict rate
+limits (30 requests/minute, 300/hour). Always use bulk downloads for
+historical data. Reserve API calls for lightweight metadata queries only.
 See: https://www.space-track.org/documentation#/api
 
 ### Step 4: Build corpus
@@ -220,10 +217,10 @@ Random seed:                     42
 ## 5. Known Limitations
 
 1. **7,539 ambiguous satellites excluded.** These lack the DECAY_DATE
-   label because the Space-Track API account was suspended before all
-   reentry records could be fetched. The decay class query (1 API
-   request) will label them once the account is reinstated. Expected
-   to add ~1,200 additional confirmed reentries to the corpus.
+   label because the corpus build was halted before all reentry labels
+   could be retrieved from the decay class. Full labeling requires a
+   single lightweight decay class API query. Expected to add ~1,200
+   additional confirmed reentries to the corpus.
 
 2. **Storm holdout: 6 of ~38 confirmed storm casualties have TLE
    records.** The remaining ~32 reentered too rapidly for NORAD to

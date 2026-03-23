@@ -8,17 +8,17 @@ A geometric framework for monitoring complex dynamic systems via trajectory embe
 
 Five physically distinct domains, one pipeline:
 
-| Domain | Corpus | V1 sep | V2 | F1 |
-|--------|--------|--------|-----|-----|
-| Turbofan (C-MAPSS) | 100 engines | 4.6x | 0.94 | 0.969 |
-| NEA orbital (JPL Horizons) | 973 asteroids | 3.8x | 0.631 | 1.000 |
-| Battery (NASA) | 10 batteries | 320.9x | 0.66 | 0.640 |
-| Bearing (PRONOSTIA) | 6 bearings | 97.6x | 0.05 | — |
-| Reentry (Starlink) | 257 reentry / 500 operational | 250.6x | —* | 0.982† |
+| Domain | Corpus | V1 sep | V2 | F1 | Notes |
+|--------|--------|--------|-----|-----|-------|
+| Turbofan (C-MAPSS) | 100 engines | 4.6x | 0.94 | 0.969 | |
+| NEA orbital (JPL Horizons) | 973 asteroids | 3.8x | 0.631 | 1.000 | |
+| Battery (NASA) | 10 batteries | 320.9x | 0.66 | 0.640 | |
+| Bearing (PRONOSTIA) | 6 bearings | 97.6x | 0.05 | — | |
+| Reentry (Starlink) | 257 reentry / 500 ops | 250.6x | N/A* | 0.555† | |
 
-\*V2 physically inapplicable to deliberate Starlink deorbit — orbit raise → stable cruise → deorbit burn produces a cliff transition, not a gradual monotonic approach. Documented as a domain-specific finding, not a framework failure.
+\*V2 inapplicable — deliberate deorbit cliff structure (orbit raise → stable cruise → deorbit burn), not gradual monotonic approach. Documented as a domain-specific finding.
 
-†Recall = 1.000 (78/78 reentry satellites detected). F1 reflects precision in the two-population design; see Constellation Health Finding below.
+†Recall = 1.000 (78/78 reentry satellites detected, mean lead time 471 days). Precision reflects constellation health finding — 108 operational satellites showing sustained reentry-like signatures are not false positives. See below.
 
 V1 (failure basin geometric separation) passes universally across all domains. V2 and F1 track corpus sufficiency — the framework's stated applicability condition P1 is empirically a binding constraint.
 
@@ -28,15 +28,19 @@ V1 (failure basin geometric separation) passes universally across all domains. V
 
 ## Constellation Health Finding
 
-Applied to 15,170 operational Starlink satellites, STTS identifies 108 showing sustained reentry-like orbital signatures at operational altitude. These are not false positives — they are operational satellites whose TLE trajectories persistently drift toward the reentry basin.
+Applied to 15,170 operational Starlink satellites, STTS identifies 108 showing sustained reentry-like orbital signatures at nominal operational altitude — not in the deliberate deorbit campaign, correlated with Solar Cycle 25 (9x onset rate increase 2020→2025). Signal is driven by trajectory geometry (periapsis decline rate, mean motion evolution), not raw BSTAR drag coefficient.
 
-Key characteristics:
-- Median periapsis 538 km (below 550 km nominal operational altitude)
-- 38 satellites cluster at 450–500 km (50–100 km below nominal)
-- Excursion onsets accelerate 9x from 2020 to 2025, tracking Solar Cycle 25
-- Signal driven by trajectory geometry (periapsis decline rate, mean motion evolution), not raw drag coefficient
+- 38 satellites cluster at 450–500 km periapsis (50–100 km below nominal)
+- Excursion onsets: 4 (2020), 6 (2021), 17 (2022), 23 (2023), 21 (2024), 37 (2025)
+- These are operational satellites whose trajectories persistently resemble the approach to reentry
 
-This is a constellation health monitoring capability that does not exist in current practice. See `results/reentry/patterns.md` for full investigation.
+This is a constellation health monitoring capability that does not exist in current practice. See `results/reentry/patterns.md` for full investigation and `results/reentry/firing_satellites_categorized.json` for per-satellite data.
+
+## TERRA_INCOGNITA Validation
+
+February 2022 geomagnetic storm: 6/6 evaluated storm objects flagged out-of-distribution at 570x mean training corpus distance. The framework correctly returns "I have never seen a trajectory like this" for storm-induced reentries — a model trained on deliberate deorbits should not confidently predict chaotic atmospheric drag events.
+
+Of the ~38 confirmed storm casualties, only 6 generated individual TLE records. The remaining ~32 reentered too rapidly for NORAD to maintain TLE solutions — TERRA_INCOGNITA by definition (zero tracking data in the corpus).
 
 ## Repository Structure
 
@@ -74,6 +78,11 @@ stts/
 ├── results/
 │   ├── orbital/                    # NEA validation + case study results
 │   └── reentry/                    # Reentry validation + investigation
+│       ├── validate.json           # Full confusion matrix + lead times
+│       ├── terra_incognita.json    # Storm object OOD results
+│       ├── patterns.md             # Constellation health investigation
+│       ├── firing_satellites_125.csv
+│       └── firing_satellites_categorized.json
 ├── artifacts/                      # Serialized models (gitignored)
 ├── DATA.md                         # Data acquisition guide (reentry)
 ├── requirements.txt

@@ -64,9 +64,10 @@ CORPUS_DATE_MAX = "2026-03-01"
 MIN_TLE_RECORDS = 60
 
 # Storm objects (Feb 2022 geomagnetic event) only existed for ~14 days.
-# They need a lower threshold — 10 records ≈ 5 days at 2 TLEs/day.
-# Window size is adapted to min(available_records, WINDOW_SIZE) for these.
-STORM_MIN_TLE_RECORDS = 10
+# They need a lower threshold. The 6 confirmed storm objects with TLE
+# records have 3–25 TLEs spanning 1–4 days. Window size is adapted to
+# min(available_records, WINDOW_SIZE) for these objects.
+STORM_MIN_TLE_RECORDS = 3
 
 RANDOM_SEED = 42
 

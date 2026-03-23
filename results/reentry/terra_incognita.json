@@ -1,0 +1,225 @@
+{
+  "config": {
+    "corpus": {
+      "object_filter": "STARLINK~~",
+      "decay_msg_type": "Historical",
+      "date_min": "2019-05-01",
+      "date_max": "2026-03-01",
+      "min_tle_records": 60,
+      "random_seed": 42,
+      "train_fraction": 0.7
+    },
+    "features": {
+      "window_size": 30,
+      "stride_train": 5,
+      "stride_eval": 1,
+      "state_channels": [
+        "PERIAPSIS",
+        "MEAN_MOTION",
+        "MEAN_MOTION_DOT",
+        "BSTAR",
+        "ECCENTRICITY",
+        "APOAPSIS"
+      ],
+      "n_features": 63
+    },
+    "causal_weights": {
+      "channel_weights": {
+        "PERIAPSIS": 2.0,
+        "MEAN_MOTION_DOT": 3.0,
+        "MEAN_MOTION": 1.5,
+        "APOAPSIS": 1.0,
+        "BSTAR": 1.5,
+        "ECCENTRICITY": 0.8
+      },
+      "feature_class_weights": {
+        "time_domain": 1.0,
+        "rate": 2.0,
+        "ratio": 2.5,
+        "cross": 1.2
+      }
+    },
+    "labeling": {
+      "precursor_days": 30,
+      "nominal_buffer_days": 90
+    },
+    "model": {
+      "lda_components": 1,
+      "k_neighbors": 5,
+      "ood_percentile": 95
+    },
+    "validation": {
+      "v1_p_threshold": 0.001,
+      "v2_spearman_threshold": 0.5
+    },
+    "weights": {
+      "W[0:4]": {
+        "multiplier": 2.0,
+        "justification": "PERIAPSIS td (mean/std/min/max): clean altitude signal"
+      },
+      "W[4:8]": {
+        "multiplier": 1.5,
+        "justification": "MEAN_MOTION td: Kepler consequence of energy loss"
+      },
+      "W[8:12]": {
+        "multiplier": 3.0,
+        "justification": "MEAN_MOTION_DOT td: primary rate-of-decay indicator"
+      },
+      "W[12:16]": {
+        "multiplier": 1.5,
+        "justification": "BSTAR td: drag coefficient, leading but noisy"
+      },
+      "W[16:20]": {
+        "multiplier": 0.8,
+        "justification": "ECCENTRICITY td: orbit shape, moderate signal"
+      },
+      "W[20:24]": {
+        "multiplier": 1.0,
+        "justification": "APOAPSIS td: orbit circularization tracking"
+      },
+      "W[24:27]": {
+        "multiplier": 4.0,
+        "justification": "d(PERIAPSIS)/dt: rate of altitude loss \u2014 critical"
+      },
+      "W[27:30]": {
+        "multiplier": 3.0,
+        "justification": "d(MEAN_MOTION)/dt: acceleration of orbital period change"
+      },
+      "W[30:33]": {
+        "multiplier": 6.0,
+        "justification": "d(MEAN_MOTION_DOT)/dt: jerk of decay \u2014 earliest signal"
+      },
+      "W[33:36]": {
+        "multiplier": 3.0,
+        "justification": "d(BSTAR)/dt: drag evolution rate"
+      },
+      "W[36:39]": {
+        "multiplier": 1.6,
+        "justification": "d(ECCENTRICITY)/dt: circularization rate"
+      },
+      "W[39:42]": {
+        "multiplier": 2.0,
+        "justification": "d(APOAPSIS)/dt: apoapsis lowering rate"
+      },
+      "W[42:43]": {
+        "multiplier": 5.0,
+        "justification": "PERIAPSIS late/early: altitude decline within window"
+      },
+      "W[43:44]": {
+        "multiplier": 3.75,
+        "justification": "MEAN_MOTION late/early: period change within window"
+      },
+      "W[44:45]": {
+        "multiplier": 7.5,
+        "justification": "MEAN_MOTION_DOT late/early: MOST DISCRIMINATING \u2014 explosive growth signature within single window"
+      },
+      "W[45:46]": {
+        "multiplier": 3.75,
+        "justification": "BSTAR late/early: drag evolution within window"
+      },
+      "W[46:47]": {
+        "multiplier": 2.0,
+        "justification": "ECCENTRICITY late/early: shape change within window"
+      },
+      "W[47:48]": {
+        "multiplier": 2.5,
+        "justification": "APOAPSIS late/early: apoapsis change within window"
+      },
+      "W[48:63]": {
+        "multiplier": 1.2,
+        "justification": "Cross-channel correlations: coupled decay dynamics"
+      }
+    },
+    "geomagnetic_storm": {
+      "date": "2022-02-03",
+      "window_days": 30,
+      "launch_intldes": "2022-010"
+    }
+  },
+  "artifact_checksums": {
+    "scaler": "6f0c23775415be751869baba9cea3a55",
+    "lda": "87f3f361ad32e831b8226c44254273af",
+    "basin": "4fd9487c47187570f695a1a12eb42d8c"
+  },
+  "ood_detection": {
+    "n_storm_objects": 6,
+    "n_flagged_ood": 6,
+    "ood_rate": 1.0,
+    "ood_threshold": 0.00046288091276336374,
+    "ood_percentile": 95
+  },
+  "distance_distributions": {
+    "training_mean": 0.0009,
+    "training_p95": 0.0005,
+    "storm_mean": 0.5133,
+    "storm_p95": 2.1318
+  },
+  "per_object": [
+    {
+      "norad_id": "51456",
+      "object_name": null,
+      "decay_epoch": null,
+      "n_windows": 1,
+      "max_corpus_dist": 2.791496812063386,
+      "mean_corpus_dist": 2.791496812063386,
+      "frac_windows_ood": 1.0,
+      "is_terra_incognita": true,
+      "mean_basin_dist": 1.4620700442025671
+    },
+    {
+      "norad_id": "51457",
+      "object_name": null,
+      "decay_epoch": null,
+      "n_windows": 1,
+      "max_corpus_dist": 0.0024889764731637065,
+      "mean_corpus_dist": 0.0024889764731637065,
+      "frac_windows_ood": 1.0,
+      "is_terra_incognita": true,
+      "mean_basin_dist": 3.578841579685929
+    },
+    {
+      "norad_id": "51458",
+      "object_name": null,
+      "decay_epoch": null,
+      "n_windows": 1,
+      "max_corpus_dist": 0.014856579327336306,
+      "mean_corpus_dist": 0.014856579327336306,
+      "frac_windows_ood": 1.0,
+      "is_terra_incognita": true,
+      "mean_basin_dist": 0.01119260670609279
+    },
+    {
+      "norad_id": "51459",
+      "object_name": null,
+      "decay_epoch": null,
+      "n_windows": 1,
+      "max_corpus_dist": 0.003933371202535341,
+      "mean_corpus_dist": 0.003933371202535341,
+      "frac_windows_ood": 1.0,
+      "is_terra_incognita": true,
+      "mean_basin_dist": 0.006389683925781142
+    },
+    {
+      "norad_id": "51466",
+      "object_name": null,
+      "decay_epoch": null,
+      "n_windows": 1,
+      "max_corpus_dist": 0.15282544693668498,
+      "mean_corpus_dist": 0.15282544693668498,
+      "frac_windows_ood": 1.0,
+      "is_terra_incognita": true,
+      "mean_basin_dist": 0.08034296477391437
+    },
+    {
+      "norad_id": "51470",
+      "object_name": null,
+      "decay_epoch": null,
+      "n_windows": 1,
+      "max_corpus_dist": 0.11433307302488416,
+      "mean_corpus_dist": 0.11433307302488416,
+      "frac_windows_ood": 1.0,
+      "is_terra_incognita": true,
+      "mean_basin_dist": 0.08302992999906848
+    }
+  ]
+}

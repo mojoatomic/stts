@@ -96,14 +96,24 @@ def classify_satellite(records: list[dict]) -> str:
     return "ambiguous"
 
 
-def identify_storm_objects_from_cache() -> set[str]:
-    """Identify Feb 2022 geomagnetic storm objects from cached TLE data.
+def identify_storm_objects() -> set[str]:
+    """Identify Feb 2022 geomagnetic storm objects.
 
-    Criteria: satellite with COSPAR/INTLDES starting with 2022-010
-    (Group 4-7 launch) AND last TLE epoch within 30 days of 2022-02-03.
-    These satellites reentered within ~14 days of launch due to elevated
-    atmospheric density from the geomagnetic storm.
+    Uses cached storm IDs from Space-Track decay class query
+    (data/reentry/storm_cache/storm_ids.json). These are the 6
+    Group 4-7 (INTLDES 2022-010*) satellites with formal decay records.
+
+    Of 49 satellites launched Feb 3, 2022, 38 were lost to the storm.
+    Only 6 generated formal Space-Track decay records — the remaining
+    ~32 reentered too rapidly to generate individual TLE solutions.
+    Those 32 are TERRA_INCOGNITA by definition (zero tracking data).
     """
+    storm_cache = DATA_DIR / "storm_cache" / "storm_ids.json"
+    if storm_cache.exists():
+        with open(storm_cache) as f:
+            return set(json.load(f))
+
+    # Fallback: scan TLE cache for 2022-010 INTLDES
     storm_ids = set()
     storm_date = datetime(2022, 2, 3)
     cutoff = storm_date + timedelta(days=30)
@@ -113,27 +123,17 @@ def identify_storm_objects_from_cache() -> set[str]:
         norad_id = cache_file.stem
         with open(cache_file) as f:
             records = json.load(f)
-
         if not records:
             continue
-
-        # Check international designator
         intldes = ""
         for r in records:
             intldes = r.get("OBJECT_ID", r.get("INTLDES", ""))
             if intldes:
                 break
-
-        if not intldes.startswith("2022-010"):
-            continue
-
-        # Check if last TLE is before the cutoff (satellite stopped transmitting)
-        last_epoch = records[-1].get("EPOCH", "")[:10]
-        first_epoch = records[0].get("EPOCH", "")[:10]
-
-        # Must have started after the launch and ended within 30 days
-        if first_epoch >= "2022-01-01" and last_epoch <= cutoff_str:
-            storm_ids.add(norad_id)
+        if intldes.startswith("2022-010"):
+            last_epoch = records[-1].get("EPOCH", "")[:10]
+            if last_epoch <= cutoff_str:
+                storm_ids.add(norad_id)
 
     return storm_ids
 
@@ -214,8 +214,8 @@ def build_corpus():
     print(f"  Empty cache files: {empty_count}")
 
     # ── Step 2: Identify storm objects ──────────────────────
-    print("\n[2/4] Identifying geomagnetic storm objects from cache...")
-    storm_ids = identify_storm_objects_from_cache()
+    print("\n[2/4] Identifying geomagnetic storm objects...")
+    storm_ids = identify_storm_objects()
     print(f"  Storm objects identified: {len(storm_ids)}")
 
     # Move storm objects out of reentry/operational into holdout

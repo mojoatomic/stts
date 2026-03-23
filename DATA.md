@@ -107,9 +107,13 @@ Constants: R_Earth = 6378.137 km, mu_Earth = 398600.4418 km³/s²
 # If rebuilding from scratch, this is the only API call needed.
 ```
 
-Rate limiting: Space-Track allows 30 requests/minute, 300/hour.
-This is 1 request. Use comma-delimited NORAD IDs for any batch
-queries (never send individual queries per object).
+**Space-Track rate limits — CRITICAL:** Space-Track enforces strict
+rate limits (30 requests/minute, 300/hour). Violating these limits
+results in account suspension. The decay class query is 1 request.
+For any future gp_history queries, use comma-delimited NORAD IDs
+in batch queries (never send individual queries per object). Download
+bulk TLE history from the cloud storage zip files, not the API.
+See: https://www.space-track.org/documentation#/api
 
 ### Step 4: Build corpus
 
@@ -160,15 +164,20 @@ Both reentry and operational satellites split 70/30 by NORAD_CAT_ID:
 
 ### Storm object identification
 
-Criteria for February 2022 geomagnetic storm holdout:
-- COSPAR/international designator starts with "2022-010"
-  (Starlink Group 4-7, launched 2022-02-03)
-- Last TLE epoch within 30 days of 2022-02-03
+February 2022 geomagnetic storm (Starlink Group 4-7, launched 2022-02-03):
+- 49 satellites launched, 38 confirmed lost per SpaceX press release
+- 6 have formal Space-Track decay class records with INTLDES 2022-010*
+- Remaining ~32 reentered too rapidly for NORAD to maintain individual
+  TLE solutions — they never reached stable orbits
+- NORAD IDs: 51456, 51457, 51458, 51459, 51466, 51470
+- TLE records: 3–25 per satellite, spanning 1–4 days of tracking
+- Identified via decay class API query (1 request):
+  `class/decay/OBJECT_NAME/STARLINK~~/DECAY_EPOCH/2022-02-04--2022-03-05`
+- Cached to: `data/reentry/storm_cache/storm_ids.json`
 
-**Status: 0 storm objects found in current cache.** The bulk TLE files
-contain these satellites, but without COSPAR designator in the TLE
-format, identification relies on NORAD ID cross-reference from the
-decay class API. Pending Space-Track account reinstatement.
+These 6 objects are held out as a TERRA_INCOGNITA evaluation set.
+The remaining ~32 with no TLE records are TERRA_INCOGNITA by
+definition — zero tracking data exists for them.
 
 ### Labeling (two-population design)
 
@@ -193,10 +202,11 @@ Confirmed reentry satellites:    257 (with DECAY_DATE)
 Operational satellites:          15,170 (last TLE >= 2025-12-01)
 Operational sampled for corpus:  500 (seed=42)
 Ambiguous excluded:              7,539
-Storm objects identified:        0 (pending API access)
-Corpus satellites:               757 (257 reentry + 500 operational)
+Storm objects (holdout):         6 (INTLDES 2022-010*, 3-25 TLEs each)
+Corpus satellites:               763 (257 reentry + 500 operational + 6 storm)
 Train split:                     529 (179 reentry + 350 operational)
 Test split:                      228 (78 reentry + 150 operational)
+Storm holdout:                   6
 Random seed:                     42
 ```
 
@@ -208,10 +218,12 @@ Random seed:                     42
    request) will label them once the account is reinstated. Expected
    to add ~1,200 additional confirmed reentries to the corpus.
 
-2. **Storm objects not yet evaluated.** The February 2022 geomagnetic
-   storm holdout requires cross-referencing COSPAR designators from
-   the decay class API. The bulk TLE format does not include COSPAR
-   IDs directly. Pending account reinstatement.
+2. **Storm holdout: 6 of ~38 confirmed storm casualties have TLE
+   records.** The remaining ~32 reentered too rapidly for NORAD to
+   maintain individual TLE solutions. The 6 evaluated objects are the
+   least extreme cases — they survived long enough to be tracked.
+   TERRA_INCOGNITA result (6/6 flagged OOD at 570x corpus distance)
+   is a conservative lower bound on anomaly detection capability.
 
 3. **Bulk files cover through December 2025 only.** The tle2025.txt.zip
    file was last modified January 7, 2026. Satellites with last TLE

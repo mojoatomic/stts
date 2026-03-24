@@ -163,7 +163,7 @@ All pipelines enforce scientific rigor by construction:
 
 - **Main paper:** [Zenodo 10.5281/zenodo.19170897](https://doi.org/10.5281/zenodo.19170897)
 - **STTS-Orbital companion:** [Zenodo 10.5281/zenodo.19171384](https://doi.org/10.5281/zenodo.19171384)
-- **STTS-Reentry:** in preparation
+- **STTS-Reentry:** [Zenodo 10.5281/zenodo.19197807](https://doi.org/10.5281/zenodo.19197807)
 - **STTS-Conjunction:** in preparation
 
 ## License

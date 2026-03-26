@@ -26,6 +26,14 @@ V1 (failure basin geometric separation) passes universally across all domains. V
 
 **Reentry highlights:** Mean detection lead time 471 days before confirmed reentry. Perfect recall on held-out test set.
 
+## NASA CARA Relevance
+
+The STTS recognition primitive directly addresses the interpretability and class-imbalance limitations identified in Mashiku, Newman & Highsmith (AMOS 2025) for AI/ML conjunction assessment. Rather than predicting or classifying risk, STTS asks whether a conjunction's CDM trajectory geometrically resembles trajectories that preceded confirmed Debris Avoidance Maneuvers — returning the k most similar historical cases as the explanation. Interpretability is by construction, not post-hoc. Class imbalance is structurally absent from distance geometry.
+
+See `docs/STTS_overview.png` for pipeline architecture and `docs/STTS_triage.png` for operational workflow integration.
+
+*Updated March 2026 for CARA discussion.*
+
 ## Constellation Health Finding
 
 Applied to 15,170 operational Starlink satellites, STTS identifies 108 showing sustained reentry-like orbital signatures at nominal operational altitude — not in the deliberate deorbit campaign, correlated with Solar Cycle 25 (9x onset rate increase 2020→2025). Signal is driven by trajectory geometry (periapsis decline rate, mean motion evolution), not raw BSTAR drag coefficient.
@@ -83,6 +91,16 @@ stts/
 │       ├── patterns.md             # Constellation health investigation
 │       ├── firing_satellites_125.csv
 │       └── firing_satellites_categorized.json
+├── docs/
+│   ├── STTS_overview.png           # Pipeline architecture diagram
+│   ├── STTS_triage.png             # CARA operational workflow diagram
+│   └── generate_diagrams.py        # Diagram generation script
+├── results/reentry/plots/
+│   ├── basin_separation.png        # V1 basin separation histogram
+│   ├── anomalous_satellites.png    # Flagged satellites scatter plot
+│   ├── sc25_correlation.png        # Solar cycle correlation
+│   ├── lead_time_distribution.png  # Detection lead time histogram
+│   └── generate_plots.py           # Plot generation script
 ├── artifacts/                      # Serialized models (gitignored)
 ├── DATA.md                         # Data acquisition guide (reentry)
 ├── requirements.txt

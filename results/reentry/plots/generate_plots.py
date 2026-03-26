@@ -36,11 +36,25 @@ RESULTS = Path(__file__).resolve().parent.parent
 PLOTS = RESULTS / "plots"
 PLOTS.mkdir(parents=True, exist_ok=True)
 
-# ── Color scheme ─────────────────────────────────────────────
-BLUE_NOM = "#2166ac"       # nominal trajectories
-RED_REENTRY = "#d6604d"    # reentry-like trajectories
+# ── Shared style ──────────────────────────────────────────────
+STYLE = {
+    'figure_size': (12, 7),
+    'title_fontsize': 16,
+    'title_fontweight': 'bold',
+    'label_fontsize': 13,
+    'annotation_fontsize': 11,
+    'dpi': 150,
+    'reentry_color': '#d62728',
+    'nominal_color': '#4878d0',
+    'solar_color': '#2ca02c',
+    'grid_alpha': 0.3,
+}
+
+# ── Color scheme (derived from STYLE) ────────────────────────
+BLUE_NOM = STYLE['nominal_color']
+RED_REENTRY = STYLE['reentry_color']
 ORANGE_TRANS = "#f4a582"   # transitional
-GREEN_SC25 = "#1b7837"     # solar cycle correlation
+GREEN_SC25 = STYLE['solar_color']
 GRAY_REF = "#878787"       # reference lines
 DARK_TEXT = "#1a1a1a"
 
@@ -63,7 +77,7 @@ def plot_basin_separation():
           f"median precursor: {np.median(pre_d):.6f}")
     print(f"  V1 separation: {sep:.1f}x")
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=STYLE['figure_size'])
 
     all_d = np.concatenate([nom_d, pre_d])
     bins = np.logspace(
@@ -83,11 +97,12 @@ def plot_basin_separation():
 
     ax.set_xscale("log")
     ax.set_yscale("log")
-    ax.set_xlabel("k-NN Distance to Failure Basin", fontsize=12)
-    ax.set_ylabel("Window Count", fontsize=12)
+    ax.set_xlabel("k-NN Distance to Failure Basin", fontsize=STYLE['label_fontsize'])
+    ax.set_ylabel("Window Count", fontsize=STYLE['label_fontsize'])
     ax.set_title("STTS-Reentry: Nominal vs Precursor Basin Distance",
-                 fontsize=14, fontweight="bold")
-    ax.legend(fontsize=11, loc="upper left")
+                 fontsize=STYLE['title_fontsize'], fontweight=STYLE['title_fontweight'])
+    ax.legend(fontsize=STYLE['annotation_fontsize'], loc="upper left")
+    ax.grid(True, alpha=STYLE['grid_alpha'], which="both")
 
     nom_med = np.median(nom_d)
     pre_med = np.median(pre_d)
@@ -103,10 +118,10 @@ def plot_basin_separation():
                   edgecolor=GRAY_REF, alpha=0.9),
     )
 
-    ax.tick_params(labelsize=10)
+    ax.tick_params(labelsize=STYLE['annotation_fontsize'])
     fig.tight_layout()
     outpath = PLOTS / "basin_separation.png"
-    fig.savefig(outpath, dpi=200, bbox_inches="tight")
+    fig.savefig(outpath, dpi=STYLE['dpi'], bbox_inches="tight")
     plt.close(fig)
     print(f"  Saved {outpath}")
 
@@ -135,7 +150,13 @@ def plot_anomalous_satellites():
     )
     print(f"  450-500 km cluster: {cluster_count} satellites")
 
-    fig, ax = plt.subplots(figsize=(12, 7))
+    fig, ax = plt.subplots(figsize=STYLE['figure_size'])
+
+    # Nominal Starlink operational band
+    ax.axhspan(480, 550, alpha=0.12, color=BLUE_NOM, zorder=1)
+    ax.text(datetime(2020, 2, 1), 515,
+            "Nominal Starlink Operational Band (480\u2013550 km)",
+            fontsize=9, color=BLUE_NOM, va="center", style="italic")
 
     categories = [
         (cat["unexpected"], RED_REENTRY, f"Unexpected ({n_unexpected})", "o"),
@@ -161,23 +182,24 @@ def plot_anomalous_satellites():
         f"{cluster_count}-satellite cluster\n450\u2013500 km",
         xy=(datetime(2023, 6, 1), 475), xycoords="data",
         xytext=(datetime(2020, 6, 1), 250),
-        fontsize=10, fontweight="bold", color=RED_REENTRY,
+        fontsize=STYLE['annotation_fontsize'], fontweight="bold", color=RED_REENTRY,
         arrowprops=dict(arrowstyle="->", color=RED_REENTRY, lw=1.5),
         bbox=dict(boxstyle="round,pad=0.3", facecolor="white",
                   edgecolor=RED_REENTRY, alpha=0.9),
     )
 
-    ax.set_xlabel("First Excursion Date", fontsize=12)
-    ax.set_ylabel("Current Periapsis Altitude (km)", fontsize=12)
+    ax.set_xlabel("First Excursion Date", fontsize=STYLE['label_fontsize'])
+    ax.set_ylabel("Current Periapsis Altitude (km)", fontsize=STYLE['label_fontsize'])
     ax.set_title("STTS-Reentry: Anomalous Operational Satellites",
-                 fontsize=14, fontweight="bold")
-    ax.legend(fontsize=10, loc="upper left")
+                 fontsize=STYLE['title_fontsize'], fontweight=STYLE['title_fontweight'])
+    ax.legend(fontsize=STYLE['annotation_fontsize'], loc="upper left")
+    ax.grid(True, alpha=STYLE['grid_alpha'])
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
     ax.xaxis.set_major_locator(mdates.YearLocator())
-    ax.tick_params(labelsize=10)
+    ax.tick_params(labelsize=STYLE['annotation_fontsize'])
     fig.tight_layout()
     outpath = PLOTS / "anomalous_satellites.png"
-    fig.savefig(outpath, dpi=200, bbox_inches="tight")
+    fig.savefig(outpath, dpi=STYLE['dpi'], bbox_inches="tight")
     plt.close(fig)
     print(f"  Saved {outpath}")
 
@@ -207,21 +229,22 @@ def plot_sc25_correlation():
     print(f"  Spearman(year, onsets):  rho={rho_year:.3f}, p={p_year:.4f}")
     print(f"  Spearman(SSN, onsets):   rho={rho_ssn:.3f}, p={p_ssn:.4f}")
 
-    fig, ax1 = plt.subplots(figsize=(10, 6))
+    fig, ax1 = plt.subplots(figsize=STYLE['figure_size'])
 
     ax1.bar(years, onsets, color=RED_REENTRY, alpha=0.7, width=0.4,
             label="Excursion onsets", zorder=3)
-    ax1.set_xlabel("Year", fontsize=12)
-    ax1.set_ylabel("Excursion Onset Count", fontsize=12, color=RED_REENTRY)
-    ax1.tick_params(axis="y", labelcolor=RED_REENTRY, labelsize=10)
-    ax1.tick_params(axis="x", labelsize=10)
+    ax1.set_xlabel("Year", fontsize=STYLE['label_fontsize'])
+    ax1.set_ylabel("Excursion Onset Count", fontsize=STYLE['label_fontsize'], color=RED_REENTRY)
+    ax1.tick_params(axis="y", labelcolor=RED_REENTRY, labelsize=STYLE['annotation_fontsize'])
+    ax1.tick_params(axis="x", labelsize=STYLE['annotation_fontsize'])
     ax1.set_xticks(years)
+    ax1.grid(True, alpha=STYLE['grid_alpha'], axis="y")
 
     ax2 = ax1.twinx()
     ax2.plot(years, ssn, color=GREEN_SC25, linewidth=2.5, marker="o",
              markersize=8, label="Mean SSN (SILSO)", zorder=4)
-    ax2.set_ylabel("Annual Mean Sunspot Number", fontsize=12, color=GREEN_SC25)
-    ax2.tick_params(axis="y", labelcolor=GREEN_SC25, labelsize=10)
+    ax2.set_ylabel("Annual Mean Sunspot Number", fontsize=STYLE['label_fontsize'], color=GREEN_SC25)
+    ax2.tick_params(axis="y", labelcolor=GREEN_SC25, labelsize=STYLE['annotation_fontsize'])
 
     ax1.axvspan(2021.5, 2024.5, alpha=0.08, color=GREEN_SC25, zorder=1)
     ax1.text(2023.0, 2, "SC25 Rising Phase",
@@ -231,7 +254,7 @@ def plot_sc25_correlation():
     ax1.annotate(
         f"\u03c1 = {rho_year:.3f} (year vs onset, p={p_year:.3f})",
         xy=(0.50, 0.92), xycoords="axes fraction",
-        fontsize=16, fontweight="bold", color=DARK_TEXT,
+        fontsize=STYLE['title_fontsize'], fontweight="bold", color=DARK_TEXT,
         ha="center",
         bbox=dict(boxstyle="round,pad=0.4", facecolor="white",
                   edgecolor=GREEN_SC25, alpha=0.9),
@@ -246,15 +269,15 @@ def plot_sc25_correlation():
     )
 
     ax1.set_title("Excursion Onset Rate vs Solar Cycle 25",
-                   fontsize=14, fontweight="bold")
+                   fontsize=STYLE['title_fontsize'], fontweight=STYLE['title_fontweight'])
 
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines1 + lines2, labels1 + labels2, fontsize=10, loc="upper left")
+    ax1.legend(lines1 + lines2, labels1 + labels2, fontsize=STYLE['annotation_fontsize'], loc="upper left")
 
     fig.tight_layout()
     outpath = PLOTS / "sc25_correlation.png"
-    fig.savefig(outpath, dpi=200, bbox_inches="tight")
+    fig.savefig(outpath, dpi=STYLE['dpi'], bbox_inches="tight")
     plt.close(fig)
     print(f"  Saved {outpath}")
 
@@ -277,7 +300,7 @@ def plot_lead_time():
     print(f"  Mean={stats['mean']}d, median={stats['median']}d, "
           f"min={stats['min']}d, max={stats['max']}d")
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=STYLE['figure_size'])
 
     ax.hist(lead_times, bins=25, color=BLUE_NOM, alpha=0.7,
             edgecolor="white", linewidth=0.5)
@@ -291,20 +314,21 @@ def plot_lead_time():
         f"Mean lead time: {mean_lt:.0f} days\nbefore confirmed reentry",
         xy=(mean_lt, ymax * 0.85), xycoords="data",
         xytext=(mean_lt + 200, ymax * 0.70),
-        fontsize=13, fontweight="bold", color=DARK_TEXT,
+        fontsize=STYLE['annotation_fontsize'] + 2, fontweight="bold", color=DARK_TEXT,
         arrowprops=dict(arrowstyle="->", color=RED_REENTRY, lw=1.5),
         bbox=dict(boxstyle="round,pad=0.4", facecolor="white",
                   edgecolor=RED_REENTRY, alpha=0.9),
     )
 
-    ax.set_xlabel("Detection Lead Time (days)", fontsize=12)
-    ax.set_ylabel("Number of Satellites", fontsize=12)
+    ax.set_xlabel("Detection Lead Time (days)", fontsize=STYLE['label_fontsize'])
+    ax.set_ylabel("Number of Satellites", fontsize=STYLE['label_fontsize'])
     ax.set_title(f"STTS-Reentry: Detection Lead Time Distribution (n={len(lead_times)})",
-                 fontsize=14, fontweight="bold")
-    ax.tick_params(labelsize=10)
+                 fontsize=STYLE['title_fontsize'], fontweight=STYLE['title_fontweight'])
+    ax.grid(True, alpha=STYLE['grid_alpha'], axis="y")
+    ax.tick_params(labelsize=STYLE['annotation_fontsize'])
     fig.tight_layout()
     outpath = PLOTS / "lead_time_distribution.png"
-    fig.savefig(outpath, dpi=200, bbox_inches="tight")
+    fig.savefig(outpath, dpi=STYLE['dpi'], bbox_inches="tight")
     plt.close(fig)
     print(f"  Saved {outpath}")
 

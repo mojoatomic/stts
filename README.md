@@ -30,10 +30,6 @@ V1 (failure basin geometric separation) passes universally across all domains. V
 
 The STTS recognition primitive directly addresses the interpretability and class-imbalance limitations identified in Mashiku, Newman & Highsmith (AMOS 2025) for AI/ML conjunction assessment. Rather than predicting or classifying risk, STTS asks whether a conjunction's CDM trajectory geometrically resembles trajectories that preceded confirmed Debris Avoidance Maneuvers — returning the k most similar historical cases as the explanation. Interpretability is by construction, not post-hoc. Class imbalance is structurally absent from distance geometry.
 
-See `docs/STTS_overview.png` for pipeline architecture and `docs/STTS_triage.png` for operational workflow integration.
-
-*Updated March 2026 for CARA discussion.*
-
 ## Constellation Health Finding
 
 Applied to 15,170 operational Starlink satellites, STTS identifies 108 showing sustained reentry-like orbital signatures at nominal operational altitude — not in the deliberate deorbit campaign, correlated with Solar Cycle 25 (9x onset rate increase 2020→2025). Signal is driven by trajectory geometry (periapsis decline rate, mean motion evolution), not raw BSTAR drag coefficient.
@@ -168,11 +164,12 @@ All pipelines enforce scientific rigor by construction:
 ## Citation
 
 ```bibtex
-@article{fennell2026stts,
+@misc{fennell2026stts,
   title={State Topology and Trajectory Storage: A Geometric Framework
          for Monitoring Complex Dynamic Systems},
   author={Fennell, Doug},
   year={2026},
+  note={Preprint. Zenodo.},
   doi={10.5281/zenodo.19170897}
 }
 ```

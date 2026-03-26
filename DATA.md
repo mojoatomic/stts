@@ -263,6 +263,18 @@ Random seed:                     42
    are drawn. SpaceX internal telemetry would definitively distinguish
    managed operations from genuine anomalies.
 
+7. **Training corpus conflation.** The 257-satellite reentry corpus
+   includes both deliberate SpaceX deorbit events (cliff-shaped
+   trajectory: stable cruise → deorbit burn → rapid decay) and natural
+   orbital decay events (gradual monotonic approach). These two
+   populations are not separated in the training corpus. This directly
+   explains the V2 result (ρ=0.394) — deliberate deorbits produce
+   phase-transition trajectories that suppress monotonic approach
+   signal. V1 separation (250.6×) remains valid as both populations
+   are geometrically distinct from nominal operational trajectories.
+   A future corpus refinement separating the two populations is
+   expected to improve V2.
+
 ## Reproducing from Scratch
 
 ```bash

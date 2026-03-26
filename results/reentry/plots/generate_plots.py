@@ -72,17 +72,22 @@ def plot_basin_separation():
         60,
     )
 
-    ax.hist(pre_d, bins=bins, alpha=0.7, color=RED_REENTRY,
-            label=f"Precursor (n={len(pre_d):,})", edgecolor="white", linewidth=0.3)
-    ax.hist(nom_d, bins=bins, alpha=0.7, color=BLUE_NOM,
-            label=f"Nominal (n={len(nom_d):,})", edgecolor="white", linewidth=0.3)
+    # Log-log axes: log y compresses the 37x count disparity between
+    # nominal (288k) and precursor (7.7k), making both peaks clearly visible.
+    ax.hist(nom_d, bins=bins, alpha=0.5, color=BLUE_NOM,
+            edgecolor=BLUE_NOM, linewidth=0.8,
+            label=f"Nominal (n={len(nom_d):,})", zorder=2)
+    ax.hist(pre_d, bins=bins, alpha=0.8, color=RED_REENTRY,
+            edgecolor=RED_REENTRY, linewidth=0.8,
+            label=f"Precursor (n={len(pre_d):,})", zorder=3)
 
     ax.set_xscale("log")
+    ax.set_yscale("log")
     ax.set_xlabel("k-NN Distance to Failure Basin", fontsize=12)
     ax.set_ylabel("Window Count", fontsize=12)
     ax.set_title("STTS-Reentry: Nominal vs Precursor Basin Distance",
                  fontsize=14, fontweight="bold")
-    ax.legend(fontsize=11, loc="upper right")
+    ax.legend(fontsize=11, loc="upper left")
 
     nom_med = np.median(nom_d)
     pre_med = np.median(pre_d)

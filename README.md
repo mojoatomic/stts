@@ -164,11 +164,12 @@ All pipelines enforce scientific rigor by construction:
 ## Citation
 
 ```bibtex
-@article{fennell2026stts,
+@misc{fennell2026stts,
   title={State Topology and Trajectory Storage: A Geometric Framework
          for Monitoring Complex Dynamic Systems},
   author={Fennell, Doug},
   year={2026},
+  note={Preprint. Zenodo.},
   doi={10.5281/zenodo.19170897}
 }
 ```

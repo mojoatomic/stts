@@ -1,15 +1,11 @@
-"""Stage 3: Manifold projection M — per paper Section 4.4.
+"""Optional exploratory projection module used by run_pipeline.py for
+single-dataset visualization and diagnostics. Supports PCA, UMAP
+(requires umap-learn), and passthrough.
 
-Projects causally-weighted features to a lower-dimensional embedding space
-that preserves trajectory similarity.
-
-IMPORTANT: The StandardScaler here normalizes raw features BEFORE causal
-weighting. It must NOT be applied after weighting, as that would undo
-the causal weight amplification. The pipeline order is:
-  1. F(T) — extract raw features
-  2. StandardScaler — equalize sensor scales
-  3. W — apply causal weights (amplifies upstream features)
-  4. M — optional dimensionality reduction (PCA/UMAP), NO additional scaling
+NOTE: This module is NOT part of the canonical STTS pipeline. The M stage
+(LDA projection) in all published results is implemented directly in each
+domain's run script using sklearn LinearDiscriminantAnalysis. This module
+exists for exploratory analysis only.
 """
 
 from __future__ import annotations

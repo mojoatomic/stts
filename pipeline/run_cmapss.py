@@ -212,7 +212,7 @@ def evaluate_dataset(
     return {
         "dataset": ds,
         "fit_source": fit_source,
-        "v1_sep": v1["median_nominal"] / max(v1["median_precursor"], 1e-10),
+        "v1_sep": v1["separation_ratio"],
         "v1_p": v1["mannwhitney_p"],
         "v2_rho": v2["spearman_rho"],
         "v2_p": v2["p_value"],

@@ -425,7 +425,7 @@ def main():
         print(f"   Train: {fold['train_size']} windows, basin: {fold['basin_size']}")
         v1 = fold["v1_train"]
         print(f"   V1 (train): {'PASS' if v1['passed'] else 'FAIL'} — "
-              f"sep={v1['median_nominal'] / max(v1['median_precursor'], 1e-10):.1f}x, "
+              f"sep={v1['separation_ratio']:.1f}x, "
               f"p={v1['mannwhitney_p']:.2e}")
         v2 = fold["v2_train"]
         print(f"   V2 (train): {'PASS' if v2['passed'] else 'FAIL'} — "
@@ -555,7 +555,7 @@ def main():
     print(f"   Total windows: {len(full_features)}, dim: {full_features.shape[1]}")
     print(f"   Basin size: {len(basin)}")
     print(f"   V1: {'PASS' if v1_full['passed'] else 'FAIL'} — "
-          f"sep={v1_full['median_nominal'] / max(v1_full['median_precursor'], 1e-10):.1f}x, "
+          f"sep={v1_full['separation_ratio']:.1f}x, "
           f"p={v1_full['mannwhitney_p']:.2e}")
     print(f"   V2: {'PASS' if v2_full['passed'] else 'FAIL'} — "
           f"ρ={v2_full['spearman_rho']:.3f}, p={v2_full['p_value']:.2e}")
@@ -573,7 +573,7 @@ def main():
         "window_recall": recall,
         "window_f1": f1,
         "mean_v2_test": mean_v2,
-        "v1_full_sep": v1_full["median_nominal"] / max(v1_full["median_precursor"], 1e-10),
+        "v1_full_sep": v1_full["separation_ratio"],
         "v1_full_p": v1_full["mannwhitney_p"],
         "v2_full_rho": v2_full["spearman_rho"],
         "v2_full_p": v2_full["p_value"],

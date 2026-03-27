@@ -85,6 +85,7 @@ def verify_v1(
         "passed": median_precursor < median_nominal,
         "median_precursor": median_precursor,
         "median_nominal": median_nominal,
+        "separation_ratio": median_nominal / max(median_precursor, 1e-10),
         "mannwhitney_p": pvalue,
     }
 

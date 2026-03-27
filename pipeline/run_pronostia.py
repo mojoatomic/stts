@@ -330,7 +330,7 @@ def main():
                          train_distances[nominal_mask])
     v2_train = verify_v2(train_distances, train_rul)
 
-    sep_ratio = v1_train["median_nominal"] / max(v1_train["median_precursor"], 1e-10)
+    sep_ratio = v1_train["separation_ratio"]
     print(f"   V1 (train): {'PASS' if v1_train['passed'] else 'FAIL'} -- "
           f"sep={sep_ratio:.1f}x, p={v1_train['mannwhitney_p']:.2e}")
     print(f"   V2 (train): {'PASS' if v2_train['passed'] else 'FAIL'} -- "

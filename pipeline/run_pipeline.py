@@ -155,7 +155,7 @@ def main():
     print(f"   V1 (Precursor proximity): {'PASS' if v1['passed'] else 'FAIL'}")
     print(f"       Median precursor: {v1['median_precursor']:.4f}")
     print(f"       Median nominal:   {v1['median_nominal']:.4f}")
-    print(f"       Separation ratio: {v1['median_nominal'] / v1['median_precursor']:.1f}x")
+    print(f"       Separation ratio: {v1['separation_ratio']:.1f}x")
     print(f"       Mann-Whitney p:   {v1['mannwhitney_p']:.2e}")
 
     v2 = verify_v2(train_basin_distances, train_meta["rul"])

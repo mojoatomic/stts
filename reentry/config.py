@@ -132,6 +132,13 @@ STATE_CHANNELS = [
     "MEAN_MOTION_DOT", # rev/day² — rate of orbital decay (explosive near reentry)
     "BSTAR",           # 1/Earth-radii — drag coefficient (reflects atmospheric density)
     "ECCENTRICITY",    # dimensionless — orbit shape evolution during decay
+    # Note: Paper §3.4 lists SEMIMAJOR_AXIS for
+    # this channel. The implementation uses APOAPSIS
+    # — the physically correct choice as it encodes
+    # both orbital energy decay and orbit
+    # circularization via the eccentricity term.
+    # All reported results used APOAPSIS.
+    # A correction note will be submitted to Zenodo.
     "APOAPSIS",        # km — highest orbit point (tracks orbit circularization)
 ]
 N_CHANNELS = len(STATE_CHANNELS)

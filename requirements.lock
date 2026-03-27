@@ -1,0 +1,50 @@
+# Exact environment used for all published results.
+# Generated: March 27, 2026
+# Platform: macOS Darwin 25.3.0 (Apple Silicon)
+# Python: 3.14.2
+#
+# Use for exact reproduction:
+#   pip install -r requirements.lock
+#
+# Note: Platform-specific. Linux and other
+# platform users should use requirements.txt instead.
+# Results are expected to be numerically identical
+# across platforms for the version ranges specified.
+
+anyio==4.12.1
+attrs==26.1.0
+certifi==2026.2.25
+charset-normalizer==3.4.6
+contourpy==1.3.3
+cycler==0.12.1
+faiss-cpu==1.13.2
+filelock==3.25.2
+fonttools==4.62.1
+h11==0.16.0
+httpcore==1.0.9
+httpx==0.28.1
+idna==3.11
+joblib==1.5.3
+kiwisolver==1.5.0
+Logbook==1.9.2
+matplotlib==3.10.8
+numpy==2.4.3
+outcome==1.3.0.post0
+packaging==26.0
+pandas==3.0.1
+pillow==12.1.1
+platformdirs==4.9.4
+pyparsing==3.3.2
+python-dateutil==2.9.0.post0
+python-dotenv==1.2.2
+Represent==2.1
+requests==2.32.5
+rush==2021.4.0
+scikit-learn==1.8.0
+scipy==1.17.1
+six==1.17.0
+sniffio==1.3.1
+spacetrack==1.4.0
+threadpoolctl==3.6.0
+typing_extensions==4.15.0
+urllib3==2.6.3

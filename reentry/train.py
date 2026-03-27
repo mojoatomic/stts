@@ -228,7 +228,7 @@ def load_model() -> dict:
     """Load the frozen trained model. NEVER calls .fit().
 
     Returns dict with: scaler, lda, basin, W, epsilon,
-    dist_to_basin, ood_dist_to_corpus, meta.
+    dist_to_basin, meta.
     Verifies artifact checksums.
     """
     for path in [SCALER_FILE, LDA_FILE, BASIN_FILE, MODEL_META_FILE]:
@@ -264,11 +264,6 @@ def load_model() -> dict:
     def dist_to_basin(p):
         dists = np.abs(basin - p)
         return np.mean(np.sort(dists)[:min(k, len(basin))])
-
-    # Full corpus projection for OOD detection
-    all_proj = lda.transform(
-        np.nan_to_num(scaler.transform(np.zeros((1, W.shape[0])))) * W
-    )  # placeholder — real OOD uses training projections
 
     return {
         "scaler": scaler,

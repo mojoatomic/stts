@@ -151,6 +151,20 @@ For the NEA orbital pipeline, data is fetched automatically from JPL Horizons â€
 
 For the reentry pipeline, source data must be downloaded from Space-Track's public cloud storage. See [DATA.md](DATA.md) for complete data acquisition instructions, verification checksums, classification criteria, and known limitations.
 
+### Exact environment (lockfile)
+
+A complete pip lockfile capturing the exact environment used to produce all published results is available as `requirements.lock`:
+
+- Platform: macOS Darwin 25.3.0 (Apple Silicon)
+- Python: 3.14.2
+- Generated: March 27, 2026
+
+```bash
+pip install -r requirements.lock
+```
+
+Linux and other platform users should use `requirements.txt` â€” results are expected to be numerically identical across platforms.
+
 ## Pipeline Integrity
 
 All pipelines enforce scientific rigor by construction:

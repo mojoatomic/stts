@@ -1,0 +1,625 @@
+{
+  "config": {
+    "feature_names": [
+      "risk_final",
+      "risk_mean",
+      "d_risk_dt_mean",
+      "d_risk_dt_last",
+      "d2_risk_dt2_mean",
+      "risk_late_early_ratio",
+      "risk_range",
+      "risk_monotonicity",
+      "miss_dist_final",
+      "d_miss_dist_dt_mean",
+      "d_miss_dist_dt_last",
+      "mahal_dist_final",
+      "d_mahal_dt_mean",
+      "rel_pos_r_final",
+      "rel_pos_t_final",
+      "rel_pos_n_final",
+      "miss_dist_late_early_ratio",
+      "mahal_late_early_ratio",
+      "t_sigma_r_final",
+      "c_sigma_r_final",
+      "d_t_sigma_r_dt",
+      "d_c_sigma_r_dt",
+      "t_cov_det_final",
+      "c_cov_det_final",
+      "d_t_cov_det_dt",
+      "d_c_cov_det_dt",
+      "cov_det_ratio_tc",
+      "sigma_r_ratio_tc",
+      "t_cov_late_early_ratio",
+      "c_cov_late_early_ratio",
+      "t_obs_used_final",
+      "c_obs_used_final",
+      "d_c_obs_used_dt",
+      "c_weighted_rms_final",
+      "c_actual_od_span_final",
+      "t_time_lastob_end_final",
+      "c_time_lastob_end_final",
+      "od_quality_ratio",
+      "inter_cdm_dt_mean",
+      "inter_cdm_dt_std",
+      "inter_cdm_dt_last",
+      "n_cdms",
+      "corr_risk_miss",
+      "corr_risk_mahal",
+      "corr_risk_c_sigma_r",
+      "corr_miss_c_cov_det"
+    ],
+    "n_features": 46,
+    "weights": {
+      "risk_final": 1.0,
+      "risk_mean": 0.8,
+      "d_risk_dt_mean": 3.0,
+      "d_risk_dt_last": 3.5,
+      "d2_risk_dt2_mean": 2.5,
+      "risk_late_early_ratio": 3.0,
+      "risk_range": 1.5,
+      "risk_monotonicity": 2.5,
+      "miss_dist_final": 1.0,
+      "d_miss_dist_dt_mean": 2.5,
+      "d_miss_dist_dt_last": 2.5,
+      "mahal_dist_final": 1.5,
+      "d_mahal_dt_mean": 3.0,
+      "rel_pos_r_final": 0.8,
+      "rel_pos_t_final": 0.8,
+      "rel_pos_n_final": 0.8,
+      "miss_dist_late_early_ratio": 2.0,
+      "mahal_late_early_ratio": 2.5,
+      "t_sigma_r_final": 1.0,
+      "c_sigma_r_final": 1.0,
+      "d_t_sigma_r_dt": 2.0,
+      "d_c_sigma_r_dt": 2.0,
+      "t_cov_det_final": 1.0,
+      "c_cov_det_final": 1.0,
+      "d_t_cov_det_dt": 2.5,
+      "d_c_cov_det_dt": 2.5,
+      "cov_det_ratio_tc": 1.5,
+      "sigma_r_ratio_tc": 1.5,
+      "t_cov_late_early_ratio": 2.0,
+      "c_cov_late_early_ratio": 2.0,
+      "t_obs_used_final": 1.0,
+      "c_obs_used_final": 1.5,
+      "d_c_obs_used_dt": 1.5,
+      "c_weighted_rms_final": 1.5,
+      "c_actual_od_span_final": 1.0,
+      "t_time_lastob_end_final": 1.0,
+      "c_time_lastob_end_final": 1.5,
+      "od_quality_ratio": 1.2,
+      "inter_cdm_dt_mean": 1.5,
+      "inter_cdm_dt_std": 1.0,
+      "inter_cdm_dt_last": 1.5,
+      "n_cdms": 0.5,
+      "corr_risk_miss": 2.0,
+      "corr_risk_mahal": 2.0,
+      "corr_risk_c_sigma_r": 1.5,
+      "corr_miss_c_cov_det": 1.5
+    },
+    "lda_components": 1,
+    "lda_solver": "svd",
+    "k_neighbors": 5,
+    "high_risk_threshold": -5.0
+  },
+  "artifact_checksums": {
+    "scaler": "ea418a11ffd1dae80a33c8a8b25d939f",
+    "lda": "6da22735abf27a9fabd9eecec1b424c1",
+    "basin": "5133e5ed920c59b4a1509b80971fd8a7",
+    "weights": "a943ccaee41437f02982fad3a73298f4"
+  },
+  "test_set": {
+    "n_events": 2167,
+    "n_high_risk": 56,
+    "n_nominal": 2111
+  },
+  "v1": {
+    "description": "Basin separation on held-out test set",
+    "question_answered": "Do high-risk test events cluster closer to the training failure basin than nominal test events?",
+    "separation_ratio": 1.27,
+    "p_value": 0.015401470890213743,
+    "median_nominal_distance": 2.252785,
+    "median_high_risk_distance": 1.771693,
+    "passed": false
+  },
+  "v1_train": {
+    "separation_ratio": 59.67715460950646,
+    "p_value": 2.342701797426694e-37,
+    "median_nominal_distance": 1.7671701827556165,
+    "median_high_risk_distance": 0.02961217226791355,
+    "passed": true
+  },
+  "v2": {
+    "description": "Monotonic approach per high-risk event via cumulative embedding",
+    "question_answered": "Does each high-risk event's embedding trajectory approach the failure basin monotonically as CDM updates arrive closer to TCA?",
+    "question_not_answered": "Whether risk values themselves increase monotonically (they don't \u2014 CDM risk is volatile). V2 tests the smoothed geometric trajectory, not the raw risk signal.",
+    "mean_rho": -0.1389,
+    "median_rho": -0.2652,
+    "n_positive_rho": 17,
+    "n_negative_rho": 38,
+    "n_valid": 55,
+    "n_skipped": 1,
+    "fraction_positive_rho": 0.3091,
+    "passed": false,
+    "per_event": [
+      {
+        "event_id": "77",
+        "n_cdms": 30,
+        "rho": -0.560591133004926,
+        "p_value": 0.0015610819472886908,
+        "n_steps": 29,
+        "skipped": false
+      },
+      {
+        "event_id": "93",
+        "n_cdms": 12,
+        "rho": -0.10000000000000002,
+        "p_value": 0.7698749998921367,
+        "n_steps": 11,
+        "skipped": false
+      },
+      {
+        "event_id": "107",
+        "n_cdms": 35,
+        "rho": 0.45332314744079444,
+        "p_value": 0.007091992317782481,
+        "n_steps": 34,
+        "skipped": false
+      },
+      {
+        "event_id": "117",
+        "n_cdms": 19,
+        "rho": -0.29205366357069146,
+        "p_value": 0.2396017639054421,
+        "n_steps": 18,
+        "skipped": false
+      },
+      {
+        "event_id": "155",
+        "n_cdms": 8,
+        "rho": 0.03571428571428572,
+        "p_value": 0.9394082054712856,
+        "n_steps": 7,
+        "skipped": false
+      },
+      {
+        "event_id": "253",
+        "n_cdms": 21,
+        "rho": -0.5007518796992482,
+        "p_value": 0.024519268409476453,
+        "n_steps": 20,
+        "skipped": false
+      },
+      {
+        "event_id": "258",
+        "n_cdms": 23,
+        "rho": -0.4680971202710334,
+        "p_value": 0.028017216645357324,
+        "n_steps": 22,
+        "skipped": false
+      },
+      {
+        "event_id": "280",
+        "n_cdms": 19,
+        "rho": -0.12487100103199174,
+        "p_value": 0.62152591689147,
+        "n_steps": 18,
+        "skipped": false
+      },
+      {
+        "event_id": "306",
+        "n_cdms": 19,
+        "rho": -0.2652218782249742,
+        "p_value": 0.2874842429174514,
+        "n_steps": 18,
+        "skipped": false
+      },
+      {
+        "event_id": "322",
+        "n_cdms": 26,
+        "rho": -0.7530769230769231,
+        "p_value": 1.3971723655833853e-05,
+        "n_steps": 25,
+        "skipped": false
+      },
+      {
+        "event_id": "386",
+        "n_cdms": 18,
+        "rho": 0.6397058823529412,
+        "p_value": 0.005684790088863981,
+        "n_steps": 17,
+        "skipped": false
+      },
+      {
+        "event_id": "443",
+        "n_cdms": 36,
+        "rho": -0.49523809523809526,
+        "p_value": 0.0024881018866748767,
+        "n_steps": 35,
+        "skipped": false
+      },
+      {
+        "event_id": "452",
+        "n_cdms": 12,
+        "rho": -0.19090909090909092,
+        "p_value": 0.5739131682855215,
+        "n_steps": 11,
+        "skipped": false
+      },
+      {
+        "event_id": "532",
+        "n_cdms": 21,
+        "rho": -0.2781954887218045,
+        "p_value": 0.23497379059889356,
+        "n_steps": 20,
+        "skipped": false
+      },
+      {
+        "event_id": "637",
+        "n_cdms": 17,
+        "rho": 0.12058823529411765,
+        "p_value": 0.6564245147485953,
+        "n_steps": 16,
+        "skipped": false
+      },
+      {
+        "event_id": "641",
+        "n_cdms": 31,
+        "rho": 0.18620689655172412,
+        "p_value": 0.3245199480034063,
+        "n_steps": 30,
+        "skipped": false
+      },
+      {
+        "event_id": "645",
+        "n_cdms": 22,
+        "rho": -0.6753246753246753,
+        "p_value": 0.000781556365628228,
+        "n_steps": 21,
+        "skipped": false
+      },
+      {
+        "event_id": "679",
+        "n_cdms": 6,
+        "rho": 0.8999999999999998,
+        "p_value": 0.03738607346849874,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "709",
+        "n_cdms": 26,
+        "rho": -0.6776923076923077,
+        "p_value": 0.00019770859624966094,
+        "n_steps": 25,
+        "skipped": false
+      },
+      {
+        "event_id": "801",
+        "n_cdms": 28,
+        "rho": -0.23870573870573872,
+        "p_value": 0.23049336246732208,
+        "n_steps": 27,
+        "skipped": false
+      },
+      {
+        "event_id": "802",
+        "n_cdms": 17,
+        "rho": -0.09705882352941177,
+        "p_value": 0.7206513082372035,
+        "n_steps": 16,
+        "skipped": false
+      },
+      {
+        "event_id": "868",
+        "n_cdms": 36,
+        "rho": -0.642296918767507,
+        "p_value": 3.187892792611937e-05,
+        "n_steps": 35,
+        "skipped": false
+      },
+      {
+        "event_id": "891",
+        "n_cdms": 21,
+        "rho": 0.07368421052631578,
+        "p_value": 0.7575286998643431,
+        "n_steps": 20,
+        "skipped": false
+      },
+      {
+        "event_id": "936",
+        "n_cdms": 36,
+        "rho": -0.5526610644257703,
+        "p_value": 0.0005759485404312215,
+        "n_steps": 35,
+        "skipped": false
+      },
+      {
+        "event_id": "989",
+        "n_cdms": 18,
+        "rho": -0.7034313725490197,
+        "p_value": 0.0016294297517689058,
+        "n_steps": 17,
+        "skipped": false
+      },
+      {
+        "event_id": "1084",
+        "n_cdms": 20,
+        "rho": -0.26666666666666666,
+        "p_value": 0.2697681649350136,
+        "n_steps": 19,
+        "skipped": false
+      },
+      {
+        "event_id": "1124",
+        "n_cdms": 17,
+        "rho": -0.19999999999999998,
+        "p_value": 0.45768790507519996,
+        "n_steps": 16,
+        "skipped": false
+      },
+      {
+        "event_id": "1140",
+        "n_cdms": 9,
+        "rho": 0.880952380952381,
+        "p_value": 0.0038503204637324023,
+        "n_steps": 8,
+        "skipped": false
+      },
+      {
+        "event_id": "1161",
+        "n_cdms": 20,
+        "rho": -0.5929824561403508,
+        "p_value": 0.0074532112713006984,
+        "n_steps": 19,
+        "skipped": false
+      },
+      {
+        "event_id": "1166",
+        "n_cdms": 28,
+        "rho": -0.5262515262515262,
+        "p_value": 0.004807431654489578,
+        "n_steps": 27,
+        "skipped": false
+      },
+      {
+        "event_id": "1202",
+        "n_cdms": 24,
+        "rho": -0.5642292490118578,
+        "p_value": 0.005040162265430829,
+        "n_steps": 23,
+        "skipped": false
+      },
+      {
+        "event_id": "1254",
+        "n_cdms": 3,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (3 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1263",
+        "n_cdms": 30,
+        "rho": 0.07586206896551723,
+        "p_value": 0.6957055205756081,
+        "n_steps": 29,
+        "skipped": false
+      },
+      {
+        "event_id": "1480",
+        "n_cdms": 24,
+        "rho": 0.16996047430830039,
+        "p_value": 0.43815478677848074,
+        "n_steps": 23,
+        "skipped": false
+      },
+      {
+        "event_id": "1490",
+        "n_cdms": 36,
+        "rho": -0.3683473389355743,
+        "p_value": 0.029463359678402686,
+        "n_steps": 35,
+        "skipped": false
+      },
+      {
+        "event_id": "1512",
+        "n_cdms": 21,
+        "rho": -0.4586466165413533,
+        "p_value": 0.041954311609335444,
+        "n_steps": 20,
+        "skipped": false
+      },
+      {
+        "event_id": "1526",
+        "n_cdms": 32,
+        "rho": -0.45443548387096777,
+        "p_value": 0.010222210636900918,
+        "n_steps": 31,
+        "skipped": false
+      },
+      {
+        "event_id": "1565",
+        "n_cdms": 14,
+        "rho": 0.14835164835164835,
+        "p_value": 0.6286094178894163,
+        "n_steps": 13,
+        "skipped": false
+      },
+      {
+        "event_id": "1568",
+        "n_cdms": 18,
+        "rho": -0.44117647058823534,
+        "p_value": 0.07627668292313645,
+        "n_steps": 17,
+        "skipped": false
+      },
+      {
+        "event_id": "1573",
+        "n_cdms": 35,
+        "rho": -0.4734912146676852,
+        "p_value": 0.004677610938205289,
+        "n_steps": 34,
+        "skipped": false
+      },
+      {
+        "event_id": "1616",
+        "n_cdms": 36,
+        "rho": -0.16134453781512606,
+        "p_value": 0.3544731031855931,
+        "n_steps": 35,
+        "skipped": false
+      },
+      {
+        "event_id": "1622",
+        "n_cdms": 36,
+        "rho": 0.7946778711484593,
+        "p_value": 1.1972722639090905e-08,
+        "n_steps": 35,
+        "skipped": false
+      },
+      {
+        "event_id": "1640",
+        "n_cdms": 18,
+        "rho": -0.5098039215686275,
+        "p_value": 0.036568145531216366,
+        "n_steps": 17,
+        "skipped": false
+      },
+      {
+        "event_id": "1719",
+        "n_cdms": 15,
+        "rho": -0.2923076923076923,
+        "p_value": 0.310526320385882,
+        "n_steps": 14,
+        "skipped": false
+      },
+      {
+        "event_id": "1792",
+        "n_cdms": 18,
+        "rho": -0.08333333333333334,
+        "p_value": 0.750504450153402,
+        "n_steps": 17,
+        "skipped": false
+      },
+      {
+        "event_id": "1832",
+        "n_cdms": 25,
+        "rho": -0.48086956521739127,
+        "p_value": 0.017373241582602488,
+        "n_steps": 24,
+        "skipped": false
+      },
+      {
+        "event_id": "1833",
+        "n_cdms": 28,
+        "rho": -0.14835164835164835,
+        "p_value": 0.46022097684200797,
+        "n_steps": 27,
+        "skipped": false
+      },
+      {
+        "event_id": "1855",
+        "n_cdms": 22,
+        "rho": -0.41818181818181815,
+        "p_value": 0.05922578935165217,
+        "n_steps": 21,
+        "skipped": false
+      },
+      {
+        "event_id": "1947",
+        "n_cdms": 23,
+        "rho": 0.6804065499717675,
+        "p_value": 0.0004928449412886885,
+        "n_steps": 22,
+        "skipped": false
+      },
+      {
+        "event_id": "1951",
+        "n_cdms": 34,
+        "rho": -0.20989304812834228,
+        "p_value": 0.2410493945892699,
+        "n_steps": 33,
+        "skipped": false
+      },
+      {
+        "event_id": "1963",
+        "n_cdms": 35,
+        "rho": -0.7228418640183345,
+        "p_value": 1.378741505234217e-06,
+        "n_steps": 34,
+        "skipped": false
+      },
+      {
+        "event_id": "1999",
+        "n_cdms": 16,
+        "rho": 0.6357142857142856,
+        "p_value": 0.010860746168789804,
+        "n_steps": 15,
+        "skipped": false
+      },
+      {
+        "event_id": "2059",
+        "n_cdms": 20,
+        "rho": 0.6473684210526316,
+        "p_value": 0.0027319880227100355,
+        "n_steps": 19,
+        "skipped": false
+      },
+      {
+        "event_id": "2086",
+        "n_cdms": 32,
+        "rho": 0.6733870967741936,
+        "p_value": 3.302111335542623e-05,
+        "n_steps": 31,
+        "skipped": false
+      },
+      {
+        "event_id": "2091",
+        "n_cdms": 18,
+        "rho": -0.6323529411764707,
+        "p_value": 0.006453788053382701,
+        "n_steps": 17,
+        "skipped": false
+      },
+      {
+        "event_id": "2156",
+        "n_cdms": 12,
+        "rho": 0.8636363636363636,
+        "p_value": 0.00061169385009317,
+        "n_steps": 11,
+        "skipped": false
+      }
+    ]
+  },
+  "classification": {
+    "description": "Binary classification using distance-to-basin < epsilon",
+    "epsilon": 2.006323,
+    "epsilon_derivation": "basin_mean - 1 * basin_std from training",
+    "tp": 31,
+    "fp": 937,
+    "fn": 25,
+    "tn": 1174,
+    "precision": 0.03202479338842975,
+    "precision_ci_95": [
+      0.0227,
+      0.0451
+    ],
+    "recall": 0.5535714285714286,
+    "recall_ci_95": [
+      0.4241,
+      0.6761
+    ],
+    "f1": 0.06054687499999999,
+    "f1_ci_95": [
+      0.043,
+      0.0846
+    ]
+  },
+  "metric_notes": {
+    "v1": "Measures geometric separability, not predictive accuracy",
+    "v2": "Measures trajectory directionality in embedding space",
+    "f1": "Computed on 2167 events with 56 positives. Wilson 95% CI accounts for small sample size."
+  }
+}

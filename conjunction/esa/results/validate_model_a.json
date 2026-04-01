@@ -1,0 +1,470 @@
+{
+  "config": {
+    "model_name": "Model A (35 geometry features)",
+    "feature_names": [
+      "miss_dist_final",
+      "d_miss_dist_dt_mean",
+      "d_miss_dist_dt_last",
+      "mahal_dist_final",
+      "d_mahal_dt_mean",
+      "rel_pos_r_final",
+      "rel_pos_t_final",
+      "rel_pos_n_final",
+      "miss_dist_late_early_ratio",
+      "mahal_late_early_ratio",
+      "t_sigma_r_final",
+      "c_sigma_r_final",
+      "d_t_sigma_r_dt",
+      "d_c_sigma_r_dt",
+      "t_cov_det_final",
+      "c_cov_det_final",
+      "d_t_cov_det_dt",
+      "d_c_cov_det_dt",
+      "cov_det_ratio_tc",
+      "sigma_r_ratio_tc",
+      "t_cov_late_early_ratio",
+      "c_cov_late_early_ratio",
+      "t_obs_used_final",
+      "c_obs_used_final",
+      "d_c_obs_used_dt",
+      "c_weighted_rms_final",
+      "c_actual_od_span_final",
+      "t_time_lastob_end_final",
+      "c_time_lastob_end_final",
+      "od_quality_ratio",
+      "inter_cdm_dt_mean",
+      "inter_cdm_dt_std",
+      "inter_cdm_dt_last",
+      "n_cdms",
+      "corr_miss_c_cov_det"
+    ],
+    "n_features": 35,
+    "weights": {
+      "miss_dist_final": 1.0,
+      "d_miss_dist_dt_mean": 2.5,
+      "d_miss_dist_dt_last": 2.5,
+      "mahal_dist_final": 1.5,
+      "d_mahal_dt_mean": 3.0,
+      "rel_pos_r_final": 0.8,
+      "rel_pos_t_final": 0.8,
+      "rel_pos_n_final": 0.8,
+      "miss_dist_late_early_ratio": 2.0,
+      "mahal_late_early_ratio": 2.5,
+      "t_sigma_r_final": 1.0,
+      "c_sigma_r_final": 1.0,
+      "d_t_sigma_r_dt": 2.0,
+      "d_c_sigma_r_dt": 2.0,
+      "t_cov_det_final": 1.0,
+      "c_cov_det_final": 1.0,
+      "d_t_cov_det_dt": 2.5,
+      "d_c_cov_det_dt": 2.5,
+      "cov_det_ratio_tc": 1.5,
+      "sigma_r_ratio_tc": 1.5,
+      "t_cov_late_early_ratio": 2.0,
+      "c_cov_late_early_ratio": 2.0,
+      "t_obs_used_final": 1.0,
+      "c_obs_used_final": 1.5,
+      "d_c_obs_used_dt": 1.5,
+      "c_weighted_rms_final": 1.5,
+      "c_actual_od_span_final": 1.0,
+      "t_time_lastob_end_final": 1.0,
+      "c_time_lastob_end_final": 1.5,
+      "od_quality_ratio": 1.2,
+      "inter_cdm_dt_mean": 1.5,
+      "inter_cdm_dt_std": 1.0,
+      "inter_cdm_dt_last": 1.5,
+      "n_cdms": 0.5,
+      "corr_miss_c_cov_det": 1.5
+    },
+    "lda_components": 1,
+    "lda_solver": "svd",
+    "k_neighbors": 5,
+    "high_risk_threshold": -5.0
+  },
+  "artifact_checksums": {
+    "scaler": "10c928180454e9dc08d24aaa792d4581",
+    "lda": "b9300057a80716a1ee716dae06c0a446",
+    "basin": "9b1860e962dc4dc3390fa73b2f1eab3f",
+    "weights": "fb756f3571e116105875b33ddab91e0e"
+  },
+  "test_set": {
+    "n_events": 1683,
+    "n_high_risk": 38,
+    "n_nominal": 1645
+  },
+  "v1_train": {
+    "separation_ratio": 6.57857070697212,
+    "p_value": 1.261909834014197e-17,
+    "median_nominal_distance": 0.49520337833566996,
+    "median_high_risk_distance": 0.07527522320476727,
+    "passed": true
+  },
+  "v1": {
+    "description": "Basin separation on held-out test set",
+    "question_answered": "Do high-risk test events cluster closer to the training failure basin than nominal test events?",
+    "separation_ratio": 0.73,
+    "p_value": 0.7150054145814713,
+    "median_nominal_distance": 0.484661,
+    "median_high_risk_distance": 0.663583,
+    "passed": false
+  },
+  "v2": {
+    "description": "Monotonic approach per high-risk event via cumulative embedding",
+    "question_answered": "Does each high-risk event's embedding trajectory approach the failure basin monotonically as CDM updates arrive closer to TCA?",
+    "mean_rho": -0.8093,
+    "median_rho": -0.9214,
+    "n_positive_rho": 1,
+    "n_negative_rho": 24,
+    "n_valid": 26,
+    "n_skipped": 12,
+    "fraction_positive_rho": 0.0385,
+    "passed": false,
+    "per_event": [
+      {
+        "event_id": "77",
+        "n_cdms": 3,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (3 CDMs, need 5+)"
+      },
+      {
+        "event_id": "107",
+        "n_cdms": 6,
+        "rho": -0.9999999999999999,
+        "p_value": 1.4042654220543602e-24,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "117",
+        "n_cdms": 2,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (2 CDMs, need 5+)"
+      },
+      {
+        "event_id": "253",
+        "n_cdms": 5,
+        "rho": -0.7999999999999999,
+        "p_value": 0.2000000000000001,
+        "n_steps": 4,
+        "skipped": false
+      },
+      {
+        "event_id": "258",
+        "n_cdms": 6,
+        "rho": -0.9999999999999999,
+        "p_value": 1.4042654220543602e-24,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "306",
+        "n_cdms": 2,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (2 CDMs, need 5+)"
+      },
+      {
+        "event_id": "443",
+        "n_cdms": 6,
+        "rho": -0.9999999999999999,
+        "p_value": 1.4042654220543602e-24,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "452",
+        "n_cdms": 2,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (2 CDMs, need 5+)"
+      },
+      {
+        "event_id": "532",
+        "n_cdms": 5,
+        "rho": -1.0,
+        "p_value": 0.0,
+        "n_steps": 4,
+        "skipped": false
+      },
+      {
+        "event_id": "637",
+        "n_cdms": 6,
+        "rho": 0.0,
+        "p_value": 1.0,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "641",
+        "n_cdms": 7,
+        "rho": -1.0,
+        "p_value": 0.0,
+        "n_steps": 6,
+        "skipped": false
+      },
+      {
+        "event_id": "645",
+        "n_cdms": 6,
+        "rho": -0.8999999999999998,
+        "p_value": 0.03738607346849874,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "801",
+        "n_cdms": 7,
+        "rho": 0.7714285714285715,
+        "p_value": 0.07239650145772594,
+        "n_steps": 6,
+        "skipped": false
+      },
+      {
+        "event_id": "868",
+        "n_cdms": 6,
+        "rho": -0.9999999999999999,
+        "p_value": 1.4042654220543602e-24,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "891",
+        "n_cdms": 7,
+        "rho": -0.3714285714285715,
+        "p_value": 0.4684781341107872,
+        "n_steps": 6,
+        "skipped": false
+      },
+      {
+        "event_id": "936",
+        "n_cdms": 7,
+        "rho": -1.0,
+        "p_value": 0.0,
+        "n_steps": 6,
+        "skipped": false
+      },
+      {
+        "event_id": "989",
+        "n_cdms": 3,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (3 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1124",
+        "n_cdms": 1,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (1 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1161",
+        "n_cdms": 2,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (2 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1166",
+        "n_cdms": 6,
+        "rho": -0.9999999999999999,
+        "p_value": 1.4042654220543602e-24,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1263",
+        "n_cdms": 1,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (1 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1480",
+        "n_cdms": 3,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (3 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1490",
+        "n_cdms": 6,
+        "rho": -0.9999999999999999,
+        "p_value": 1.4042654220543602e-24,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1512",
+        "n_cdms": 6,
+        "rho": -0.8999999999999998,
+        "p_value": 0.03738607346849874,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1526",
+        "n_cdms": 6,
+        "rho": -0.8999999999999998,
+        "p_value": 0.03738607346849874,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1568",
+        "n_cdms": 1,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (1 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1573",
+        "n_cdms": 6,
+        "rho": -0.7,
+        "p_value": 0.1881204043741873,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1616",
+        "n_cdms": 6,
+        "rho": -0.9999999999999999,
+        "p_value": 1.4042654220543602e-24,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1622",
+        "n_cdms": 6,
+        "rho": -0.7,
+        "p_value": 0.1881204043741873,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1640",
+        "n_cdms": 6,
+        "rho": -0.8999999999999998,
+        "p_value": 0.03738607346849874,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1832",
+        "n_cdms": 6,
+        "rho": -0.8999999999999998,
+        "p_value": 0.03738607346849874,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1833",
+        "n_cdms": 6,
+        "rho": -0.9999999999999999,
+        "p_value": 1.4042654220543602e-24,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1855",
+        "n_cdms": 2,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (2 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1947",
+        "n_cdms": 6,
+        "rho": -0.9999999999999999,
+        "p_value": 1.4042654220543602e-24,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1951",
+        "n_cdms": 7,
+        "rho": -0.942857142857143,
+        "p_value": 0.004804664723032055,
+        "n_steps": 6,
+        "skipped": false
+      },
+      {
+        "event_id": "1963",
+        "n_cdms": 6,
+        "rho": -0.8999999999999998,
+        "p_value": 0.03738607346849874,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "2086",
+        "n_cdms": 6,
+        "rho": -0.8999999999999998,
+        "p_value": 0.03738607346849874,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "2091",
+        "n_cdms": 4,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (4 CDMs, need 5+)"
+      }
+    ]
+  },
+  "classification": {
+    "description": "Binary classification using distance-to-basin < epsilon",
+    "epsilon": 0.525096,
+    "epsilon_derivation": "95th percentile of training basin self-distances (k-NN)",
+    "tp": 17,
+    "fp": 857,
+    "fn": 21,
+    "tn": 788,
+    "precision": 0.019450800915331808,
+    "precision_ci_95": [
+      0.0122,
+      0.0309
+    ],
+    "recall": 0.4473684210526316,
+    "recall_ci_95": [
+      0.3015,
+      0.6029
+    ],
+    "f1": 0.03728070175438597,
+    "f1_ci_95": [
+      0.0234,
+      0.0588
+    ]
+  },
+  "metric_notes": {
+    "v1": "Measures geometric separability, not predictive accuracy",
+    "v2": "Measures trajectory directionality in embedding space",
+    "f1": "Computed on 1683 events with 38 positives. Wilson 95% CI accounts for small sample size."
+  }
+}

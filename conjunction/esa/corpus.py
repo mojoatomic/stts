@@ -41,7 +41,7 @@ from collections import defaultdict
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data", "conjunction")
 TRAIN_IN = os.path.join(DATA_DIR, "train_events.csv")
 TEST_IN = os.path.join(DATA_DIR, "test_events.csv")

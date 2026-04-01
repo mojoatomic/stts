@@ -40,10 +40,10 @@ import numpy as np
 from scipy.stats import mannwhitneyu, spearmanr
 
 # Allow imports from project root
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from conjunction.train import load_model, md5_file
-from conjunction.corpus import (
+from conjunction.esa.train import load_model, md5_file
+from conjunction.esa.corpus import (
     extract_event_features,
     load_events,
     safe_float,
@@ -53,11 +53,11 @@ from conjunction.corpus import (
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_DIR = os.path.join(PROJECT_ROOT, "data", "conjunction")
 TEST_FEATURES = os.path.join(DATA_DIR, "test_features.csv")
 TEST_EVENTS = os.path.join(DATA_DIR, "test_events.csv")
-RESULTS_DIR = os.path.join(PROJECT_ROOT, "conjunction", "results")
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "conjunction", "esa", "results")
 
 
 # ---------------------------------------------------------------------------

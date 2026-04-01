@@ -400,26 +400,26 @@
   },
   "classification": {
     "description": "Binary classification using distance-to-basin < epsilon",
-    "epsilon": -0.397558,
-    "epsilon_derivation": "basin_mean - 1 * basin_std from training",
-    "tp": 0,
-    "fp": 0,
-    "fn": 38,
-    "tn": 1645,
-    "precision": 0.0,
+    "epsilon": 0.321334,
+    "epsilon_derivation": "95th percentile of training basin self-distances (k-NN)",
+    "tp": 31,
+    "fp": 1476,
+    "fn": 7,
+    "tn": 169,
+    "precision": 0.0205706702057067,
     "precision_ci_95": [
-      0.0,
-      0.0
+      0.0145,
+      0.0291
     ],
-    "recall": 0.0,
+    "recall": 0.8157894736842105,
     "recall_ci_95": [
-      0.0,
-      0.0918
+      0.6658,
+      0.9078
     ],
-    "f1": 0.0,
+    "f1": 0.040129449838187704,
     "f1_ci_95": [
-      0.0,
-      0.0
+      0.0284,
+      0.0563
     ]
   },
   "metric_notes": {

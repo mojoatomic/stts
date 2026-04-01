@@ -320,9 +320,17 @@ def validate(model_name):
     print(f"    ρ > 0 (correct): {n_positive_rho}/{n_valid} ({100*frac_positive:.1f}%)")
 
     # ── Classification ─────────────────────────────────────────
-    basin_mean = meta["diagnostics"]["basin_mean"]
-    basin_std = meta["diagnostics"]["basin_std"]
-    epsilon = basin_mean - basin_std
+    # Epsilon = 95th percentile of training basin self-distances.
+    # For each basin point, compute its k-NN distance to the rest of the
+    # basin. The 95th percentile of these distances is the radius that
+    # contains 95% of training high-risk embeddings. This adapts to basin
+    # shape regardless of mean/std relationship.
+    k = config["k_neighbors"]
+    basin_self_dists = []
+    for i, p in enumerate(basin):
+        dists = np.abs(np.delete(basin, i) - p)  # exclude self
+        basin_self_dists.append(np.mean(np.sort(dists)[:min(k, len(dists))]))
+    epsilon = float(np.percentile(basin_self_dists, 95))
 
     preds = (test_dists < epsilon).astype(int)
     tp = int(((preds == 1) & (y_test == 1)).sum())
@@ -400,7 +408,7 @@ def validate(model_name):
         "classification": {
             "description": "Binary classification using distance-to-basin < epsilon",
             "epsilon": round(epsilon, 6),
-            "epsilon_derivation": "basin_mean - 1 * basin_std from training",
+            "epsilon_derivation": "95th percentile of training basin self-distances (k-NN)",
             "tp": tp, "fp": fp, "fn": fn, "tn": tn,
             **metrics,
         },

@@ -1,0 +1,430 @@
+{
+  "config": {
+    "model_name": "Model B (15 consistent features)",
+    "feature_names": [
+      "d_miss_dist_dt_mean",
+      "d_miss_dist_dt_last",
+      "t_sigma_r_final",
+      "d_t_sigma_r_dt",
+      "t_cov_det_final",
+      "d_t_cov_det_dt",
+      "t_cov_late_early_ratio",
+      "t_obs_used_final",
+      "d_c_obs_used_dt",
+      "t_time_lastob_end_final",
+      "inter_cdm_dt_mean",
+      "inter_cdm_dt_std",
+      "inter_cdm_dt_last",
+      "n_cdms",
+      "corr_miss_c_cov_det"
+    ],
+    "n_features": 15,
+    "weights": {
+      "d_miss_dist_dt_mean": 1.0,
+      "d_miss_dist_dt_last": 1.0,
+      "t_sigma_r_final": 1.0,
+      "d_t_sigma_r_dt": 1.0,
+      "t_cov_det_final": 1.0,
+      "d_t_cov_det_dt": 1.0,
+      "t_cov_late_early_ratio": 1.0,
+      "t_obs_used_final": 1.0,
+      "d_c_obs_used_dt": 1.0,
+      "t_time_lastob_end_final": 1.0,
+      "inter_cdm_dt_mean": 1.0,
+      "inter_cdm_dt_std": 1.0,
+      "inter_cdm_dt_last": 1.0,
+      "n_cdms": 1.0,
+      "corr_miss_c_cov_det": 1.0
+    },
+    "lda_components": 1,
+    "lda_solver": "svd",
+    "k_neighbors": 5,
+    "high_risk_threshold": -5.0
+  },
+  "artifact_checksums": {
+    "scaler": "ed946f237c52af60a712b7622f632a33",
+    "lda": "5e2016a54e83a40663c0a64f7d914910",
+    "basin": "14725f80e4edad85e81992a3f42771af",
+    "weights": "c71d2918338e45a3191d965267b914ff"
+  },
+  "test_set": {
+    "n_events": 1683,
+    "n_high_risk": 38,
+    "n_nominal": 1645
+  },
+  "v1_train": {
+    "separation_ratio": 1.1729086144582392,
+    "p_value": 0.04942320218457448,
+    "median_nominal_distance": 0.09670414774189451,
+    "median_high_risk_distance": 0.08244815201273092,
+    "passed": false
+  },
+  "v1": {
+    "description": "Basin separation on held-out test set",
+    "question_answered": "Do high-risk test events cluster closer to the training failure basin than nominal test events?",
+    "separation_ratio": 0.65,
+    "p_value": 0.9300230162298366,
+    "median_nominal_distance": 0.093848,
+    "median_high_risk_distance": 0.14421,
+    "passed": false
+  },
+  "v2": {
+    "description": "Monotonic approach per high-risk event via cumulative embedding",
+    "question_answered": "Does each high-risk event's embedding trajectory approach the failure basin monotonically as CDM updates arrive closer to TCA?",
+    "mean_rho": 0.3099,
+    "median_rho": 0.45,
+    "n_positive_rho": 18,
+    "n_negative_rho": 7,
+    "n_valid": 26,
+    "n_skipped": 12,
+    "fraction_positive_rho": 0.6923,
+    "passed": true,
+    "per_event": [
+      {
+        "event_id": "77",
+        "n_cdms": 3,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (3 CDMs, need 5+)"
+      },
+      {
+        "event_id": "107",
+        "n_cdms": 6,
+        "rho": -0.39999999999999997,
+        "p_value": 0.5046315754686912,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "117",
+        "n_cdms": 2,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (2 CDMs, need 5+)"
+      },
+      {
+        "event_id": "253",
+        "n_cdms": 5,
+        "rho": 0.39999999999999997,
+        "p_value": 0.6,
+        "n_steps": 4,
+        "skipped": false
+      },
+      {
+        "event_id": "258",
+        "n_cdms": 6,
+        "rho": 0.7999999999999999,
+        "p_value": 0.10408803866182788,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "306",
+        "n_cdms": 2,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (2 CDMs, need 5+)"
+      },
+      {
+        "event_id": "443",
+        "n_cdms": 6,
+        "rho": 0.39999999999999997,
+        "p_value": 0.5046315754686912,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "452",
+        "n_cdms": 2,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (2 CDMs, need 5+)"
+      },
+      {
+        "event_id": "532",
+        "n_cdms": 5,
+        "rho": 1.0,
+        "p_value": 0.0,
+        "n_steps": 4,
+        "skipped": false
+      },
+      {
+        "event_id": "637",
+        "n_cdms": 6,
+        "rho": 0.7999999999999999,
+        "p_value": 0.10408803866182788,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "641",
+        "n_cdms": 7,
+        "rho": -0.028571428571428574,
+        "p_value": 0.9571545189504373,
+        "n_steps": 6,
+        "skipped": false
+      },
+      {
+        "event_id": "645",
+        "n_cdms": 6,
+        "rho": -0.39999999999999997,
+        "p_value": 0.5046315754686912,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "801",
+        "n_cdms": 7,
+        "rho": 0.6571428571428573,
+        "p_value": 0.1561749271137024,
+        "n_steps": 6,
+        "skipped": false
+      },
+      {
+        "event_id": "868",
+        "n_cdms": 6,
+        "rho": -0.19999999999999998,
+        "p_value": 0.7470600781046621,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "891",
+        "n_cdms": 7,
+        "rho": 0.6,
+        "p_value": 0.208,
+        "n_steps": 6,
+        "skipped": false
+      },
+      {
+        "event_id": "936",
+        "n_cdms": 7,
+        "rho": -0.6571428571428573,
+        "p_value": 0.1561749271137024,
+        "n_steps": 6,
+        "skipped": false
+      },
+      {
+        "event_id": "989",
+        "n_cdms": 3,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (3 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1124",
+        "n_cdms": 1,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (1 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1161",
+        "n_cdms": 2,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (2 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1166",
+        "n_cdms": 6,
+        "rho": 0.6,
+        "p_value": 0.28475697986529386,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1263",
+        "n_cdms": 1,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (1 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1480",
+        "n_cdms": 3,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (3 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1490",
+        "n_cdms": 6,
+        "rho": 0.8999999999999998,
+        "p_value": 0.03738607346849874,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1512",
+        "n_cdms": 6,
+        "rho": 0.49999999999999994,
+        "p_value": 0.3910022189557703,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1526",
+        "n_cdms": 6,
+        "rho": 0.09999999999999999,
+        "p_value": 0.8728885715695384,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1568",
+        "n_cdms": 1,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (1 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1573",
+        "n_cdms": 6,
+        "rho": 0.3,
+        "p_value": 0.623837664781073,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1616",
+        "n_cdms": 6,
+        "rho": 0.7,
+        "p_value": 0.1881204043741873,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1622",
+        "n_cdms": 6,
+        "rho": 0.9999999999999999,
+        "p_value": 1.4042654220543602e-24,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1640",
+        "n_cdms": 6,
+        "rho": 0.09999999999999999,
+        "p_value": 0.8728885715695384,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1832",
+        "n_cdms": 6,
+        "rho": 0.7999999999999999,
+        "p_value": 0.10408803866182788,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1833",
+        "n_cdms": 6,
+        "rho": 0.6,
+        "p_value": 0.28475697986529386,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1855",
+        "n_cdms": 2,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (2 CDMs, need 5+)"
+      },
+      {
+        "event_id": "1947",
+        "n_cdms": 6,
+        "rho": 0.0,
+        "p_value": 1.0,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "1951",
+        "n_cdms": 7,
+        "rho": -0.3142857142857143,
+        "p_value": 0.5440932944606415,
+        "n_steps": 6,
+        "skipped": false
+      },
+      {
+        "event_id": "1963",
+        "n_cdms": 6,
+        "rho": -0.9999999999999999,
+        "p_value": 1.4042654220543602e-24,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "2086",
+        "n_cdms": 6,
+        "rho": 0.7999999999999999,
+        "p_value": 0.10408803866182788,
+        "n_steps": 5,
+        "skipped": false
+      },
+      {
+        "event_id": "2091",
+        "n_cdms": 4,
+        "rho": NaN,
+        "p_value": NaN,
+        "n_steps": 0,
+        "skipped": true,
+        "skip_reason": "sequence too short (4 CDMs, need 5+)"
+      }
+    ]
+  },
+  "classification": {
+    "description": "Binary classification using distance-to-basin < epsilon",
+    "epsilon": -0.397558,
+    "epsilon_derivation": "basin_mean - 1 * basin_std from training",
+    "tp": 0,
+    "fp": 0,
+    "fn": 38,
+    "tn": 1645,
+    "precision": 0.0,
+    "precision_ci_95": [
+      0.0,
+      0.0
+    ],
+    "recall": 0.0,
+    "recall_ci_95": [
+      0.0,
+      0.0918
+    ],
+    "f1": 0.0,
+    "f1_ci_95": [
+      0.0,
+      0.0
+    ]
+  },
+  "metric_notes": {
+    "v1": "Measures geometric separability, not predictive accuracy",
+    "v2": "Measures trajectory directionality in embedding space",
+    "f1": "Computed on 1683 events with 38 positives. Wilson 95% CI accounts for small sample size."
+  }
+}

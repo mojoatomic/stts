@@ -107,6 +107,14 @@ assert N_FEATURES == 46, f"Expected 46 features, got {N_FEATURES}"
 # Failure basin threshold: log10(Pc) >= -5 (ESA red screen threshold)
 HIGH_RISK_THRESHOLD = -5.0
 
+# TCA window: only use CDMs within this many days of TCA for feature extraction.
+# This ensures structural consistency between training events (median 6 CDMs from
+# train_data.csv only) and test events (median 21 CDMs from interleaved
+# reconstruction). Without this, test events have 3.5x more CDMs spanning the
+# full 7-day screening window including early floor-risk CDMs, producing
+# features the LDA has never seen.
+TCA_WINDOW_DAYS = 2.0
+
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -465,6 +473,9 @@ def get_final_risk(cdms):
 def build_feature_matrix(events, labels=None):
     """Extract features for all events.
 
+    Only CDMs within TCA_WINDOW_DAYS of TCA are used for feature extraction.
+    Events with no CDMs in the window are excluded entirely.
+
     Args:
         events: {event_id: [cdm_dicts]} from load_events
         labels: {event_id: true_risk} for test set, or None for train set
@@ -472,17 +483,30 @@ def build_feature_matrix(events, labels=None):
 
     Returns:
         rows: list of dicts ready for CSV output
+        excluded: number of events excluded (no CDMs in TCA window)
     """
     rows = []
+    excluded = 0
+
     for eid in sorted(events.keys(), key=int):
         cdms = events[eid]
-        feat, single_cdm = extract_event_features(cdms)
+
+        # Filter to CDMs within TCA window
+        windowed = [c for c in cdms if safe_float(c["time_to_tca"]) <= TCA_WINDOW_DAYS]
+        if not windowed:
+            excluded += 1
+            continue
+
+        # Re-sort windowed CDMs (should already be sorted, but be safe)
+        windowed.sort(key=lambda r: float(r["time_to_tca"]), reverse=True)
+
+        feat, single_cdm = extract_event_features(windowed)
 
         # Determine final risk and binary label
         if labels and eid in labels:
             final_risk = labels[eid]
         else:
-            final_risk = get_final_risk(cdms)
+            final_risk = get_final_risk(windowed)
 
         label = 1 if final_risk >= HIGH_RISK_THRESHOLD else 0
 
@@ -495,7 +519,7 @@ def build_feature_matrix(events, labels=None):
 
         rows.append(row)
 
-    return rows
+    return rows, excluded
 
 
 def write_features(rows, out_path):
@@ -557,6 +581,9 @@ def print_summary(name, rows):
 # ---------------------------------------------------------------------------
 
 def main():
+    print(f"TCA window: {TCA_WINDOW_DAYS} days")
+    print(f"  Only CDMs with time_to_tca <= {TCA_WINDOW_DAYS} are used\n")
+
     print("Loading training events...")
     train_events, _ = load_events(TRAIN_IN)
     print(f"  {len(train_events)} events loaded")
@@ -566,14 +593,16 @@ def main():
     print(f"  {len(test_events)} events loaded, {len(test_labels)} labels")
 
     print("\nExtracting training features...")
-    train_rows = build_feature_matrix(train_events)
+    train_rows, train_excluded = build_feature_matrix(train_events)
     write_features(train_rows, TRAIN_OUT)
     print(f"  Wrote {TRAIN_OUT}")
+    print(f"  Retained: {len(train_rows)}, Excluded (no CDMs in window): {train_excluded}")
 
-    print("Extracting test features...")
-    test_rows = build_feature_matrix(test_events, labels=test_labels)
+    print("\nExtracting test features...")
+    test_rows, test_excluded = build_feature_matrix(test_events, labels=test_labels)
     write_features(test_rows, TEST_OUT)
     print(f"  Wrote {TEST_OUT}")
+    print(f"  Retained: {len(test_rows)}, Excluded (no CDMs in window): {test_excluded}")
 
     print_summary("TRAINING SET", train_rows)
     print_summary("TEST SET", test_rows)

@@ -2,14 +2,19 @@
 Stage F: Corpus loading and feature extraction for conjunction assessment.
 
 Loads reconstructed CDM time series (from reconstruct_split.py) and extracts
-46 features per event across six classes:
+35 geometry-only features per event across five classes:
 
-  F_risk   (8)  — risk trajectory dynamics
   F_geom  (10)  — miss distance and geometry evolution
   F_cov   (12)  — covariance structure evolution
   F_od     (8)  — orbit determination quality indicators
   F_timing (4)  — inter-CDM temporal structure
-  F_cross  (4)  — cross-parameter coupling over the sequence
+  F_cross  (1)  — cross-parameter coupling (geometry-uncertainty only)
+
+Risk features (F_risk) and risk-dependent cross-correlations are excluded.
+The risk column is the self-computed Pc at each CDM's epoch — for test events,
+the final CDM was withheld by the competition, so risk features computed from
+available CDMs do not reflect the true final risk. Geometry, covariance, and
+OD quality features are independent of this label leakage.
 
 All rate features are computed as Δvalue/Δt using actual elapsed time
 between CDM updates (days), not assuming uniform spacing.
@@ -47,16 +52,7 @@ TEST_OUT = os.path.join(DATA_DIR, "test_features.csv")
 # Feature definitions — 46 total
 # ---------------------------------------------------------------------------
 FEATURE_NAMES = [
-    # F_risk (8)
-    "risk_final",
-    "risk_mean",
-    "d_risk_dt_mean",
-    "d_risk_dt_last",
-    "d2_risk_dt2_mean",
-    "risk_late_early_ratio",
-    "risk_range",
-    "risk_monotonicity",
-    # F_geom (10)
+    # F_geom (10) — miss distance and geometry evolution
     "miss_dist_final",
     "d_miss_dist_dt_mean",
     "d_miss_dist_dt_last",
@@ -67,7 +63,7 @@ FEATURE_NAMES = [
     "rel_pos_n_final",
     "miss_dist_late_early_ratio",
     "mahal_late_early_ratio",
-    # F_cov (12)
+    # F_cov (12) — covariance structure evolution
     "t_sigma_r_final",
     "c_sigma_r_final",
     "d_t_sigma_r_dt",
@@ -80,7 +76,7 @@ FEATURE_NAMES = [
     "sigma_r_ratio_tc",
     "t_cov_late_early_ratio",
     "c_cov_late_early_ratio",
-    # F_od (8)
+    # F_od (8) — orbit determination quality
     "t_obs_used_final",
     "c_obs_used_final",
     "d_c_obs_used_dt",
@@ -89,20 +85,17 @@ FEATURE_NAMES = [
     "t_time_lastob_end_final",
     "c_time_lastob_end_final",
     "od_quality_ratio",
-    # F_timing (4)
+    # F_timing (4) — temporal structure
     "inter_cdm_dt_mean",
     "inter_cdm_dt_std",
     "inter_cdm_dt_last",
     "n_cdms",
-    # F_cross (4)
-    "corr_risk_miss",
-    "corr_risk_mahal",
-    "corr_risk_c_sigma_r",
+    # F_cross (1) — cross-parameter coupling (risk-free)
     "corr_miss_c_cov_det",
 ]
 
 N_FEATURES = len(FEATURE_NAMES)
-assert N_FEATURES == 46, f"Expected 46 features, got {N_FEATURES}"
+assert N_FEATURES == 35, f"Expected 35 features, got {N_FEATURES}"
 
 # Failure basin threshold: log10(Pc) >= -5 (ESA red screen threshold)
 HIGH_RISK_THRESHOLD = -5.0

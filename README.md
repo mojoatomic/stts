@@ -126,12 +126,15 @@ python -m pipeline.run_pronostia
 
 ### N-CMAPSS (cross-fidelity and cross-fault transfer)
 
-Download the N-CMAPSS dataset from the [NASA Prognostics Data Repository](https://phm-datasets.s3.amazonaws.com/NASA/17.+Turbofan+Engine+Degradation+Simulation+Data+Set+2.zip) and place `.h5` files in `data/N-CMAPSSData/`.
+Download the [N-CMAPSS dataset](https://phm-datasets.s3.amazonaws.com/NASA/17.+Turbofan+Engine+Degradation+Simulation+Data+Set+2.zip) (~14 GB zip, Chao et al. 2021) from the NASA Prognostics Data Repository. Extract and place `.h5` files in `data/N-CMAPSSData/`. At minimum, `N-CMAPSS_DS03-012.h5` and `N-CMAPSS_DS02-006.h5` are needed to reproduce the paper results.
 
 ```bash
 python -m pipeline.ncmapss.run_ncmapss --datasets DS03
+python -m pipeline.ncmapss.run_ncmapss --datasets DS02
 python -m pipeline.ncmapss.analysis --datasets DS03
 ```
+
+Results and serialized artifacts are saved to `results/ncmapss/`. The pipeline loads ~10M timesteps per dataset, aggregates to per-cycle features with cruise-phase filtering, and runs in under 5 minutes per sub-dataset.
 
 ### NEA orbital domain
 

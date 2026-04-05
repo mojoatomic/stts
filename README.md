@@ -6,11 +6,12 @@ A geometric framework for monitoring complex dynamic systems via trajectory embe
 
 ## Results Summary
 
-Five physically distinct domains, one pipeline:
+Six physically distinct domains, one pipeline:
 
 | Domain | Corpus | V1 sep | V2 | F1 | Notes |
 |--------|--------|--------|-----|-----|-------|
 | Turbofan (C-MAPSS) | 100 engines | 4.6x | 0.94 | 0.969 | |
+| Turbofan (N-CMAPSS) | 15 engines (DS03) | 104.2x | 0.954 | 1.000 | Cross-fidelity transfer |
 | NEA orbital (JPL Horizons) | 973 asteroids | 3.8x | 0.631 | 1.000 | |
 | Battery (NASA) | 10 batteries | 320.9x | 0.66 | 0.640 | |
 | Bearing (PRONOSTIA) | 6 bearings | 97.6x | 0.05 | — | |
@@ -21,6 +22,8 @@ Five physically distinct domains, one pipeline:
 †Recall = 1.000 (78/78 reentry satellites detected, mean lead time 471 days). Precision reflects constellation health finding — 108 operational satellites showing sustained reentry-like signatures are not false positives. See below.
 
 V1 (failure basin geometric separation) passes universally across all domains. V2 and F1 track corpus sufficiency — the framework's stated applicability condition P1 is empirically a binding constraint.
+
+**N-CMAPSS highlights:** DS03-trained model transfers cold to DS02 (different failure mode, no retraining): V1=36.4x, V2 ρ=0.878. LDA loadings shift between datasets to track fault physics (T48-led for HPT+LPT, T50-led for HPT-only). Inference: 55 μs per engine.
 
 **Orbital highlights:** 795/795 held-out test objects detected, F1 = 1.000 [0.998–1.000]. Asteroid 99942 Apophis produces a triage signal from 45 days of observational arc, 24.4 years before the 2029 flyby, entirely out-of-sample.
 
@@ -75,7 +78,12 @@ stts/
 │   ├── causal_weighting.py         # Causal weight vector (W stage)
 │   ├── manifold_projection.py      # LDA projection (M stage)
 │   ├── failure_basin.py            # Failure basin + k-NN query
-│   └── evaluation.py               # V1, V2, V3, precision-recall
+│   ├── evaluation.py               # V1, V2, V3, precision-recall
+│   └── ncmapss/                    # N-CMAPSS adapter (only F stage changes)
+│       ├── config.py               # 14 named sensors, cruise filter, regime params
+│       ├── data_loader.py          # HDF5 whitelist loader, cruise filter, aggregation
+│       ├── run_ncmapss.py          # Pipeline runner with artifact serialization
+│       └── analysis.py             # Per-engine V2, Wilson CI, V3 loadings, timing
 ├── scripts/
 │   ├── download_data.sh            # PHM dataset download
 │   └── archive_starlink_ephemeris.py  # Starlink ephemeris archiver
@@ -114,6 +122,15 @@ bash scripts/download_data.sh all
 python -m pipeline.run_cmapss
 python -m pipeline.run_battery
 python -m pipeline.run_pronostia
+```
+
+### N-CMAPSS (cross-fidelity and cross-fault transfer)
+
+Download the N-CMAPSS dataset from the [NASA Prognostics Data Repository](https://phm-datasets.s3.amazonaws.com/NASA/17.+Turbofan+Engine+Degradation+Simulation+Data+Set+2.zip) and place `.h5` files in `data/N-CMAPSSData/`.
+
+```bash
+python -m pipeline.ncmapss.run_ncmapss --datasets DS03
+python -m pipeline.ncmapss.analysis --datasets DS03
 ```
 
 ### NEA orbital domain

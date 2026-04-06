@@ -253,10 +253,11 @@ def fig5_mechanism_ranking():
         "ncmapss_ds02": "N-CMAPSS DS02",
         "cmapss_fd001": "C-MAPSS FD001",
         "battery": "Battery",
+        "bearing": "Bearing",
     }
 
     n_domains = len(domains)
-    fig, axes = plt.subplots(1, n_domains, figsize=(5 * n_domains, 6), sharey=True)
+    fig, axes = plt.subplots(1, n_domains, figsize=(4.5 * n_domains, 6), sharey=True)
     if n_domains == 1:
         axes = [axes]
 
@@ -313,6 +314,7 @@ def fig6_collinearity():
         "ncmapss_ds02": "N-CMAPSS DS02",
         "cmapss_fd001": "C-MAPSS FD001",
         "battery": "Battery",
+        "bearing": "Bearing",
     }
 
     for ax_idx, domain in enumerate(domains):

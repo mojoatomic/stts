@@ -576,6 +576,91 @@ def load_battery_domain() -> dict:
     return results, RUL_CLIP
 
 
+def load_bearing_domain() -> dict:
+    """Load PRONOSTIA bearing degradation data."""
+    from pipeline.run_pronostia import (
+        load_bearing, extract_all_snapshot_features,
+        TRAIN_BEARINGS, LEARNING_DIR,
+        WINDOW_SIZE, WINDOW_STRIDE, RUL_CLIP, N_LDA_CLASSES,
+    )
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    from sklearn.preprocessing import StandardScaler
+
+    bearing_data = {}
+    for bname in TRAIN_BEARINGS:
+        bdir = LEARNING_DIR / bname
+        if not bdir.exists():
+            continue
+        snapshots = load_bearing(bdir)
+        features = extract_all_snapshot_features(snapshots)
+        n = len(features)
+        rul = np.clip(np.arange(n - 1, -1, -1, dtype=float), 0, RUL_CLIP)
+        bearing_data[bname] = {"features": features, "rul": rul}
+
+    if not bearing_data:
+        raise FileNotFoundError("No bearing data found")
+
+    # Fit LDA across all training bearings
+    # Use the windowed trajectory features for LDA (same as pipeline)
+    from pipeline.run_pronostia import build_trajectory_features
+    all_traj_feats = []
+    all_traj_ruls = []
+    for bname, bd in bearing_data.items():
+        traj, ruls = build_trajectory_features(bd["features"], WINDOW_SIZE, WINDOW_STRIDE)
+        if len(traj) > 0:
+            all_traj_feats.append(traj)
+            all_traj_ruls.append(ruls)
+
+    pooled_feats = np.vstack(all_traj_feats)
+    pooled_ruls = np.concatenate(all_traj_ruls)
+
+    scaler = StandardScaler()
+    scaled = scaler.fit_transform(pooled_feats)
+    feat_std = np.std(scaled, axis=0)
+    gf = feat_std > 1e-8
+    scaled = scaled[:, gf]
+
+    boundaries = np.linspace(0, RUL_CLIP, N_LDA_CLASSES + 1)
+    labels = np.clip(np.digitize(pooled_ruls, boundaries) - 1, 0, N_LDA_CLASSES - 1)
+    lda = LinearDiscriminantAnalysis(n_components=1, solver="eigen", shrinkage="auto")
+    lda.fit(scaled, labels)
+
+    # Per-bearing mechanism computation
+    results = {}
+    for bname, bd in bearing_data.items():
+        sensor_data = bd["features"]  # (n_snapshots, 25) — per-snapshot features
+        rul_data = bd["rul"]
+        n = len(sensor_data)
+
+        if n < WINDOW_SIZE:
+            continue
+
+        sensor_windows = []
+        window_ruls = []
+        for start in range(0, n - WINDOW_SIZE + 1, WINDOW_STRIDE):
+            end = start + WINDOW_SIZE
+            sensor_windows.append(sensor_data[start:end])
+            window_ruls.append(rul_data[end - 1])
+
+        # LDA scores via windowed trajectory features
+        traj, traj_ruls = build_trajectory_features(sensor_data, WINDOW_SIZE, WINDOW_STRIDE)
+        traj_scaled = scaler.transform(traj)[:, gf]
+        lda_scores = lda.transform(traj_scaled).flatten()
+
+        n_windows = min(len(sensor_windows), len(lda_scores))
+
+        eng_results = compute_engine_mechanisms(
+            sensor_windows[:n_windows],
+            np.array(window_ruls[:n_windows]),
+            lda_scores[:n_windows],
+            RUL_CLIP,
+        )
+        eng_results["split"] = "train"
+        results[f"train_{bname}"] = eng_results
+
+    return results, RUL_CLIP
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -634,6 +719,19 @@ def main():
         collin_battery = compute_collinearity(battery_results)
         all_collinearity["battery"] = collin_battery.tolist()
         print(f"   {len(battery_results)} engines processed")
+    except Exception as e:
+        print(f"   SKIPPED: {e}")
+
+    # --- Bearing ---
+    print("Loading PRONOSTIA Bearing...")
+    try:
+        bearing_results, bearing_clip = load_bearing_domain()
+        all_results["bearing"] = bearing_results
+        tables_bearing = compute_correlation_tables(bearing_results)
+        all_tables["bearing"] = tables_bearing
+        collin_bearing = compute_collinearity(bearing_results)
+        all_collinearity["bearing"] = collin_bearing.tolist()
+        print(f"   {len(bearing_results)} bearings processed")
     except Exception as e:
         print(f"   SKIPPED: {e}")
 

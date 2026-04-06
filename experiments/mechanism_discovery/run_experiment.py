@@ -661,6 +661,390 @@ def load_bearing_domain() -> dict:
     return results, RUL_CLIP
 
 
+def load_reentry_domain() -> dict:
+    """Load Starlink reentry TLE decay trajectories."""
+    from reentry.config import (
+        STATE_CHANNELS, WINDOW_SIZE, WINDOW_STRIDE_EVAL,
+        ARTIFACTS_DIR as REENTRY_ARTIFACTS,
+    )
+    from reentry.features import tle_records_to_array
+
+    with open(REENTRY_ARTIFACTS / "corpus.pkl", "rb") as f:
+        corpus = pickle.load(f)
+    with open(REENTRY_ARTIFACTS / "scaler.pkl", "rb") as f:
+        scaler = pickle.load(f)
+    with open(REENTRY_ARTIFACTS / "lda.pkl", "rb") as f:
+        lda = pickle.load(f)
+
+    # Load feature mask if saved, otherwise use all
+    try:
+        import json as _json
+        with open(REENTRY_ARTIFACTS / "model_meta.json") as f:
+            meta = _json.load(f)
+    except Exception:
+        meta = {}
+
+    # Reentry satellites from train split only (these have full trajectories)
+    train_reentry_ids = corpus.get("train_reentry_ids", [])
+    satellites = corpus["satellites"]
+
+    # We need to build features the same way the pipeline does
+    from reentry.features import extract_features as extract_reentry_features
+
+    results = {}
+    n_processed = 0
+    for norad_id in train_reentry_ids:
+        if norad_id not in satellites:
+            continue
+        sat = satellites[norad_id]
+        records = sat["tle_records"]
+        if len(records) < WINDOW_SIZE:
+            continue
+
+        values, epochs = tle_records_to_array(records)
+        n_records = len(values)
+
+        # Compute RUL: days from each record to decay epoch
+        from datetime import datetime
+        try:
+            decay_dt = datetime.fromisoformat(sat["decay_epoch"])
+        except (ValueError, TypeError):
+            decay_dt = datetime.strptime(str(sat["decay_epoch"])[:10], "%Y-%m-%d")
+        j2000 = datetime(2000, 1, 1, 12, 0, 0)
+        decay_day = (decay_dt - j2000).total_seconds() / 86400.0
+        rul_days = decay_day - epochs
+        rul_days = np.clip(rul_days, 0, 365)
+
+        # Build raw sensor windows and extract features for LDA
+        sensor_windows = []
+        window_ruls = []
+        feature_list = []
+
+        stride = WINDOW_STRIDE_EVAL
+        for start in range(0, n_records - WINDOW_SIZE + 1, stride):
+            end = start + WINDOW_SIZE
+            win_vals = values[start:end]
+            win_epochs = epochs[start:end]
+            sensor_windows.append(win_vals)
+            window_ruls.append(rul_days[end - 1])
+
+            feats = extract_reentry_features(win_vals, win_epochs)
+            feature_list.append(feats)
+
+        if len(feature_list) < 5:
+            continue
+
+        features = np.array(feature_list)
+        # Apply saved scaler + LDA
+        try:
+            scaled = scaler.transform(features)
+            lda_scores = lda.transform(scaled).flatten()
+        except Exception:
+            continue
+
+        n_windows = min(len(sensor_windows), len(lda_scores))
+
+        eng_results = compute_engine_mechanisms(
+            sensor_windows[:n_windows],
+            np.array(window_ruls[:n_windows]),
+            lda_scores[:n_windows],
+            365,  # rul_clip for reentry
+        )
+        eng_results["split"] = "train"
+        results[f"train_{norad_id}"] = eng_results
+        n_processed += 1
+
+        if n_processed >= 50:  # cap at 50 satellites for tractability
+            break
+
+    return results, 365
+
+
+def load_orbital_domain() -> dict:
+    """Load NEA orbital close-approach trajectories."""
+    import json as _json
+
+    corpus_path = PROJECT_ROOT / "artifacts" / "corpus.pkl"
+    if not corpus_path.exists():
+        raise FileNotFoundError("artifacts/corpus.pkl not found — run corpus.py first")
+
+    with open(corpus_path, "rb") as f:
+        corpus = pickle.load(f)
+    with open(PROJECT_ROOT / "artifacts" / "scaler.pkl", "rb") as f:
+        scaler = pickle.load(f)
+    with open(PROJECT_ROOT / "artifacts" / "lda.pkl", "rb") as f:
+        lda = pickle.load(f)
+    with open(PROJECT_ROOT / "artifacts" / "corpus_train.json") as f:
+        train_desigs = _json.load(f)
+
+    # Import orbital feature extraction
+    from horizons_stts_pipeline import extract_features_windowed, build_weight_vector
+    from config import FEATURES, CORPUS
+
+    window_days = FEATURES["window_days"]
+    lookback = CORPUS.get("lookback_days", 365)
+    rul_clip = lookback
+
+    results = {}
+    n_processed = 0
+
+    for obj in corpus:
+        desig = obj.get("designation", obj.get("des", ""))
+        if desig not in train_desigs:
+            continue
+
+        elements = obj.get("elements")
+        ca_date = obj.get("close_approach_date")
+        if elements is None or ca_date is None:
+            continue
+        if len(elements.get("jd", [])) < window_days:
+            continue
+
+        # Build per-window raw element arrays
+        jd = np.array(elements["jd"])
+        # Orbital elements as "sensor channels"
+        channel_names = ["q", "a", "e", "i", "om", "w", "ma", "n", "tp"]
+        channels = {}
+        for ch in channel_names:
+            if ch in elements:
+                channels[ch] = np.array(elements[ch])
+
+        if len(channels) < 5:
+            continue
+
+        n_channels = len(channels)
+        ch_names = sorted(channels.keys())
+        n_days = len(jd)
+
+        # Build sensor array: (n_days, n_channels)
+        sensor_array = np.column_stack([channels[ch] for ch in ch_names])
+
+        # Compute RUL (days to close approach)
+        from datetime import datetime
+        try:
+            ca_dt = datetime.fromisoformat(str(ca_date))
+        except (ValueError, TypeError):
+            continue
+        j2000 = datetime(2000, 1, 1, 12, 0, 0)
+        ca_jd = 2451545.0 + (ca_dt - j2000).total_seconds() / 86400.0
+        rul_days = ca_jd - jd
+        rul_days = np.clip(rul_days, 0, rul_clip)
+
+        # Build windows
+        stride = 7  # 7-day stride
+        sensor_windows = []
+        window_ruls = []
+        for start in range(0, n_days - window_days + 1, stride):
+            end = start + window_days
+            sensor_windows.append(sensor_array[start:end])
+            window_ruls.append(rul_days[end - 1])
+
+        if len(sensor_windows) < 5:
+            continue
+
+        # LDA scores via saved artifacts
+        try:
+            feats_windows, _ = extract_features_windowed(obj, lookback_days=lookback)
+            if feats_windows is None or len(feats_windows) < 5:
+                continue
+            scaled = scaler.transform(feats_windows)
+            lda_scores = lda.transform(scaled).flatten()
+        except Exception:
+            continue
+
+        n_windows = min(len(sensor_windows), len(lda_scores))
+
+        eng_results = compute_engine_mechanisms(
+            sensor_windows[:n_windows],
+            np.array(window_ruls[:n_windows]),
+            lda_scores[:n_windows],
+            rul_clip,
+        )
+        eng_results["split"] = "train"
+        results[f"train_{desig}"] = eng_results
+        n_processed += 1
+
+    return results, rul_clip
+
+
+def load_solar_domain() -> dict:
+    """Load SWAN-SF solar active region trajectories."""
+    # Import stitching from stts-solar branch
+    solar_dir = PROJECT_ROOT / "solar"
+    tmp_dir = EXP_DIR / "_solar_tmp"
+    tmp_dir.mkdir(exist_ok=True)
+
+    if not (solar_dir / "stitch_trajectories.py").exists():
+        # Extract scripts from git branch
+        import subprocess
+        for script in ["stitch_trajectories.py", "v1_separation_test.py"]:
+            result = subprocess.run(
+                ["git", "show", f"stts-solar:solar/{script}"],
+                capture_output=True, text=True, cwd=str(PROJECT_ROOT),
+            )
+            if result.returncode != 0:
+                raise FileNotFoundError(f"Cannot extract solar/{script} from stts-solar branch")
+            (tmp_dir / script).write_text(result.stdout)
+        use_dir = tmp_dir
+    else:
+        use_dir = solar_dir
+
+    import importlib.util
+    spec_s = importlib.util.spec_from_file_location(
+        "stitch_trajectories", str(use_dir / "stitch_trajectories.py"),
+    )
+    stitch_mod = importlib.util.module_from_spec(spec_s)
+    spec_s.loader.exec_module(stitch_mod)
+
+    spec_v = importlib.util.spec_from_file_location(
+        "v1_separation_test", str(use_dir / "v1_separation_test.py"),
+    )
+    v1_mod = importlib.util.module_from_spec(spec_v)
+    spec_v.loader.exec_module(v1_mod)
+
+    stitch_ar = stitch_mod.stitch_ar
+    SHARP_PARAMS = stitch_mod.SHARP_PARAMS
+    extract_window_features = v1_mod.extract_window_features
+    WINDOW_SIZE = v1_mod.WINDOW_SIZE
+    WINDOW_STRIDE = v1_mod.WINDOW_STRIDE
+
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    from sklearn.preprocessing import StandardScaler
+
+    data_dir = str(PROJECT_ROOT / "data" / "swan-sf")
+    partition = 3
+    target_ars = ["3341", "3721"]
+
+    all_windows = []
+    all_labels = []
+    ar_trajectories = {}
+
+    for ar_num in target_ars:
+        try:
+            traj = stitch_ar(data_dir, partition, ar_num)
+        except Exception as e:
+            print(f"      Solar AR {ar_num}: {e}")
+            continue
+
+        if traj is None:
+            continue
+
+        timestamps = traj["trajectory_timestamps"]
+        traj_data = traj["trajectory_data"]
+        traj_source = traj["trajectory_source"]
+        n_steps = len(timestamps)
+
+        if n_steps < 10:
+            continue
+
+        sensor_array = np.zeros((n_steps, len(SHARP_PARAMS)))
+        labels = []
+
+        for i, ts in enumerate(timestamps):
+            row = traj_data.get(ts, {})
+            if isinstance(row, dict):
+                for j, param in enumerate(SHARP_PARAMS):
+                    sensor_array[i, j] = row.get(param, 0.0)
+            src = traj_source.get(ts, "NF")
+            labels.append(1 if src == "FL" else 0)
+
+        labels = np.array(labels)
+        sensor_array = np.nan_to_num(sensor_array)
+        ar_trajectories[ar_num] = {
+            "sensors": sensor_array,
+            "labels": labels,
+        }
+
+    if not ar_trajectories:
+        raise FileNotFoundError("No solar AR trajectories loaded")
+
+    # Fit LDA on pooled data
+    all_features = []
+    all_y = []
+    per_ar_windows = {}
+
+    for ar_num, ar_data in ar_trajectories.items():
+        sensors = ar_data["sensors"]
+        labels = ar_data["labels"]
+        n = len(sensors)
+
+        if n < WINDOW_SIZE:
+            continue
+
+        windows = []
+        win_labels = []
+        for start in range(0, n - WINDOW_SIZE + 1, WINDOW_STRIDE):
+            end = start + WINDOW_SIZE
+            win = sensors[start:end]
+            feat_result = extract_window_features(win)
+            # extract_window_features returns (features, sensor_map, class_map)
+            feats = feat_result[0] if isinstance(feat_result, tuple) else feat_result
+            windows.append(win)
+            all_features.append(feats)
+            # Label = 1 if any FL in window, 0 if all NF
+            lab = 1 if labels[start:end].sum() > 0 else 0
+            all_y.append(lab)
+            win_labels.append(lab)
+
+        per_ar_windows[ar_num] = {
+            "windows": windows,
+            "labels": np.array(win_labels),
+        }
+
+    features = np.array(all_features)
+    y = np.array(all_y)
+
+    scaler = StandardScaler()
+    scaled = scaler.fit_transform(features)
+    gf = np.std(scaled, axis=0) > 1e-8
+    scaled = scaled[:, gf]
+
+    lda = LinearDiscriminantAnalysis(n_components=1, solver="eigen", shrinkage="auto")
+    lda.fit(scaled, y)
+
+    # Compute mechanisms per AR
+    # For solar, "RUL" isn't natural. Use distance-to-next-FL as proxy:
+    # count windows until next FL label
+    results = {}
+    feat_idx = 0
+    for ar_num, ar_info in per_ar_windows.items():
+        windows = ar_info["windows"]
+        labels = ar_info["labels"]
+        n_win = len(windows)
+
+        # Compute "time to next FL" as a RUL-like metric
+        rul_proxy = np.zeros(n_win)
+        next_fl = n_win  # sentinel
+        for i in range(n_win - 1, -1, -1):
+            if labels[i] == 1:
+                next_fl = 0
+            else:
+                next_fl += 1
+            rul_proxy[i] = next_fl
+
+        # LDA scores
+        ar_features = features[feat_idx:feat_idx + n_win]
+        ar_scaled = scaler.transform(ar_features)[:, gf]
+        lda_scores = lda.transform(ar_scaled).flatten()
+        feat_idx += n_win
+
+        eng_results = compute_engine_mechanisms(
+            windows,
+            rul_proxy,
+            lda_scores,
+            float(n_win),  # rul_clip
+        )
+        eng_results["split"] = "train"
+        results[f"train_AR{ar_num}"] = eng_results
+
+    # Clean up temp files
+    for tmp in [PROJECT_ROOT / "_tmp_stitch.py", PROJECT_ROOT / "_tmp_v1.py"]:
+        if tmp.exists():
+            tmp.unlink()
+
+    return results, float(max(len(w["windows"]) for w in per_ar_windows.values()))
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -734,6 +1118,48 @@ def main():
         print(f"   {len(bearing_results)} bearings processed")
     except Exception as e:
         print(f"   SKIPPED: {e}")
+
+    # --- Reentry ---
+    print("Loading Starlink Reentry...")
+    try:
+        reentry_results, reentry_clip = load_reentry_domain()
+        all_results["reentry"] = reentry_results
+        tables_reentry = compute_correlation_tables(reentry_results)
+        all_tables["reentry"] = tables_reentry
+        collin_reentry = compute_collinearity(reentry_results)
+        all_collinearity["reentry"] = collin_reentry.tolist()
+        print(f"   {len(reentry_results)} satellites processed")
+    except Exception as e:
+        print(f"   SKIPPED: {e}")
+        import traceback; traceback.print_exc()
+
+    # --- Orbital ---
+    print("Loading NEA Orbital...")
+    try:
+        orbital_results, orbital_clip = load_orbital_domain()
+        all_results["orbital"] = orbital_results
+        tables_orbital = compute_correlation_tables(orbital_results)
+        all_tables["orbital"] = tables_orbital
+        collin_orbital = compute_collinearity(orbital_results)
+        all_collinearity["orbital"] = collin_orbital.tolist()
+        print(f"   {len(orbital_results)} objects processed")
+    except Exception as e:
+        print(f"   SKIPPED: {e}")
+        import traceback; traceback.print_exc()
+
+    # --- Solar ---
+    print("Loading SWAN-SF Solar...")
+    try:
+        solar_results, solar_clip = load_solar_domain()
+        all_results["solar"] = solar_results
+        tables_solar = compute_correlation_tables(solar_results)
+        all_tables["solar"] = tables_solar
+        collin_solar = compute_collinearity(solar_results)
+        all_collinearity["solar"] = collin_solar.tolist()
+        print(f"   {len(solar_results)} active regions processed")
+    except Exception as e:
+        print(f"   SKIPPED: {e}")
+        import traceback; traceback.print_exc()
 
     # --- Print summary tables ---
     print()

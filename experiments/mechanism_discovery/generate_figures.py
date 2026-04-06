@@ -300,47 +300,72 @@ def fig5_mechanism_ranking():
 # Figure 6: Collinearity heatmap
 # -----------------------------------------------------------------------
 
-def fig6_collinearity():
-    results = load_results()
-
-    domains = list(results["collinearity"].keys())
-    n = len(domains)
-    fig, axes = plt.subplots(1, n, figsize=(6 * n, 5))
-    if n == 1:
-        axes = [axes]
-
+def _plot_collinearity_2x2(results, domains, title, filename):
+    """Render a 2x2 collinearity heatmap grid."""
     domain_labels = {
         "ncmapss_ds03": "N-CMAPSS DS03",
         "ncmapss_ds02": "N-CMAPSS DS02",
         "cmapss_fd001": "C-MAPSS FD001",
         "battery": "Battery",
         "bearing": "Bearing",
+        "reentry": "Reentry",
+        "orbital": "Orbital",
+        "solar": "Solar",
     }
 
-    for ax_idx, domain in enumerate(domains):
-        ax = axes[ax_idx]
+    fig, axes = plt.subplots(2, 2, figsize=(16, 14))
+    axes_flat = axes.flatten()
+
+    for ax_idx in range(4):
+        ax = axes_flat[ax_idx]
+        if ax_idx >= len(domains) or domains[ax_idx] not in results["collinearity"]:
+            ax.axis("off")
+            continue
+
+        domain = domains[ax_idx]
         cmat = np.array(results["collinearity"][domain])
 
         im = ax.imshow(cmat, vmin=-1, vmax=1, cmap="RdBu_r", aspect="equal")
         ax.set_xticks(range(7))
-        ax.set_xticklabels(MECH_SHORT, rotation=45, ha="right", fontsize=8)
+        ax.set_xticklabels(MECH_SHORT, rotation=45, ha="right", fontsize=11)
         ax.set_yticks(range(7))
-        ax.set_yticklabels(MECH_SHORT, fontsize=8)
-        ax.set_title(domain_labels.get(domain, domain), fontsize=11)
+        ax.set_yticklabels(MECH_SHORT, fontsize=11)
+        ax.set_title(domain_labels.get(domain, domain), fontsize=14, pad=10)
 
         for i in range(7):
             for j in range(7):
                 val = cmat[i, j]
+                flagged = i != j and abs(val) > 0.85
                 color = "white" if abs(val) > 0.6 else "black"
+                weight = "bold" if flagged else "normal"
                 ax.text(j, i, f"{val:.2f}", ha="center", va="center",
-                        fontsize=7, color=color)
+                        fontsize=10, color=color, fontweight=weight,
+                        bbox=dict(boxstyle="round,pad=0.15", facecolor="yellow",
+                                  alpha=0.6, edgecolor="none") if flagged else {})
 
-    fig.colorbar(im, ax=axes, shrink=0.8, label="Pearson r")
-    fig.suptitle("Inter-Mechanism Collinearity", fontsize=14, y=1.02)
-    fig.tight_layout()
-    fig.savefig(FIG_DIR / "mechanism_collinearity.png")
+    fig.colorbar(im, ax=axes, shrink=0.6, label="Pearson r", pad=0.03)
+    fig.suptitle(title, fontsize=16, y=0.98)
+    fig.tight_layout(pad=3.0, rect=[0, 0, 0.92, 0.95])
+    fig.savefig(FIG_DIR / filename)
     plt.close(fig)
-    print("   Saved mechanism_collinearity.png")
+    print(f"   Saved {filename}")
+
+
+def fig6_collinearity():
+    results = load_results()
+
+    _plot_collinearity_2x2(
+        results,
+        ["ncmapss_ds03", "ncmapss_ds02", "cmapss_fd001", "battery"],
+        "Inter-Mechanism Collinearity — Strong M2 Domains",
+        "mechanism_collinearity_strong.png",
+    )
+    _plot_collinearity_2x2(
+        results,
+        ["bearing", "reentry", "orbital", "solar"],
+        "Inter-Mechanism Collinearity — Moderate/Weak M2 Domains",
+        "mechanism_collinearity_weak.png",
+    )
 
 
 # -----------------------------------------------------------------------

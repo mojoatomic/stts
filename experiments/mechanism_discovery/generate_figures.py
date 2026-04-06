@@ -303,41 +303,55 @@ def fig5_mechanism_ranking():
 def fig6_collinearity():
     results = load_results()
 
-    domains = list(results["collinearity"].keys())
-    n = len(domains)
-    fig, axes = plt.subplots(1, n, figsize=(6 * n, 5))
-    if n == 1:
-        axes = [axes]
-
     domain_labels = {
         "ncmapss_ds03": "N-CMAPSS DS03",
         "ncmapss_ds02": "N-CMAPSS DS02",
         "cmapss_fd001": "C-MAPSS FD001",
         "battery": "Battery",
         "bearing": "Bearing",
+        "reentry": "Reentry",
+        "orbital": "Orbital",
+        "solar": "Solar",
     }
 
-    for ax_idx, domain in enumerate(domains):
-        ax = axes[ax_idx]
+    # Fixed 2x4 order
+    domain_order = [
+        "ncmapss_ds03", "ncmapss_ds02", "cmapss_fd001", "battery",
+        "bearing", "reentry", "orbital", "solar",
+    ]
+    # Only include domains present in data
+    domains = [d for d in domain_order if d in results["collinearity"]]
+
+    nrows, ncols = 2, 4
+    fig, axes = plt.subplots(nrows, ncols, figsize=(24, 12))
+    axes_flat = axes.flatten()
+
+    for ax_idx in range(nrows * ncols):
+        ax = axes_flat[ax_idx]
+        if ax_idx >= len(domains):
+            ax.axis("off")
+            continue
+
+        domain = domains[ax_idx]
         cmat = np.array(results["collinearity"][domain])
 
         im = ax.imshow(cmat, vmin=-1, vmax=1, cmap="RdBu_r", aspect="equal")
         ax.set_xticks(range(7))
-        ax.set_xticklabels(MECH_SHORT, rotation=45, ha="right", fontsize=8)
+        ax.set_xticklabels(MECH_SHORT, rotation=45, ha="right", fontsize=10)
         ax.set_yticks(range(7))
-        ax.set_yticklabels(MECH_SHORT, fontsize=8)
-        ax.set_title(domain_labels.get(domain, domain), fontsize=11)
+        ax.set_yticklabels(MECH_SHORT, fontsize=10)
+        ax.set_title(domain_labels.get(domain, domain), fontsize=13)
 
         for i in range(7):
             for j in range(7):
                 val = cmat[i, j]
                 color = "white" if abs(val) > 0.6 else "black"
                 ax.text(j, i, f"{val:.2f}", ha="center", va="center",
-                        fontsize=7, color=color)
+                        fontsize=9, color=color)
 
-    fig.colorbar(im, ax=axes, shrink=0.8, label="Pearson r")
-    fig.suptitle("Inter-Mechanism Collinearity", fontsize=14, y=1.02)
-    fig.tight_layout()
+    fig.colorbar(im, ax=axes, shrink=0.6, label="Pearson r", pad=0.02)
+    fig.suptitle("Inter-Mechanism Collinearity", fontsize=16, y=0.98)
+    fig.tight_layout(rect=[0, 0, 0.92, 0.95])
     fig.savefig(FIG_DIR / "mechanism_collinearity.png")
     plt.close(fig)
     print("   Saved mechanism_collinearity.png")

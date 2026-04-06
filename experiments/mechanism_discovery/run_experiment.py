@@ -774,80 +774,60 @@ def load_orbital_domain() -> dict:
         scaler = pickle.load(f)
     with open(PROJECT_ROOT / "artifacts" / "lda.pkl", "rb") as f:
         lda = pickle.load(f)
-    with open(PROJECT_ROOT / "artifacts" / "corpus_train.json") as f:
-        train_desigs = _json.load(f)
 
-    # Import orbital feature extraction
-    from horizons_stts_pipeline import extract_features_windowed, build_weight_vector
-    from config import FEATURES, CORPUS
+    train_idx = corpus["train_idx"]
+    trajectories = corpus["trajectories"]
 
-    window_days = FEATURES["window_days"]
-    lookback = CORPUS.get("lookback_days", 365)
-    rul_clip = lookback
+    from horizons_stts_pipeline import extract_features
+
+    # Orbital element channel names (from OrbitalElements attrs)
+    ORBITAL_CHANNELS = ["q", "a", "e", "i", "om", "w", "ma", "n"]
+    WINDOW_DAYS = 30
+    STRIDE_DAYS = 7
+    RUL_CLIP = 365
 
     results = {}
-    n_processed = 0
+    for idx in train_idx:
+        traj = trajectories[idx]
+        elements = traj["elements"]
+        ca_jd = traj["ca_jd"]
+        desig = traj["designation"]
 
-    for obj in corpus:
-        desig = obj.get("designation", obj.get("des", ""))
-        if desig not in train_desigs:
+        if len(elements) < WINDOW_DAYS:
             continue
 
-        elements = obj.get("elements")
-        ca_date = obj.get("close_approach_date")
-        if elements is None or ca_date is None:
-            continue
-        if len(elements.get("jd", [])) < window_days:
-            continue
+        # Build sensor array from OrbitalElements objects
+        n_days = len(elements)
+        sensor_array = np.zeros((n_days, len(ORBITAL_CHANNELS)))
+        jd_array = np.zeros(n_days)
+        for i, elem in enumerate(elements):
+            jd_array[i] = elem.jd
+            for j, ch in enumerate(ORBITAL_CHANNELS):
+                sensor_array[i, j] = getattr(elem, ch, 0.0)
 
-        # Build per-window raw element arrays
-        jd = np.array(elements["jd"])
-        # Orbital elements as "sensor channels"
-        channel_names = ["q", "a", "e", "i", "om", "w", "ma", "n", "tp"]
-        channels = {}
-        for ch in channel_names:
-            if ch in elements:
-                channels[ch] = np.array(elements[ch])
+        # RUL = days to close approach
+        rul_days = np.clip(ca_jd - jd_array, 0, RUL_CLIP)
 
-        if len(channels) < 5:
-            continue
-
-        n_channels = len(channels)
-        ch_names = sorted(channels.keys())
-        n_days = len(jd)
-
-        # Build sensor array: (n_days, n_channels)
-        sensor_array = np.column_stack([channels[ch] for ch in ch_names])
-
-        # Compute RUL (days to close approach)
-        from datetime import datetime
-        try:
-            ca_dt = datetime.fromisoformat(str(ca_date))
-        except (ValueError, TypeError):
-            continue
-        j2000 = datetime(2000, 1, 1, 12, 0, 0)
-        ca_jd = 2451545.0 + (ca_dt - j2000).total_seconds() / 86400.0
-        rul_days = ca_jd - jd
-        rul_days = np.clip(rul_days, 0, rul_clip)
-
-        # Build windows
-        stride = 7  # 7-day stride
+        # Build raw sensor windows + extract features for LDA
         sensor_windows = []
         window_ruls = []
-        for start in range(0, n_days - window_days + 1, stride):
-            end = start + window_days
+        feature_list = []
+
+        for start in range(0, n_days - WINDOW_DAYS + 1, STRIDE_DAYS):
+            end = start + WINDOW_DAYS
+            win_elements = elements[start:end]
             sensor_windows.append(sensor_array[start:end])
             window_ruls.append(rul_days[end - 1])
 
-        if len(sensor_windows) < 5:
+            feats = extract_features(win_elements, ca_jd)
+            feature_list.append(feats)
+
+        if len(feature_list) < 5:
             continue
 
-        # LDA scores via saved artifacts
+        features = np.array(feature_list)
         try:
-            feats_windows, _ = extract_features_windowed(obj, lookback_days=lookback)
-            if feats_windows is None or len(feats_windows) < 5:
-                continue
-            scaled = scaler.transform(feats_windows)
+            scaled = scaler.transform(features)
             lda_scores = lda.transform(scaled).flatten()
         except Exception:
             continue
@@ -858,13 +838,12 @@ def load_orbital_domain() -> dict:
             sensor_windows[:n_windows],
             np.array(window_ruls[:n_windows]),
             lda_scores[:n_windows],
-            rul_clip,
+            RUL_CLIP,
         )
         eng_results["split"] = "train"
         results[f"train_{desig}"] = eng_results
-        n_processed += 1
 
-    return results, rul_clip
+    return results, RUL_CLIP
 
 
 def load_solar_domain() -> dict:

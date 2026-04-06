@@ -243,26 +243,29 @@ def fig4_eigenvalue_spectrum():
 # Figure 5: Mechanism ranking bar chart — ALL DOMAINS side by side
 # -----------------------------------------------------------------------
 
-def fig5_mechanism_ranking():
-    results = load_results()
-    tables = results["correlation_tables"]
-
-    domains = list(tables.keys())
+def _plot_ranking_2x2(tables, domains, title, filename):
+    """Render a 2x2 mechanism ranking bar chart grid."""
     domain_labels = {
         "ncmapss_ds03": "N-CMAPSS DS03",
         "ncmapss_ds02": "N-CMAPSS DS02",
         "cmapss_fd001": "C-MAPSS FD001",
         "battery": "Battery",
         "bearing": "Bearing",
+        "reentry": "Reentry",
+        "orbital": "Orbital",
+        "solar": "Solar",
     }
 
-    n_domains = len(domains)
-    fig, axes = plt.subplots(1, n_domains, figsize=(4.5 * n_domains, 6), sharey=True)
-    if n_domains == 1:
-        axes = [axes]
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12), sharey=True)
+    axes_flat = axes.flatten()
 
-    for ax_idx, domain in enumerate(domains):
-        ax = axes[ax_idx]
+    for ax_idx in range(4):
+        ax = axes_flat[ax_idx]
+        if ax_idx >= len(domains) or domains[ax_idx] not in tables:
+            ax.axis("off")
+            continue
+
+        domain = domains[ax_idx]
         rho_vals = []
         r_vals = []
         names = []
@@ -282,18 +285,39 @@ def fig5_mechanism_ranking():
         ax.barh(y + h/2, rho_vals, h, label="|ρ| vs RUL", color="#2166ac")
         ax.barh(y - h/2, r_vals, h, label="|r| vs LDA", color="#b2182b")
         ax.set_yticks(y)
-        ax.set_yticklabels(names)
-        ax.set_xlabel("Correlation Magnitude")
-        ax.set_title(domain_labels.get(domain, domain))
+        ax.set_yticklabels(names, fontsize=11)
+        ax.set_xlabel("Correlation Magnitude", fontsize=12)
+        ax.set_title(domain_labels.get(domain, domain), fontsize=14)
         ax.set_xlim(0, 1.05)
-        if ax_idx == 0:
-            ax.legend(loc="lower right", fontsize=9)
 
-    fig.suptitle("Mechanism Ranking Across Domains", fontsize=15, y=1.02)
-    fig.tight_layout()
-    fig.savefig(FIG_DIR / "mechanism_ranking.png")
+    # Shared legend at bottom
+    handles, labels = axes_flat[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", ncol=2, fontsize=12,
+               bbox_to_anchor=(0.5, 0.01))
+
+    fig.suptitle(title, fontsize=16, y=0.98)
+    fig.tight_layout(rect=[0, 0.05, 1, 0.96], pad=2.0)
+    fig.savefig(FIG_DIR / filename)
     plt.close(fig)
-    print("   Saved mechanism_ranking.png")
+    print(f"   Saved {filename}")
+
+
+def fig5_mechanism_ranking():
+    results = load_results()
+    tables = results["correlation_tables"]
+
+    _plot_ranking_2x2(
+        tables,
+        ["ncmapss_ds03", "ncmapss_ds02", "cmapss_fd001", "battery"],
+        "Mechanism Ranking — Strong M2 Domains",
+        "mechanism_ranking_strong.png",
+    )
+    _plot_ranking_2x2(
+        tables,
+        ["bearing", "reentry", "orbital", "solar"],
+        "Mechanism Ranking — Moderate/Weak M2 Domains",
+        "mechanism_ranking_weak.png",
+    )
 
 
 # -----------------------------------------------------------------------

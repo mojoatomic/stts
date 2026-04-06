@@ -343,9 +343,10 @@ def _plot_collinearity_2x2(results, domains, title, filename):
                         bbox=dict(boxstyle="round,pad=0.15", facecolor="yellow",
                                   alpha=0.6, edgecolor="none") if flagged else {})
 
-    fig.colorbar(im, ax=axes, shrink=0.6, label="Pearson r", pad=0.03)
     fig.suptitle(title, fontsize=16, y=0.98)
-    fig.tight_layout(pad=3.0, rect=[0, 0, 0.92, 0.95])
+    fig.tight_layout(rect=[0, 0.06, 1, 0.96], pad=3.0)
+    cbar_ax = fig.add_axes([0.15, 0.02, 0.7, 0.02])
+    fig.colorbar(im, cax=cbar_ax, orientation="horizontal", label="Pearson r")
     fig.savefig(FIG_DIR / filename)
     plt.close(fig)
     print(f"   Saved {filename}")

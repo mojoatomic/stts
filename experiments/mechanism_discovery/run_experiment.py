@@ -1024,6 +1024,86 @@ def load_solar_domain() -> dict:
     return results, float(max(len(w["windows"]) for w in per_ar_windows.values()))
 
 
+def load_protein_domain() -> dict:
+    """Load mdCATH protein unfolding trajectories."""
+    from protein.config import (
+        DESCRIPTORS_DIR, TARGET_DOMAINS, UNFOLDING_TEMP,
+        DEV_REPLICATES_450K, Q_FAILURE_THRESHOLD, RUL_CLIP,
+        WINDOW_SIZE, WINDOW_STRIDE_EVAL, ARTIFACTS_DIR as PROTEIN_ARTIFACTS,
+        build_weight_vector as build_protein_weights,
+    )
+    from protein.descriptors import compute_rul
+    from protein.features import extract_features as extract_protein_features
+
+    # Load frozen model artifacts
+    with open(PROTEIN_ARTIFACTS / "scaler.pkl", "rb") as f:
+        scaler = pickle.load(f)
+    with open(PROTEIN_ARTIFACTS / "lda.pkl", "rb") as f:
+        lda = pickle.load(f)
+    W_protein = build_protein_weights()
+
+    results = {}
+    for domain_id in TARGET_DOMAINS:
+        desc_dir = DESCRIPTORS_DIR / domain_id
+
+        for rep in DEV_REPLICATES_450K:
+            key = f"{UNFOLDING_TEMP}K_rep{rep}"
+            npy_path = desc_dir / f"{key}.npy"
+            if not npy_path.exists():
+                continue
+
+            desc = np.load(npy_path)  # (n_frames, 8)
+            q_trajectory = desc[:, 3]
+            rul, failure_frame = compute_rul(q_trajectory, Q_FAILURE_THRESHOLD)
+
+            if failure_frame is None:
+                continue  # did not unfold
+
+            rul = np.clip(rul, 0, RUL_CLIP)
+            n_frames = len(desc)
+
+            if n_frames < WINDOW_SIZE:
+                continue
+
+            # Build raw sensor windows and extract features for LDA
+            sensor_windows = []
+            window_ruls = []
+            feature_list = []
+
+            stride = WINDOW_STRIDE_EVAL
+            for start in range(0, n_frames - WINDOW_SIZE + 1, stride):
+                end = start + WINDOW_SIZE
+                win = desc[start:end]
+                sensor_windows.append(win)
+                window_ruls.append(rul[end - 1])
+                feats = extract_protein_features(win)
+                feature_list.append(feats)
+
+            if len(feature_list) < 5:
+                continue
+
+            features = np.array(feature_list)
+            try:
+                scaled = scaler.transform(features)
+                scaled_w = scaled * W_protein
+                lda_scores = lda.transform(scaled_w).flatten()
+            except Exception:
+                continue
+
+            n_windows = min(len(sensor_windows), len(lda_scores))
+
+            eng_results = compute_engine_mechanisms(
+                sensor_windows[:n_windows],
+                np.array(window_ruls[:n_windows]),
+                lda_scores[:n_windows],
+                RUL_CLIP,
+            )
+            eng_results["split"] = "train"
+            results[f"train_{domain_id}_{key}"] = eng_results
+
+    return results, RUL_CLIP
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -1136,6 +1216,20 @@ def main():
         collin_solar = compute_collinearity(solar_results)
         all_collinearity["solar"] = collin_solar.tolist()
         print(f"   {len(solar_results)} active regions processed")
+    except Exception as e:
+        print(f"   SKIPPED: {e}")
+        import traceback; traceback.print_exc()
+
+    # --- Protein ---
+    print("Loading mdCATH Protein...")
+    try:
+        protein_results, protein_clip = load_protein_domain()
+        all_results["protein"] = protein_results
+        tables_protein = compute_correlation_tables(protein_results)
+        all_tables["protein"] = tables_protein
+        collin_protein = compute_collinearity(protein_results)
+        all_collinearity["protein"] = collin_protein.tolist()
+        print(f"   {len(protein_results)} trajectories processed")
     except Exception as e:
         print(f"   SKIPPED: {e}")
         import traceback; traceback.print_exc()

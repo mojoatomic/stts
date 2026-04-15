@@ -1,0 +1,243 @@
+{
+  "config": {
+    "dataset": {
+      "source": "mdCATH (Mirarchi et al., 2024)",
+      "huggingface_repo": "compsciencelab/mdCATH",
+      "target_domains": [
+        "5sicI00"
+      ],
+      "healthy_temp": 320,
+      "unfolding_temp": 450,
+      "n_replicates": 5,
+      "frame_resolution_ns": 1,
+      "random_seed": 42
+    },
+    "selection": {
+      "rmsd_ratio_threshold": 2.0,
+      "rmsd_ratio_min_reps": 4,
+      "stable_rmsd_max_angstrom": 3.0,
+      "stable_min_reps": 4,
+      "min_residues": 50,
+      "max_residues": 200
+    },
+    "descriptors": {
+      "channels": [
+        "rmsd",
+        "rg",
+        "sasa",
+        "native_contacts",
+        "helix_fraction",
+        "sheet_fraction",
+        "coil_fraction",
+        "end_to_end"
+      ],
+      "n_channels": 8,
+      "contact_cutoff_nm": 0.8,
+      "contact_seq_separation": 3,
+      "reference_temp": 320,
+      "reference_replicate": 0,
+      "reference_frame": 0
+    },
+    "rul": {
+      "q_failure_threshold": 0.3
+    },
+    "split": {
+      "dev_replicates_450K": [
+        0,
+        1,
+        2
+      ],
+      "test_replicates_450K": [
+        3,
+        4
+      ],
+      "dev_replicates_320K": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "features": {
+      "window_size": 20,
+      "stride_train": 5,
+      "stride_eval": 1,
+      "n_features": 92
+    },
+    "causal_weights": {
+      "channel_weights": {
+        "rmsd": 2.0,
+        "rg": 1.5,
+        "sasa": 1.0,
+        "native_contacts": 3.0,
+        "helix_fraction": 2.0,
+        "sheet_fraction": 2.0,
+        "coil_fraction": 1.0,
+        "end_to_end": 1.5
+      },
+      "feature_class_weights": {
+        "time_domain": 1.0,
+        "rate": 2.0,
+        "ratio": 2.5,
+        "cross": 1.2
+      }
+    },
+    "labeling": {
+      "precursor_frames": 100,
+      "nominal_buffer_frames": 200
+    },
+    "model": {
+      "lda_components": 1,
+      "k_neighbors": 5,
+      "basin_sigma_cutoff": 1.0,
+      "rul_clip": 500
+    },
+    "validation": {
+      "v1_p_threshold": 0.001,
+      "v2_spearman_threshold": 0.3
+    },
+    "weights": {
+      "W[0:4]": {
+        "multiplier": 2.0,
+        "justification": "RMSD td: structural deviation from native fold"
+      },
+      "W[4:8]": {
+        "multiplier": 1.5,
+        "justification": "Rg td: compactness / expansion"
+      },
+      "W[8:12]": {
+        "multiplier": 1.0,
+        "justification": "SASA td: surface exposure"
+      },
+      "W[12:16]": {
+        "multiplier": 3.0,
+        "justification": "Q td: native contact fraction -- PRIMARY SIGNAL"
+      },
+      "W[16:20]": {
+        "multiplier": 2.0,
+        "justification": "helix_frac td: alpha-helix content"
+      },
+      "W[20:24]": {
+        "multiplier": 2.0,
+        "justification": "sheet_frac td: beta-sheet content"
+      },
+      "W[24:28]": {
+        "multiplier": 1.0,
+        "justification": "coil_frac td: coil content"
+      },
+      "W[28:32]": {
+        "multiplier": 1.5,
+        "justification": "end-to-end td: chain extension"
+      },
+      "W[32:35]": {
+        "multiplier": 4.0,
+        "justification": "d(RMSD)/dt: rate of structural change"
+      },
+      "W[35:38]": {
+        "multiplier": 3.0,
+        "justification": "d(Rg)/dt: expansion rate"
+      },
+      "W[38:41]": {
+        "multiplier": 2.0,
+        "justification": "d(SASA)/dt: surface exposure rate"
+      },
+      "W[41:44]": {
+        "multiplier": 6.0,
+        "justification": "d(Q)/dt: rate of contact loss -- STRONGEST RATE SIGNAL"
+      },
+      "W[44:47]": {
+        "multiplier": 4.0,
+        "justification": "d(helix)/dt: helix loss rate"
+      },
+      "W[47:50]": {
+        "multiplier": 4.0,
+        "justification": "d(sheet)/dt: sheet loss rate"
+      },
+      "W[50:53]": {
+        "multiplier": 2.0,
+        "justification": "d(coil)/dt: coil gain rate"
+      },
+      "W[53:56]": {
+        "multiplier": 3.0,
+        "justification": "d(end-to-end)/dt: extension rate"
+      },
+      "W[56:57]": {
+        "multiplier": 5.0,
+        "justification": "RMSD late/early: deviation growth within window"
+      },
+      "W[57:58]": {
+        "multiplier": 3.75,
+        "justification": "Rg late/early: expansion within window"
+      },
+      "W[58:59]": {
+        "multiplier": 2.5,
+        "justification": "SASA late/early: exposure change within window"
+      },
+      "W[59:60]": {
+        "multiplier": 7.5,
+        "justification": "Q late/early: MOST DISCRIMINATING -- contact loss within window"
+      },
+      "W[60:61]": {
+        "multiplier": 5.0,
+        "justification": "helix late/early: helix loss within window"
+      },
+      "W[61:62]": {
+        "multiplier": 5.0,
+        "justification": "sheet late/early: sheet loss within window"
+      },
+      "W[62:63]": {
+        "multiplier": 2.5,
+        "justification": "coil late/early: coil gain within window"
+      },
+      "W[63:64]": {
+        "multiplier": 3.75,
+        "justification": "end-to-end late/early: extension within window"
+      },
+      "W[64:92]": {
+        "multiplier": 1.2,
+        "justification": "Cross-channel correlations: coupled unfolding dynamics"
+      }
+    }
+  },
+  "artifact_checksums": {
+    "scaler": "c8414155098a6aef8268ba2b17f565d6",
+    "lda": "140869e7aa68f84af765ce255f8867db",
+    "basin": "33a40dc6c47fa1dc02fc196d582a051d"
+  },
+  "test_set": {
+    "n_healthy_trajectories": 5,
+    "n_unfolding_trajectories": 2,
+    "n_windows": 2516,
+    "n_precursor": 481,
+    "n_nominal": 2035
+  },
+  "v1": {
+    "separation": 304.3715182894664,
+    "p_value": 5.354313326045453e-256,
+    "passed": true,
+    "median_precursor": 0.0363577227896652,
+    "median_nominal": 11.066255317475084
+  },
+  "v2": {
+    "spearman_rho": 0.3718284734117504,
+    "p_value": 3.2269442425582844e-17,
+    "passed": true
+  },
+  "v3": {
+    "time_domain": -0.26349926123915407,
+    "rate": -0.047910815810228526,
+    "ratio": 0.0017870516835407422,
+    "cross": 0.009083126219724699
+  },
+  "detection": {
+    "epsilon": 9.802928603833422,
+    "test_f1": 0.9101229895931883,
+    "test_precision": 0.8350694444444444,
+    "test_recall": 1.0,
+    "tp": 481,
+    "fp": 95,
+    "fn": 0,
+    "tn": 1940
+  }
+}

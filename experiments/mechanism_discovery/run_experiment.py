@@ -1165,18 +1165,12 @@ def main():
     except Exception as e:
         print(f"   SKIPPED: {e}")
 
-    # --- Bearing ---
-    print("Loading PRONOSTIA Bearing...")
-    try:
-        bearing_results, bearing_clip = load_bearing_domain()
-        all_results["bearing"] = bearing_results
-        tables_bearing = compute_correlation_tables(bearing_results)
-        all_tables["bearing"] = tables_bearing
-        collin_bearing = compute_collinearity(bearing_results)
-        all_collinearity["bearing"] = collin_bearing.tolist()
-        print(f"   {len(bearing_results)} bearings processed")
-    except Exception as e:
-        print(f"   SKIPPED: {e}")
+    # --- Bearing (PRONOSTIA) removed 2026-04-16 ---
+    # Six accelerated-rig bearings is not a sample that can support any
+    # geometric cross-domain claim. If a real-operating-condition bearing
+    # dataset becomes available, re-introduce; until then, bearing is
+    # excluded from this experiment. The load_bearing_domain() helper
+    # above is retained so the re-introduction is a one-line change.
 
     # --- Reentry ---
     print("Loading Starlink Reentry...")

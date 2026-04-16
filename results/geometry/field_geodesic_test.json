@@ -1,0 +1,383 @@
+{
+  "hypothesis": "M2 (centroid drift) ~ geodesic displacement. M1/M5/M6 (PR, correlation, rotation) ~ curvature sources. Domains stratify by dominance.",
+  "scores": {
+    "ncmapss_ds03": {
+      "geodesic_score": 0.8267857586199159,
+      "geodesic_coherence": {
+        "n": 15,
+        "mean": -0.8267866666666668,
+        "std": 0.16085702913526104,
+        "range": [
+          -0.973,
+          -0.4555
+        ],
+        "se": 0.04153310633075115,
+        "ci_95": [
+          -0.908191555074939,
+          -0.7453817782583946
+        ],
+        "crosses_zero": false,
+        "incoherent": false
+      },
+      "curvature_source_score": 0.9345072643085258,
+      "curvature_winner": "m6_subspace_angle",
+      "curvature_coherence": {
+        "n": 15,
+        "mean": -0.9345266666666667,
+        "std": 0.05606603804641648,
+        "range": [
+          -0.9924,
+          -0.7912
+        ],
+        "se": 0.014476188776106829,
+        "ci_95": [
+          -0.9628999966678361,
+          -0.9061533366654974
+        ],
+        "crosses_zero": false,
+        "incoherent": false
+      },
+      "m2_signed": -0.8267857586199159,
+      "ratio_G_over_K": 0.8847290868644913,
+      "dominant": "curvature_source",
+      "mixed": true,
+      "m1_score": 0.02050619830010585,
+      "m5_score": 0.013191606956793774,
+      "m6_score": 0.9345072643085258,
+      "reliable": true
+    },
+    "ncmapss_ds02": {
+      "geodesic_score": 0.8658889660456741,
+      "geodesic_coherence": {
+        "n": 9,
+        "mean": -0.8658888888888889,
+        "std": 0.08720786718390394,
+        "range": [
+          -0.9737,
+          -0.6612
+        ],
+        "se": 0.029069289061301313,
+        "ci_95": [
+          -0.9228646954490395,
+          -0.8089130823287384
+        ],
+        "crosses_zero": false,
+        "incoherent": false
+      },
+      "curvature_source_score": 0.9419763439805554,
+      "curvature_winner": "m6_subspace_angle",
+      "curvature_coherence": {
+        "n": 9,
+        "mean": -0.9419666666666667,
+        "std": 0.04729754515593573,
+        "range": [
+          -0.9915,
+          -0.8327
+        ],
+        "se": 0.01576584838531191,
+        "ci_95": [
+          -0.972867729501878,
+          -0.9110656038314554
+        ],
+        "crosses_zero": false,
+        "incoherent": false
+      },
+      "m2_signed": -0.8658889660456741,
+      "ratio_G_over_K": 0.9192258081414708,
+      "dominant": "curvature_source",
+      "mixed": true,
+      "m1_score": 0.16299800064632247,
+      "m5_score": 0.22322623303101746,
+      "m6_score": 0.9419763439805554,
+      "reliable": true
+    },
+    "cmapss_fd001": {
+      "geodesic_score": 0.9789623043406137,
+      "geodesic_coherence": {
+        "n": 100,
+        "mean": -0.9789559999999998,
+        "std": 0.026615496688959232,
+        "range": [
+          -0.9999,
+          -0.8694
+        ],
+        "se": 0.002661549668895923,
+        "ci_95": [
+          -0.9841726373510359,
+          -0.9737393626489638
+        ],
+        "crosses_zero": false,
+        "incoherent": false
+      },
+      "curvature_source_score": 0.6740271541586277,
+      "curvature_winner": "m5_mean_abs_correlation",
+      "curvature_coherence": {
+        "n": 100,
+        "mean": -0.6740259999999998,
+        "std": 0.16350688096835556,
+        "range": [
+          -0.9359,
+          -0.2667
+        ],
+        "se": 0.016350688096835556,
+        "ci_95": [
+          -0.7060733486697974,
+          -0.6419786513302022
+        ],
+        "crosses_zero": false,
+        "incoherent": false
+      },
+      "m2_signed": -0.9789623043406137,
+      "ratio_G_over_K": 1.4524078122084405,
+      "dominant": "geodesic",
+      "mixed": false,
+      "m1_score": 0.4984478726988004,
+      "m5_score": 0.6740271541586277,
+      "m6_score": 0.20584395805691916,
+      "reliable": true
+    },
+    "battery": {
+      "geodesic_score": 0.8479053712408856,
+      "geodesic_coherence": {
+        "n": 10,
+        "mean": -0.8479099999999999,
+        "std": 0.13220467805641373,
+        "range": [
+          -0.9782,
+          -0.6319
+        ],
+        "se": 0.041806789998754985,
+        "ci_95": [
+          -0.9298513083975597,
+          -0.7659686916024402
+        ],
+        "crosses_zero": false,
+        "incoherent": false
+      },
+      "curvature_source_score": 0.3107622762075587,
+      "curvature_winner": "m6_subspace_angle",
+      "curvature_coherence": {
+        "n": 10,
+        "mean": -0.31075,
+        "std": 0.1904612624656258,
+        "range": [
+          -0.5746,
+          0.0195
+        ],
+        "se": 0.060229139542251474,
+        "ci_95": [
+          -0.4287991135028129,
+          -0.19270088649718714
+        ],
+        "crosses_zero": true,
+        "incoherent": true
+      },
+      "m2_signed": -0.8479053712408856,
+      "ratio_G_over_K": 2.7284694319672447,
+      "dominant": "geodesic",
+      "mixed": false,
+      "m1_score": 0.08064868006274842,
+      "m5_score": 0.0018027082015912605,
+      "m6_score": 0.3107622762075587,
+      "reliable": true
+    },
+    "reentry": {
+      "geodesic_score": 0.42615770499562705,
+      "geodesic_coherence": {
+        "n": 50,
+        "mean": -0.426156,
+        "std": 0.49631228683561723,
+        "range": [
+          -0.999,
+          0.7493
+        ],
+        "se": 0.07018915672153356,
+        "ci_95": [
+          -0.5637267471742058,
+          -0.28858525282579417
+        ],
+        "crosses_zero": true,
+        "incoherent": true
+      },
+      "curvature_source_score": 0.5197200727459252,
+      "curvature_winner": "m6_subspace_angle",
+      "curvature_coherence": {
+        "n": 50,
+        "mean": -0.519724,
+        "std": 0.4772423881257825,
+        "range": [
+          -0.9602,
+          0.7494
+        ],
+        "se": 0.06749226578268061,
+        "ci_95": [
+          -0.652008840934054,
+          -0.38743915906594595
+        ],
+        "crosses_zero": true,
+        "incoherent": true
+      },
+      "m2_signed": -0.42615770499562705,
+      "ratio_G_over_K": 0.8199754586041592,
+      "dominant": "curvature_source",
+      "mixed": true,
+      "m1_score": 0.24085256399624833,
+      "m5_score": 0.1038138971374973,
+      "m6_score": 0.5197200727459252,
+      "reliable": false
+    },
+    "orbital": {
+      "geodesic_score": 0.6680992184107686,
+      "geodesic_coherence": {
+        "n": 200,
+        "mean": -0.6680995,
+        "std": 0.44202231250215185,
+        "range": [
+          -1.0,
+          0.7848
+        ],
+        "se": 0.03125569746060308,
+        "ci_95": [
+          -0.729360667022782,
+          -0.6068383329772179
+        ],
+        "crosses_zero": true,
+        "incoherent": true
+      },
+      "curvature_source_score": 0.4142790061160423,
+      "curvature_winner": "m1_participation_ratio",
+      "curvature_coherence": {
+        "n": 200,
+        "mean": -0.4142779999999999,
+        "std": 0.34884444286243116,
+        "range": [
+          -0.9876,
+          0.9138
+        ],
+        "se": 0.02466702711272682,
+        "ci_95": [
+          -0.4626253731409445,
+          -0.36593062685905536
+        ],
+        "crosses_zero": true,
+        "incoherent": true
+      },
+      "m2_signed": -0.6680992184107686,
+      "ratio_G_over_K": 1.6126793985395185,
+      "dominant": "geodesic",
+      "mixed": false,
+      "m1_score": 0.4142790061160423,
+      "m5_score": 0.23610508033000435,
+      "m6_score": 0.3588449848024316,
+      "reliable": false
+    },
+    "solar": {
+      "geodesic_score": 0.04184094569652463,
+      "geodesic_coherence": {
+        "n": 2,
+        "mean": 0.04185,
+        "std": 0.09425,
+        "range": [
+          -0.0524,
+          0.1361
+        ],
+        "se": 0.0666448141268321,
+        "ci_95": [
+          -0.0887738356885909,
+          0.1724738356885909
+        ],
+        "crosses_zero": true,
+        "incoherent": true
+      },
+      "curvature_source_score": 0.42717707961926144,
+      "curvature_winner": "m1_participation_ratio",
+      "curvature_coherence": {
+        "n": 2,
+        "mean": -0.4272,
+        "std": 0.1633,
+        "range": [
+          -0.5905,
+          -0.2639
+        ],
+        "se": 0.1154705373677632,
+        "ci_95": [
+          -0.6535222532408159,
+          -0.20087774675918416
+        ],
+        "crosses_zero": false,
+        "incoherent": false
+      },
+      "m2_signed": 0.04184094569652463,
+      "ratio_G_over_K": 0.09794754375355774,
+      "dominant": "curvature_source",
+      "mixed": false,
+      "m1_score": 0.42717707961926144,
+      "m5_score": 0.030582268667513894,
+      "m6_score": 0.08865125005447408,
+      "reliable": false
+    },
+    "protein": {
+      "geodesic_score": 0.8247513973872849,
+      "geodesic_coherence": {
+        "n": 3,
+        "mean": -0.8247666666666666,
+        "std": 0.03334909627294603,
+        "range": [
+          -0.8562,
+          -0.7786
+        ],
+        "se": 0.019254109710416138,
+        "ci_95": [
+          -0.8625047216990823,
+          -0.787028611634251
+        ],
+        "crosses_zero": false,
+        "incoherent": false
+      },
+      "curvature_source_score": 0.14913936432024175,
+      "curvature_winner": "m5_mean_abs_correlation",
+      "curvature_coherence": {
+        "n": 3,
+        "mean": -0.14913333333333334,
+        "std": 0.11759640962017316,
+        "range": [
+          -0.2768,
+          0.007
+        ],
+        "se": 0.06789431874994048,
+        "ci_95": [
+          -0.2822061980832167,
+          -0.016060468583450005
+        ],
+        "crosses_zero": true,
+        "incoherent": true
+      },
+      "m2_signed": -0.8247513973872849,
+      "ratio_G_over_K": 5.530071830106,
+      "dominant": "geodesic",
+      "mixed": false,
+      "m1_score": 0.08920543666385083,
+      "m5_score": 0.14913936432024175,
+      "m6_score": 0.1353225095338007,
+      "reliable": false
+    }
+  },
+  "classification": {
+    "geodesic_dominant": [
+      "battery",
+      "cmapss_fd001"
+    ],
+    "curvature_source_dominant": [],
+    "mixed": [
+      "ncmapss_ds02",
+      "ncmapss_ds03"
+    ]
+  },
+  "prediction_check": {
+    "solar": {
+      "dominant": "curvature_source",
+      "mixed": false,
+      "verdict": "CONFIRMED"
+    }
+  }
+}

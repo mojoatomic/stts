@@ -1,132 +1,187 @@
-# Curvature Experiment — Protein Unfolding
+# Geometric analysis — protein curvature probe + field/geodesic decomposition
 
-## Hypothesis under test
+Two experiments on this branch, both related to testing whether STTS's
+Euclidean formulation is capturing a deeper geometric signal.
 
-Current STTS measures centroid drift in Euclidean feature space. If this is an
-"echo" of a deeper geometric signal, then the true signal should be the local
-curvature of the data manifold at each point in the trajectory — an
-"accelerometer reading" that requires no training on failure data.
+## Scope change: PRONOSTIA bearing excluded
 
-**Prediction:** At matched false-positive rate on a healthy baseline, a local
-Ollivier-Ricci curvature probe should detect degradation earlier than
-Euclidean distance-to-nearest-healthy — and should do so without ever seeing
-a failure example during training.
+As of 2026-04-16, bearing (PRONOSTIA) is removed from the mechanism
+discovery experiment and all downstream cross-domain analysis. Six
+accelerated-life-test bearings from a lab rig under controlled
+conditions is not a sample that can support cross-domain geometric
+claims. `load_bearing_domain()` is retained in `run_experiment.py` as
+inactive code; re-introduce only when a real-operating-conditions
+bearing dataset is available.
 
-## Setup
+Current cross-domain count: **8 domains** (protein, cmapss_fd001,
+battery, orbital, ncmapss_ds02, ncmapss_ds03, reentry, solar).
 
-- **Domain:** mdCATH 5sicI00 protein (already on disk from protein domain work).
-- **Healthy manifold:** 320K replicates 0-4 only. No failure training.
-- **Test:** held-out 450K replicates 0-4.
-- **Sensor space:** raw 8-channel structural descriptors (RMSD, Rg, SASA, Q,
-  helix/sheet/coil fractions, end-to-end distance).
-- **Window:** 20 ns windows, per-channel mean → 8-D points.
-- **Graph:** symmetric kNN on healthy windows, k selected from sweep
-  [5, 10, 15, 20, 30] by **stability on 320K-only** data (lower combined
-  within- and between-replicate std of per-node scalar Ricci).
-  **Chosen k = 15.** Locked before any test-data evaluation.
-- **Curvature:** Ollivier-Ricci with alpha = 0.5, implemented directly with
-  `networkx` + `POT` (Wasserstein). Per-node scalar = mean over incident edges.
-- **Test-point probe:** drop the test window into the healthy graph as node 0;
-  compute OR on edges incident to node 0 only. Return mean as the local
-  curvature at that test point.
-- **Distance:** Euclidean distance from test window to nearest 320K window.
-- **Detection:** threshold both at matched 5% FPR on healthy 320K baseline
-  (leave-one-out for curvature). Alarm fires on first sustained crossing
+---
+
+## Experiment 1: Ollivier-Ricci curvature vs Euclidean distance on protein
+
+### Hypothesis
+
+Current STTS measures centroid drift in Euclidean feature space. If
+this is an "echo" of a deeper geometric signal, local curvature at each
+query point should fire earlier than Euclidean distance-to-healthy,
+without needing any failure training.
+
+### Setup
+
+- Domain: mdCATH 5sicI00 protein (already on disk).
+- Healthy manifold: 320K replicates 0-4 (411 windows). No failure data.
+- Test: held-out 450K replicates 0-4 (481 windows each).
+- Sensor space: raw 8-channel structural descriptors.
+- Windows: 20 ns windows, per-channel mean → 8-D points.
+- Graph: symmetric kNN. k = 15 selected by stability on 320K-only data
+  BEFORE any test-data evaluation. Locked.
+- Curvature: Ollivier-Ricci, α = 0.5. Implemented directly with
+  `networkx` + `POT` (Wasserstein).
+- Test-point probe: drop test window into the healthy graph as node 0;
+  compute OR on edges incident to node 0 only; mean = local curvature.
+- Distance: Euclidean distance from test window to nearest 320K window.
+- Detection: threshold both at matched 5% FPR on healthy 320K baseline
+  (leave-one-out for curvature). Alarm on first sustained crossing
   (5 consecutive above-threshold windows).
 
-## Result
+### Result
 
 **Distance beats curvature.**
 
 | | Curvature | Distance |
 |---|---|---|
-| Mean lead time (frames / ns) | 175.6 | **184.6** |
-| Fires first on | 0/5 replicates | **3/5 replicates** |
+| Mean lead time | 175.6 frames | **184.6** |
+| Fires first on | 0/5 replicates | **3/5** |
 | Tied | 2/5 | 2/5 |
-| Mean Spearman rho vs RUL | -0.79 | **-0.81** |
+| Mean Spearman ρ vs RUL | -0.79 | **-0.81** |
 
-On the primary metric (matched-FPR lead time), distance wins by ~9 frames on
-average. Curvature never fires first on any held-out replicate. Spearman
-correlation with RUL is also slightly stronger for distance.
+### Why
 
-## Why: curvature saturates
+`figures/curvature_vs_distance.png` shows the core issue directly:
+across all 450K test windows, Ollivier-Ricci curvature is a
+**deterministic saturating function of Euclidean distance**. Once
+distance exceeds ~1, OR saturates at ≈ 0.52 (the α/2 fixed point) and
+conveys no additional information. The probe collapses to a bounded
+nonlinear distance proxy when the test point leaves the manifold.
 
-The curvature-vs-distance scatter plot
-(`figures/curvature_vs_distance.png`) shows the fundamental issue: across all
-450K test windows, curvature is a **deterministic saturating function of
-distance**. Once Euclidean distance exceeds ~1, Ollivier-Ricci saturates at
-≈ 0.52 (the α = 0.5 fixed point) and no longer conveys new information.
+### Takeaways
 
-This is an artifact of the estimator, not of the data. When a test point is
-far from the manifold, its local neighborhood becomes a star from the test
-point to distant healthy nodes of roughly uniform distance. In that limit,
-W_1 / edge_weight → 0.5 and κ → 0.5, regardless of how far the test point
-actually is. The estimator collapses to a bounded distance proxy.
+1. Supports the "flat regime" reading for protein: Euclidean distance
+   captures everything OR on a kNN graph does, and more cleanly.
+2. Does not rule out that a different curvature estimator (heat-kernel,
+   sectional, intrinsic-dimensionality) could find structure distance
+   misses. Rules out this specific standard published technique.
+3. Bonus: a healthy-manifold-only detector with zero failure training
+   achieves mean Spearman |ρ| = 0.81 vs RUL, ~185 frames lead at 5% FPR.
+   STTS's reliance on failure-side training is useful for
+   characterization but not required for detection.
 
-Within the manifold (distance < ~0.5), the curvature does carry information,
-and the healthy baseline distribution (mean κ = 0.14, σ = 0.09) is
-physically reasonable: a folded-state basin with positive curvature
-(convergent geodesics). But this in-manifold regime is exactly where all
-the healthy windows live, and where degradation detection is NOT needed.
+---
 
-## What this means for the Euclidean-vs-Riemannian question
+## Experiment 2: Field/geodesic decomposition across cross-domain data
 
-The "flat regime" hypothesis is consistent with this result. For protein
-unfolding in the observed range of feature space, Euclidean distance
-captures everything Ollivier-Ricci on a kNN graph captures, and more
-cleanly (analog magnitude post-transition; no saturation).
+### Hypothesis
 
-This does NOT rule out that a different curvature estimator would find
-structure Euclidean distance misses. Candidates:
-- Scalar curvature via heat-kernel / Laplace-Beltrami methods.
-- Sectional curvature from geodesic triangles.
-- Intrinsic dimensionality variation along the trajectory.
+If damage is tensorial (as continuum damage mechanics suggests), the
+7 mechanisms in the discovery experiment may decompose into:
 
-It DOES demonstrate that the most standard published technique
-(Ollivier-Ricci on kNN graph) does not operationalize the
-"accelerometer" intuition on this data. The burden of proof now falls on
-finding a different estimator that does.
+- **Geodesic displacement** — how the system state moves through the
+  (damaged) manifold. Proxied by M2 (centroid drift).
+- **Curvature source** — how the damage tensor shapes the manifold.
+  Proxied by M1 (participation ratio), M5 (correlation), M6 (subspace
+  rotation).
 
-It also independently confirms, without relying on the STTS training
-pipeline at all, that a healthy-manifold-only detector with no failure
-training achieves strong early detection on held-out trajectories — mean
-Spearman |rho| ≈ 0.81 between Euclidean distance and RUL, mean lead of
-~185 frames before failure at 5% FPR. That's a useful finding on its own:
-the STTS framework's need for failure-side training is not fundamental
-for detection; it is useful for characterization but not detection.
+Prediction: domains stratify by dominance. Some show pure geodesic
+displacement (M2 wins), some show curvature-source dominance
+(M1/M5/M6 wins), some show both.
+
+### Setup
+
+- Source: `experiments/mechanism_discovery/mechanism_discovery.json`
+  (8 domains, bearing excluded).
+- G = |mean ρ of M2 vs RUL| per domain
+- K = max |mean ρ| over M1, M5, M6 per domain
+- Reliability filter: domain's M2 signal must be sign-coherent
+  (per-trajectory ρ values don't cross zero) AND n ≥ 5. Incoherence
+  means the domain-mean is averaging over qualitatively different
+  trajectory behaviors, not reliably estimating a single phenomenon.
+
+### Result (reliable domains only)
+
+| domain | n | G | K | G/K | classification |
+|---|---|---|---|---|---|
+| cmapss_fd001 | 100 | 0.979 | 0.674 | 1.45 | geodesic-dominant |
+| battery | 10 | 0.848 | 0.311 | 2.73 | geodesic-dominant |
+| ncmapss_ds03 | 15 | 0.827 | 0.935 | 0.88 | mixed, leans curvature |
+| ncmapss_ds02 | 9 | 0.866 | 0.942 | 0.92 | mixed, leans curvature |
+
+**Unreliable (cannot classify at domain level):** orbital (200 real
+asteroids, n fine but M2 crosses zero), reentry (50 Starlink reentries,
+same issue), solar (n=2), protein (n=3).
+
+### Takeaways
+
+1. **Zero clean curvature-source-dominant domains in reliable data.**
+   My first pass incorrectly cited "solar CONFIRMED" based on n=2. With
+   an honest reliability filter, that claim doesn't stand.
+2. **Mixed N-CMAPSS domains** show both M2 and M6 strong simultaneously.
+   Consistent with tensorial damage having multiple active components,
+   but doesn't uniquely support the field/geodesic decomposition over
+   "multiple mechanisms always contribute at different strengths."
+3. **The decomposition hypothesis is not supported at the domain-mean
+   level on reliable data.** It is not falsified either — we simply
+   don't have a case that would cleanly falsify it.
+4. **Orbital and reentry require per-trajectory analysis.** Their "M2
+   crosses zero" is real object-level heterogeneity (different asteroids
+   / different reentries have different physics), not bad data. A
+   per-trajectory G/K scatter across all 200 orbital objects would be
+   the proper test of whether tensorial damage decomposition manifests
+   at the trajectory level within a large real dataset. That analysis
+   is not done in this branch.
+
+---
 
 ## Artifacts
 
 ```
 artifacts/geometry/
-├── graph_k{5,10,15,20,30}.pkl       # kNN graphs at each k
-├── node_curv_k{5,10,15,20,30}.npy    # per-node scalar Ricci at each k
-├── edge_curv_k{5,10,15,20,30}.pkl    # per-edge Ricci values
-├── healthy_points.npy                # 411 × 8 healthy manifold features
-├── healthy_origin.json               # (replicate, end_frame) per point
-├── baseline_curvature.npy            # leave-one-out curvature for each 320K window
-└── baseline_distance.npy             # nearest-neighbor distance for each 320K window
+├── graph_k{5,10,15,20,30}.pkl     # kNN graphs at each k
+├── node_curv_k{5,10,15,20,30}.npy  # per-node scalar Ricci
+├── edge_curv_k{5,10,15,20,30}.pkl  # per-edge Ricci
+├── healthy_points.npy              # 411 × 8 healthy manifold features
+├── healthy_origin.json             # (replicate, end_frame) per point
+├── baseline_curvature.npy          # leave-one-out curvature on 320K
+└── baseline_distance.npy           # nearest-neighbor distance on 320K
 
 results/geometry/
-├── k_sweep.json                      # stability-at-k table
-├── probe.json                        # per-window curvature + distance for each 450K replicate
-├── lead_time.json                    # matched-FPR lead time comparison
-├── summary.md                        # this file
+├── k_sweep.json                    # stability-at-k on 320K only
+├── probe.json                      # per-window curvature + distance per 450K replicate
+├── lead_time.json                  # matched-FPR analysis
+├── field_geodesic_test.json        # 8-domain decomposition scores
+├── summary.md                      # this file
 └── figures/
     ├── healthy_baseline.png
     ├── signal_trajectories.png
     ├── lead_time_comparison.png
-    └── curvature_vs_distance.png
+    ├── curvature_vs_distance.png
+    └── field_geodesic_decomposition.png
 ```
 
 ## Reproducibility
 
 ```bash
-python -m geometry.k_sweep     # build graphs, pick k (deterministic)
-python -m geometry.probe       # curvature + distance on all test replicates
-python -m geometry.lead_time   # matched-FPR analysis
-python -m geometry.figures     # plots
+# Mechanism discovery (bearing excluded)
+python experiments/mechanism_discovery/run_experiment.py
+python experiments/mechanism_discovery/generate_figures.py
+
+# Geometric analysis
+python -m geometry.k_sweep
+python -m geometry.probe
+python -m geometry.lead_time
+python -m geometry.figures
+python -m geometry.field_geodesic_test
 ```
 
-All random seeds fixed. No failure data used in any step. Config snapshot
-embedded in every results JSON.
+All random seeds fixed. No failure data used in the protein curvature
+probe. Config snapshots embedded in every results JSON.

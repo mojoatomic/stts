@@ -35,13 +35,13 @@ def main():
 
     if rebuild or not corpus_exists():
         if not corpus_exists():
-            print("\n[1/4] No cached corpus. Building from bulk TLE cache...")
+            print("\n[1/5] No cached corpus. Building from bulk TLE cache...")
         else:
-            print("\n[1/4] Rebuilding corpus...")
+            print("\n[1/5] Rebuilding corpus...")
         from reentry.corpus import build_corpus
         data = build_corpus()
     else:
-        print("\n[1/4] Loading cached corpus...")
+        print("\n[1/5] Loading cached corpus...")
         data = load_corpus()
         stats = data["stats"]
         print(f"  Satellites: {stats['n_satellites_in_corpus']}")
@@ -51,19 +51,24 @@ def main():
               f"Storm: {len(data['storm_ids'])}")
 
     # ── Step 2: Train ───────────────────────────────────────
-    print("\n[2/4] Training canonical model...")
+    print("\n[2/5] Training canonical model...")
     from reentry.train import train
     train_meta = train()
 
     # ── Step 3: Validate ────────────────────────────────────
-    print("\n[3/4] Validating on held-out test set...")
+    print("\n[3/5] Validating on held-out test set...")
     from reentry.validate import validate
     val_results = validate()
 
     # ── Step 4: TERRA_INCOGNITA ─────────────────────────────
-    print("\n[4/4] Running TERRA_INCOGNITA test (geomagnetic storm)...")
+    print("\n[4/5] Running TERRA_INCOGNITA test (geomagnetic storm)...")
     from reentry.terra_incognita_test import terra_incognita_test
     ti_results = terra_incognita_test()
+
+    # ── Step 5: Energy State ───────────────────────────────
+    print("\n[5/5] Computing energy state H(t), p(t), P(failure)...")
+    from reentry.energy_state import main as energy_state_main
+    es_results = energy_state_main()
 
     # ── Verify consistency ──────────────────────────────────
     print("\n" + "=" * 60)
@@ -112,6 +117,12 @@ def main():
         ood = ti_results["ood_detection"]
         print(f"  TERRA_INCOGNITA: {ood['n_flagged_ood']}/{ood['n_storm_objects']} "
               f"storm objects flagged as OOD ({ood['ood_rate']:.1%})")
+
+    if es_results:
+        es = es_results["summary"]
+        print(f"  Energy state: H=[{es['H_range'][0]:.4f}, {es['H_range'][1]:.4f}], "
+              f"P(failure)=[{es['P_forward_range'][0]:.4f}, {es['P_forward_range'][1]:.4f}], "
+              f"artifact flags={es['n_artifact_flags']}")
 
     print("\nAll results produced from one model, one corpus, one config.")
     print("=" * 60)

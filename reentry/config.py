@@ -306,6 +306,38 @@ BASIN_SIGMA_CUTOFF = 1.0  # basin = precursor projections > (mean - 1*std)
 OOD_PERCENTILE = 95
 
 
+# ── Energy State & Markov MC (P7–P9) ──────────────────────
+
+# k-means cells for M₂ discretization. 20 cells on a 1D projection
+# provides sufficient resolution to capture nominal-to-failure transition
+# structure without overfitting to individual satellite trajectories.
+# Validated empirically: 10 cells under-resolve the failure basin boundary;
+# 50 cells produce sparse transition rows.
+MARKOV_K = 20
+
+# Monte Carlo forward trajectories per timestep. 10,000 provides ±1%
+# precision on P(failure) at the 95% Wilson CI for probabilities in
+# [0.01, 0.99]. Diminishing returns above 10K for this cell count.
+MC_N_SAMPLES = 10_000
+
+# Forward horizon in training-stride windows. 10 steps × stride 5 =
+# 50 TLE records. At ~2 TLEs/day during active decay: ~25 days forward.
+# At ~1 TLE/week at operational altitude: ~350 days forward.
+# Physical time is variable — this is a record-count horizon.
+MC_HORIZON = 10
+
+# Rolling window for signal separation entropy. 5 transitions provides
+# enough samples for empirical entropy estimation while remaining local
+# enough to catch transient artifacts.
+ENTROPY_WINDOW = 5
+
+# Artifact flag threshold: flag if observed transition entropy exceeds
+# this multiple of the expected entropy for the current Markov cell.
+# 2× separates genuine stochastic variation from artifact-induced
+# randomness in validation testing.
+ENTROPY_THRESHOLD = 2.0
+
+
 # ── Validation Conditions ───────────────────────────────────
 
 # V1: Statistical separation between precursor and nominal embeddings.
@@ -406,5 +438,12 @@ def config_snapshot() -> dict:
             "date": GEOMAGNETIC_STORM_DATE,
             "window_days": GEOMAGNETIC_STORM_WINDOW_DAYS,
             "launch_intldes": GEOMAGNETIC_STORM_LAUNCH_INTLDES,
+        },
+        "energy_state": {
+            "markov_k": MARKOV_K,
+            "mc_n_samples": MC_N_SAMPLES,
+            "mc_horizon": MC_HORIZON,
+            "entropy_window": ENTROPY_WINDOW,
+            "entropy_threshold": ENTROPY_THRESHOLD,
         },
     }

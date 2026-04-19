@@ -6,8 +6,8 @@ Additive extension to the reentry validation. Computes:
   p(t)              — current basin membership probability
   P(failure, t+Dt)  — forward failure probability via Markov MC
 
-Does NOT modify existing pipeline, artifacts, or results.
-Loads the frozen model (never calls .fit()).
+Loads the frozen model and Markov artifacts. NEVER calls .fit().
+All model fitting is in train.py.
 
 Usage:
     python reentry/energy_state.py
@@ -15,6 +15,7 @@ Usage:
 Requires: corpus built + model trained (python reentry/run_all.py)
 """
 
+import json
 import logging
 import sys
 from pathlib import Path
@@ -23,36 +24,96 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.stats import entropy as scipy_entropy
-from sklearn.cluster import KMeans
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from reentry.config import (
     ARTIFACTS_DIR,
+    ENTROPY_THRESHOLD,
+    ENTROPY_WINDOW,
     K_NEIGHBORS,
+    MARKOV_K,
+    MC_HORIZON,
+    MC_N_SAMPLES,
     RESULTS_DIR,
     WINDOW_SIZE,
     WINDOW_STRIDE_EVAL,
     WINDOW_STRIDE_TRAIN,
+    config_snapshot,
 )
 from reentry.corpus import load_corpus
 from reentry.features import build_feature_matrix
-from reentry.train import load_model
+from reentry.train import (
+    load_model, md5_file,
+    SCALER_FILE, LDA_FILE, BASIN_FILE, KMEANS_FILE, MARKOV_TABLE_FILE,
+)
+from reentry.validate import wilson_ci
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 log = logging.getLogger(__name__)
 
-# ── Constants ──────────────────────────────────────────────────
-MARKOV_K = 20            # k-means cells for M2 discretization
-MC_N_SAMPLES = 10_000    # forward trajectories per timestep
-MC_HORIZON = 10          # forward steps (in training-stride windows)
-ENTROPY_WINDOW = 5       # rolling window for signal separation
-ENTROPY_THRESHOLD = 2.0  # flag if observed entropy > 2x expected
-
-MARKOV_TABLE_FILE = ARTIFACTS_DIR / "markov_table.npz"
 RESULTS_CSV = RESULTS_DIR / "energy_state.csv"
 RESULTS_PLOT = RESULTS_DIR / "energy_state.png"
+RESULTS_JSON = RESULTS_DIR / "energy_state.json"
+
+# ── Metric Semantics ──────────────────────────────────────────
+# Required by scientific-rigor: for every reported metric, state
+# exactly what question it answers and what it does NOT answer.
+
+METRIC_SEMANTICS = {
+    "H_t": {
+        "answers": (
+            "How energetically displaced is the system from nominal "
+            "at time t? Combines positional displacement V = |M2 - "
+            "mu_nominal| and drift velocity T = 0.5*(M2(t) - M2(t-1))^2."
+        ),
+        "does_not_answer": (
+            "Whether the system will fail. H is a state descriptor, "
+            "not a predictor. High H can indicate displacement without "
+            "failure (new operating regime) or rapid but benign drift."
+        ),
+    },
+    "p_t": {
+        "answers": (
+            "What fraction of the system's k nearest neighbors in "
+            "the full training corpus (nominal + precursor) are "
+            "precursor (pre-failure) windows?"
+        ),
+        "does_not_answer": (
+            "Future state. p(t) is a present-state measurement. It "
+            "says where the system is now relative to known failure "
+            "trajectories, not where it will be. With k=5, resolution "
+            "is limited to {0.0, 0.2, 0.4, 0.6, 0.8, 1.0}."
+        ),
+    },
+    "P_forward": {
+        "answers": (
+            "What fraction of N Monte Carlo forward trajectories, "
+            "sampled from the Markov transition table at horizon Dt, "
+            "terminate in a failure basin cell?"
+        ),
+        "does_not_answer": (
+            "Ground truth failure probability. P(failure) is "
+            "conditional on the Markov model being correct — i.e., "
+            "P9 (trajectory continuity) holding. If P9 is violated, "
+            "the forward probability is unreliable. The Markov table "
+            "is also built at training stride, not eval stride."
+        ),
+    },
+    "artifact_flag": {
+        "answers": (
+            "Does the observed transition entropy at this timestep "
+            "exceed the threshold multiple of expected entropy for "
+            "the current Markov cell?"
+        ),
+        "does_not_answer": (
+            "Whether the transition is definitely noise. High entropy "
+            "relative to expectation is a signal for investigation, "
+            "not a definitive noise classification. With a rolling "
+            "window of 5, empirical entropy has high variance."
+        ),
+    },
+}
 
 
 def _project(X, scaler, W, lda):
@@ -69,104 +130,32 @@ def main():
     scaler = model["scaler"]
     W = model["W"]
     lda = model["lda"]
-    basin = model["basin"]
     epsilon = model["epsilon"]
-    dist_to_basin = model["dist_to_basin"]
     k = K_NEIGHBORS
 
+    if model["kmeans"] is None or model["markov"] is None:
+        log.error("Markov artifacts not found. Retrain: python reentry/train.py")
+        sys.exit(1)
+
+    kmeans = model["kmeans"]
+    markov = model["markov"]
+    transition_matrix = markov["transition_matrix"]
+    failure_cells = markov["failure_cells"]
+    failure_set = set(failure_cells.tolist())
+    mu_nominal = float(markov["mu_nominal"].item())
+    expected_entropy = markov["expected_entropy"]
+    train_proj = markov["train_proj"]
+    y_tr = markov["train_labels"]
+    cell_centers = markov["cell_centers"]
+
     satellites = corpus["satellites"]
-    train_ids = corpus["train_ids"]
     test_reentry_ids = corpus.get("test_reentry_ids", [])
 
-    # ── Build training projections ─────────────────────────────
-    # Used for: mu_nominal, p(t) neighbor pool, Markov table
-    log.info("Building training projections (stride=%d)...", WINDOW_STRIDE_TRAIN)
-    X_train, y_train, _, ids_train = build_feature_matrix(
-        satellites, train_ids,
-        window_size=WINDOW_SIZE,
-        stride=WINDOW_STRIDE_TRAIN,
-    )
-
-    # Exclude ambiguous windows (y=-1)
-    mask = y_train != -1
-    X_tr = X_train[mask]
-    y_tr = y_train[mask]
-    ids_tr = [ids_train[i] for i in range(len(ids_train)) if mask[i]]
-
-    train_proj = _project(X_tr, scaler, W, lda)
-
-    # mu_nominal: mean of nominal-class (y=0) training projections
-    mu_nominal = float(np.mean(train_proj[y_tr == 0]))
-    log.info("  mu_nominal = %.6f", mu_nominal)
+    log.info("Loaded model + Markov artifacts")
+    log.info("  mu_nominal=%.6f  failure_cells=%s  k_cells=%d",
+             mu_nominal, sorted(failure_set), MARKOV_K)
     log.info("  Training pool: %d windows (nominal=%d, precursor=%d)",
-             len(train_proj), (y_tr == 0).sum(), (y_tr == 1).sum())
-
-    # ══════════════════════════════════════════════════════════
-    # Step 3 — Markov table
-    # ══════════════════════════════════════════════════════════
-    log.info("\nStep 3: Building Markov table (k-means k=%d)...", MARKOV_K)
-
-    kmeans = KMeans(n_clusters=MARKOV_K, random_state=42, n_init=10)
-    train_cells = kmeans.fit_predict(train_proj.reshape(-1, 1))
-    cell_centers = kmeans.cluster_centers_.ravel()
-
-    # Report cell counts
-    cell_counts = np.bincount(train_cells, minlength=MARKOV_K)
-    log.info("  Cell counts: %s", cell_counts.tolist())
-
-    # Count cell-to-cell transitions within each satellite's trajectory.
-    # Only consecutive windows (start indices differ by exactly the
-    # training stride) count as a valid transition — no cross-satellite
-    # or gap transitions.
-    transition_matrix = np.zeros((MARKOV_K, MARKOV_K), dtype=np.float64)
-
-    sat_windows = {}
-    for i, wid in enumerate(ids_tr):
-        nid, start = wid.rsplit(":", 1)
-        start = int(start)
-        sat_windows.setdefault(nid, []).append((i, start))
-
-    for nid, windows in sat_windows.items():
-        windows.sort(key=lambda x: x[1])
-        for j in range(len(windows) - 1):
-            idx_curr, start_curr = windows[j]
-            idx_next, start_next = windows[j + 1]
-            if start_next - start_curr == WINDOW_STRIDE_TRAIN:
-                transition_matrix[train_cells[idx_curr],
-                                  train_cells[idx_next]] += 1
-
-    # Normalize rows; uniform for zero rows
-    row_sums = transition_matrix.sum(axis=1)
-    zero_rows = row_sums == 0
-    if zero_rows.any():
-        log.warning("  WARNING: %d zero rows (cells %s) — uniform fallback.",
-                    zero_rows.sum(), np.where(zero_rows)[0].tolist())
-        transition_matrix[zero_rows] = 1.0 / MARKOV_K
-        row_sums[zero_rows] = 1.0
-    transition_matrix /= row_sums[:, np.newaxis]
-
-    # Identify failure basin cells: centroid's k-NN distance to basin < epsilon
-    cell_basin_dists = np.array([dist_to_basin(c) for c in cell_centers])
-    failure_cells = np.where(cell_basin_dists < epsilon)[0]
-    failure_set = set(failure_cells.tolist())
-    log.info("  Failure basin cells: %s (of %d total)", sorted(failure_set), MARKOV_K)
-
-    # Serialize
-    ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
-    np.savez(
-        MARKOV_TABLE_FILE,
-        transition_matrix=transition_matrix,
-        cell_centers=cell_centers,
-        failure_cells=failure_cells,
-        cell_counts=cell_counts,
-        mu_nominal=np.array([mu_nominal]),
-    )
-    log.info("  Saved: %s", MARKOV_TABLE_FILE)
-
-    # Expected entropy per cell (for signal separation)
-    expected_entropy = np.array([
-        scipy_entropy(transition_matrix[c]) for c in range(MARKOV_K)
-    ])
+             len(train_proj), int((y_tr == 0).sum()), int((y_tr == 1).sum()))
 
     # ── Select test reentry satellite (most windows) ───────────
     log.info("\nSelecting test reentry satellite...")
@@ -206,15 +195,18 @@ def main():
     y_sat = y_sat[order]
     ids_sat = [ids_sat[i] for i in order]
 
-    assert np.all(np.isfinite(days_sat)), "Non-finite days_to_reentry on reentry satellite"
+    assert np.all(np.isfinite(days_sat)), "Non-finite days_to_reentry"
 
-    # Assign to Markov cells
+    # Assign to Markov cells (no .fit() — uses trained kmeans)
     M2_cells = kmeans.predict(M2.reshape(-1, 1))
 
     # ══════════════════════════════════════════════════════════
     # Step 1 — H(t)
+    # H(t) = T + V
+    #   V = |M2(t) - mu_nominal|  (distance from nominal)
+    #   T = 0.5 * (M2(t) - M2(t-1))^2  (drift velocity)
     # ══════════════════════════════════════════════════════════
-    log.info("\nStep 1: Computing H(t)...")
+    log.info("\nStep 1: H(t)...")
     V = np.abs(M2 - mu_nominal)
     T = np.zeros(n_windows)
     T[1:] = 0.5 * (M2[1:] - M2[:-1]) ** 2
@@ -222,8 +214,10 @@ def main():
 
     # ══════════════════════════════════════════════════════════
     # Step 2 — p(t)
+    # k-NN against full training corpus. p(t) = fraction of k
+    # neighbors that are precursor (y=1).
     # ══════════════════════════════════════════════════════════
-    log.info("Step 2: Computing p(t)...")
+    log.info("Step 2: p(t)...")
     p_t = np.zeros(n_windows)
     for t in range(n_windows):
         dists = np.abs(train_proj - M2[t])
@@ -235,12 +229,16 @@ def main():
 
     # ══════════════════════════════════════════════════════════
     # Step 4 — Signal separation
+    # Rolling entropy over ENTROPY_WINDOW transitions. Flag
+    # timesteps where observed entropy > ENTROPY_THRESHOLD x
+    # expected entropy for the current cell.
     # ══════════════════════════════════════════════════════════
-    log.info("Step 4: Signal separation (entropy, window=%d)...", ENTROPY_WINDOW)
+    log.info("Step 4: Signal separation (window=%d, threshold=%.1fx)...",
+             ENTROPY_WINDOW, ENTROPY_THRESHOLD)
     artifact_flags = np.zeros(n_windows, dtype=int)
+    from scipy.stats import entropy as scipy_entropy
 
     for t in range(ENTROPY_WINDOW, n_windows):
-        # Destination cells from the last ENTROPY_WINDOW transitions
         dest_cells = M2_cells[t - ENTROPY_WINDOW + 1: t + 1]
         dest_counts = np.bincount(dest_cells, minlength=MARKOV_K).astype(float)
         dest_counts /= dest_counts.sum()
@@ -250,7 +248,6 @@ def main():
         exp_H = expected_entropy[cur_cell]
 
         if exp_H < 1e-10:
-            # Deterministic cell — any observed variation is an artifact
             if obs_H > 1e-10:
                 artifact_flags[t] = 1
                 log.info("  t=%d cell=%d obs_entropy=%.4f (deterministic cell)",
@@ -264,31 +261,33 @@ def main():
 
     # ══════════════════════════════════════════════════════════
     # Step 5 — P(failure, t+Dt)
+    # MC forward sampling from Markov table.
+    # Each MC step = one training-stride transition.
     # ══════════════════════════════════════════════════════════
-    # Each MC step = one training-stride transition = WINDOW_STRIDE_TRAIN
-    # TLE records. Dt=10 steps x 5 records/step = 50 TLE records.
-    # At ~2 TLEs/day during active decay:  ~25 days forward.
-    # At ~1 TLE/week at operational alt:   ~350 days forward.
-    # Physical time is variable — Dt is a record-count horizon.
     log.info("Step 5: P(failure, t+Dt) — MC N=%d, Dt=%d ...",
              MC_N_SAMPLES, MC_HORIZON)
 
     rng = np.random.RandomState(42)
     P_forward = np.zeros(n_windows)
+    P_forward_ci_lo = np.zeros(n_windows)
+    P_forward_ci_hi = np.zeros(n_windows)
 
-    # Precompute cumulative transition probabilities
     cum_trans = np.cumsum(transition_matrix, axis=1)
-
     failure_arr = np.array(sorted(failure_set))
 
     for t in range(n_windows):
         states = np.full(MC_N_SAMPLES, M2_cells[t], dtype=int)
         for step in range(MC_HORIZON):
             u = rng.random(MC_N_SAMPLES)
-            cdfs = cum_trans[states]                    # (N, K)
+            cdfs = cum_trans[states]
             states = (cdfs < u[:, np.newaxis]).sum(axis=1)
             np.clip(states, 0, MARKOV_K - 1, out=states)
-        P_forward[t] = np.mean(np.isin(states, failure_arr))
+
+        n_in_basin = int(np.isin(states, failure_arr).sum())
+        P_forward[t] = n_in_basin / MC_N_SAMPLES
+        P_forward_ci_lo[t], P_forward_ci_hi[t] = wilson_ci(
+            n_in_basin, MC_N_SAMPLES
+        )
 
         if (t + 1) % 100 == 0 or t == n_windows - 1:
             log.info("  %d / %d", t + 1, n_windows)
@@ -316,14 +315,62 @@ def main():
     with open(RESULTS_CSV, "w") as f:
         for line in header_lines:
             f.write(line + "\n")
-        f.write("t,days_to_reentry,M2_cell,H_t,p_t,P_forward,artifact_flag\n")
+        f.write("t,days_to_reentry,M2_cell,H_t,p_t,"
+                "P_forward,P_forward_ci_lo,P_forward_ci_hi,artifact_flag\n")
         for t in range(n_windows):
             f.write(
                 f"{t},{days_sat[t]:.2f},{M2_cells[t]},"
-                f"{H[t]:.6f},{p_t[t]:.4f},{P_forward[t]:.6f},"
-                f"{artifact_flags[t]}\n"
+                f"{H[t]:.6f},{p_t[t]:.4f},"
+                f"{P_forward[t]:.6f},{P_forward_ci_lo[t]:.6f},"
+                f"{P_forward_ci_hi[t]:.6f},{artifact_flags[t]}\n"
             )
     log.info("  CSV: %s", RESULTS_CSV)
+
+    # ── Results JSON (scientific-rigor: config + checksums) ─────
+    results = {
+        "config": config_snapshot(),
+        "artifact_checksums": {
+            "scaler": md5_file(SCALER_FILE),
+            "lda": md5_file(LDA_FILE),
+            "basin": md5_file(BASIN_FILE),
+            "kmeans": md5_file(KMEANS_FILE),
+            "markov_table": md5_file(MARKOV_TABLE_FILE),
+        },
+        "satellite": {
+            "norad_id": best_nid,
+            "object_name": sat.get("object_name"),
+            "decay_epoch": sat.get("decay_epoch"),
+            "n_windows": n_windows,
+        },
+        "parameters": {
+            "mu_nominal": mu_nominal,
+            "markov_k": MARKOV_K,
+            "mc_n_samples": MC_N_SAMPLES,
+            "mc_horizon": MC_HORIZON,
+            "mc_horizon_physical": (
+                f"{MC_HORIZON} steps x {WINDOW_STRIDE_TRAIN} records/step "
+                f"= {MC_HORIZON * WINDOW_STRIDE_TRAIN} TLE records. "
+                "~25 days (active decay) to ~350 days (operational)."
+            ),
+            "entropy_window": ENTROPY_WINDOW,
+            "entropy_threshold": ENTROPY_THRESHOLD,
+            "k_neighbors": K_NEIGHBORS,
+            "failure_cells": sorted(failure_set),
+        },
+        "summary": {
+            "H_range": [round(float(H.min()), 6), round(float(H.max()), 6)],
+            "p_t_range": [round(float(p_t.min()), 4),
+                          round(float(p_t.max()), 4)],
+            "P_forward_range": [round(float(P_forward.min()), 6),
+                                round(float(P_forward.max()), 6)],
+            "n_artifact_flags": int(artifact_flags.sum()),
+        },
+        "metric_semantics": METRIC_SEMANTICS,
+    }
+
+    with open(RESULTS_JSON, "w") as f:
+        json.dump(results, f, indent=2)
+    log.info("  JSON: %s", RESULTS_JSON)
 
     # ── Plot ───────────────────────────────────────────────────
     fig, axes = plt.subplots(5, 1, figsize=(14, 16), sharex=True)
@@ -332,7 +379,7 @@ def main():
         fontsize=14, fontweight="bold",
     )
 
-    x = days_sat  # x-axis: days to reentry (inverted so time flows L→R)
+    x = days_sat
 
     for ax in axes:
         ax.axvline(x=0, color="red", ls="--", lw=1.5, alpha=0.8,
@@ -348,6 +395,8 @@ def main():
     axes[1].set_title("Current Basin Membership Probability:  p(t)")
     axes[1].set_ylim(-0.05, 1.05)
 
+    axes[2].fill_between(x, P_forward_ci_lo, P_forward_ci_hi,
+                         color="darkred", alpha=0.15, label="95% CI")
     axes[2].plot(x, P_forward, color="darkred", lw=0.8)
     axes[2].set_ylabel("P(failure)\n(forward)")
     axes[2].set_title(
@@ -355,6 +404,7 @@ def main():
         f"[N={MC_N_SAMPLES:,}, \u0394t={MC_HORIZON}]"
     )
     axes[2].set_ylim(-0.05, 1.05)
+    axes[2].legend(loc="upper right", fontsize=9)
 
     axes[3].plot(x, M2_cells, color="teal", lw=0.8, marker=".", ms=1)
     axes[3].set_ylabel("M\u2082 cell")
@@ -370,7 +420,6 @@ def main():
     axes[4].set_ylim(-0.1, 1.1)
     axes[4].set_xlabel("Days to Reentry")
 
-    # Invert so time flows left-to-right (reentry on the right)
     axes[0].invert_xaxis()
 
     plt.tight_layout()
@@ -379,6 +428,7 @@ def main():
     log.info("  Plot: %s", RESULTS_PLOT)
 
     log.info("\nDone. All prior results unchanged.")
+    return results
 
 
 if __name__ == "__main__":

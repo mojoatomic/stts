@@ -143,48 +143,28 @@
       "entropy_threshold": 2.0
     }
   },
-  "training": {
-    "n_satellites": 529,
-    "n_windows_total": 188301,
-    "n_windows_train": 144878,
-    "n_precursor": 3606,
-    "n_nominal": 141272,
-    "n_ambiguous": 43423
+  "artifact_checksums": {
+    "scaler": "179738a0a41f012e00bf8a3be66d2146",
+    "lda": "ff9f68405b79da4f2608c2fbee985702",
+    "basin": "0e5baf0bfd2f5f97f5198058dcfdc51d",
+    "kmeans": "cf9af7ee5de2b00510aba1ca17077f2c",
+    "markov_table": "bc7902e3073305bbba96d148f0c4a1bb"
   },
-  "metrics": {
-    "v1_separation": 374.71569300567216,
-    "v1_p": 0.0,
-    "v1_pass": true,
-    "v2_rho": -0.18914987414022827,
-    "v2_p": 2.1419403813299325e-30,
-    "v2_pass": false,
-    "train_f1": 0.470908569790771,
-    "epsilon": 0.4185495925814854
+  "satellite": {
+    "norad_id": "44929",
+    "object_name": "STARLINK-1121",
+    "decay_epoch": "2023-03-09",
+    "n_windows": 3095
   },
-  "markov": {
-    "k_cells": 20,
-    "cell_counts": [
-      12763,
-      363,
-      1622,
-      52372,
-      184,
-      9840,
-      859,
-      69,
-      427,
-      15337,
-      358,
-      5753,
-      1175,
-      1,
-      1026,
-      546,
-      48,
-      33062,
-      26,
-      9047
-    ],
+  "parameters": {
+    "mu_nominal": -0.15268833177442442,
+    "markov_k": 20,
+    "mc_n_samples": 10000,
+    "mc_horizon": 10,
+    "mc_horizon_physical": "10 steps x 5 records/step = 50 TLE records. ~25 days (active decay) to ~350 days (operational).",
+    "entropy_window": 5,
+    "entropy_threshold": 2.0,
+    "k_neighbors": 5,
     "failure_cells": [
       1,
       2,
@@ -196,16 +176,39 @@
       14,
       15,
       18
-    ],
-    "mu_nominal": -0.15268833177442442,
-    "n_transitions": 144349,
-    "zero_rows": 0
+    ]
   },
-  "artifact_checksums": {
-    "scaler": "179738a0a41f012e00bf8a3be66d2146",
-    "lda": "ff9f68405b79da4f2608c2fbee985702",
-    "basin": "0e5baf0bfd2f5f97f5198058dcfdc51d",
-    "kmeans": "cf9af7ee5de2b00510aba1ca17077f2c",
-    "markov_table": "bc7902e3073305bbba96d148f0c4a1bb"
+  "summary": {
+    "H_range": [
+      9.3e-05,
+      2.159787
+    ],
+    "p_t_range": [
+      0.0,
+      0.2
+    ],
+    "P_forward_range": [
+      0.0167,
+      0.2389
+    ],
+    "n_artifact_flags": 0
+  },
+  "metric_semantics": {
+    "H_t": {
+      "answers": "How energetically displaced is the system from nominal at time t? Combines positional displacement V = |M2 - mu_nominal| and drift velocity T = 0.5*(M2(t) - M2(t-1))^2.",
+      "does_not_answer": "Whether the system will fail. H is a state descriptor, not a predictor. High H can indicate displacement without failure (new operating regime) or rapid but benign drift."
+    },
+    "p_t": {
+      "answers": "What fraction of the system's k nearest neighbors in the full training corpus (nominal + precursor) are precursor (pre-failure) windows?",
+      "does_not_answer": "Future state. p(t) is a present-state measurement. It says where the system is now relative to known failure trajectories, not where it will be. With k=5, resolution is limited to {0.0, 0.2, 0.4, 0.6, 0.8, 1.0}."
+    },
+    "P_forward": {
+      "answers": "What fraction of N Monte Carlo forward trajectories, sampled from the Markov transition table at horizon Dt, terminate in a failure basin cell?",
+      "does_not_answer": "Ground truth failure probability. P(failure) is conditional on the Markov model being correct \u2014 i.e., P9 (trajectory continuity) holding. If P9 is violated, the forward probability is unreliable. The Markov table is also built at training stride, not eval stride."
+    },
+    "artifact_flag": {
+      "answers": "Does the observed transition entropy at this timestep exceed the threshold multiple of expected entropy for the current Markov cell?",
+      "does_not_answer": "Whether the transition is definitely noise. High entropy relative to expectation is a signal for investigation, not a definitive noise classification. With a rolling window of 5, empirical entropy has high variance."
+    }
   }
 }

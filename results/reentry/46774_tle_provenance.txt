@@ -1,0 +1,98 @@
+STTS Energy State — NORAD 46774 April 2023 TLE Provenance Check
+================================================================
+
+Question: Is the April 2023 periapsis ramp a true reentry signature
+or a catalog artifact? Three diagnostics on raw Space-Track records
+(data/reentry/gp_history_cache/46774.json).
+
+Corpus DECAY_DATE:    2022-04-16 (from Space-Track, field DECAY_DATE)
+GCAT DDate:           2022-04-16 ? (uncertain marker)
+Last TLE in stream:   2023-04-16 09:30 UTC, periapsis 163.21 km
+
+Total raw records:    2,235
+Records <= 2022-04-17: 1337
+Records >  2022-04-17:  898
+
+── Check 3: Time gap across the catalog DECAY_DATE ────────────────
+  Last TLE before/at decay_epoch: 2022-04-16T18:01:28  peri=528.77
+  First TLE after   decay_epoch:  2022-04-17T01:57:18  peri=528.66
+  Gap:                           7.93 hours
+  Interpretation: continuous tracking, no gap.
+
+  Post-decay cadence (898 records, 2022-04-17 to 2023-04-16):
+    median inter-TLE gap: 7.91 h
+    mean:                 9.75 h
+    p25/p75:              1.58h / 15.82h
+    max gap:              75.99 h (3.17 days)
+  Interpretation: regular LEO tracking cadence (~2-3 TLEs/day).
+
+── Duplicate-epoch audit (proxy for residual reissues) ────────────
+  Distinct timestamps that repeat:      202
+    ...with byte-identical elements:     202
+    ...with divergent elements:            0
+  Interpretation: duplicates are database ingestion artifacts,
+  not stale element-set reissues with different values.
+
+── Check 2: MEAN_MOTION_DOT (n-dot) trajectory ────────────────────
+  Monthly snapshots (one TLE per month, nearest to each month start):
+    date               peri(km)  mm(rev/d)  n-dot        BSTAR
+    2022-04-30    525.05  15.13041  +3.239e-04  +1.820e-03
+    2022-05-31    520.30  15.14592  +1.528e-04  +8.327e-04
+    2022-06-30    518.92  15.15635  +6.661e-05  +3.619e-04
+    2022-07-31    515.19  15.16527  +6.737e-05  +3.569e-04
+    2022-08-30    512.02  15.17517  +1.481e-04  +7.434e-04
+    2022-09-30    506.14  15.19200  +4.620e-04  +2.169e-03
+    2022-10-30    498.37  15.22020  +5.515e-04  +2.380e-03
+    2022-11-30    486.41  15.24829  +3.364e-04  +1.344e-03
+    2022-12-30    478.71  15.28263  +8.499e-04  +3.023e-03
+    2023-01-29    458.34  15.34791  +9.735e-04  +2.819e-03
+    2023-03-01    428.16  15.44499  +1.904e-03  +3.950e-03
+    2023-04-01    360.30  15.67424  +7.494e-03  +6.199e-03
+
+  During Apr 2023 ramp (65 records, 2023-04-01 → 2023-04-16):
+    n-dot min:   +7.4938e-03
+    n-dot max:   +2.8287e-01
+    ratio max/min: 37.7x
+    first-half mean n-dot:  +8.7831e-03
+    second-half mean n-dot: +3.7358e-02
+  Interpretation: n-dot is not flat. It grows by ~38x within the
+  ramp window and by ~500x from the quiet period (Oct 2022) to the
+  final TLE. BSTAR is actively updated each record. This is the
+  signature of active drag computation on a live orbit, not a
+  residual set of reissued elements.
+
+── Check 1 proxy: orbit-plane evolution (RAAN regression) ─────────
+  RAAN at ramp start (2023-04-01):    66.47 deg
+  RAAN at last TLE   (2023-04-16):  349.22 deg
+  Total regression:  77.25 deg over 15.30 days
+  Rate:              5.05 deg/day
+  Expected rate for 53-deg inclined LEO at ~300-500 km: ~4-5 deg/day
+  Interpretation: RAAN regresses smoothly at the physically
+  expected rate for this orbit. Orbit plane is being actively
+  propagated, not frozen.
+
+  Inclination stability: holds 53.04 deg (±0.01) across the entire
+  post-decay window. Consistent with a non-maneuvering satellite
+  in natural decay. No burn or maneuver signature.
+
+── Conclusion on provenance ───────────────────────────────────────
+The three diagnostics all point the same way:
+  (a) no time gap at the claimed decay_epoch — 7.9 hours between
+      the last pre-decay TLE and the first post-decay TLE, well
+      within normal LEO tracking cadence;
+  (b) active n-dot and BSTAR evolution, with n-dot increasing by
+      ~38x through the April 2023 ramp (textbook reentry drag
+      growth, not flat residuals);
+  (c) smooth RAAN regression at ~5 deg/day and sub-0.01 deg
+      inclination stability (live orbit propagation on a stable,
+      non-maneuvering plane).
+
+The April 2023 periapsis ramp is a genuine reentry signature on
+continuous live tracking data, not a catalog ghost or residual
+reissue of stale elements.
+
+Implication for the catalog record: the corpus DECAY_DATE and the
+GCAT DDate (both 2022-04-16, with GCAT flagging its value as
+uncertain via trailing '?') do not correspond to the physical
+reentry date for NORAD 46774. The TLE-inferred physical reentry
+date is 2023-04-16, one year later.

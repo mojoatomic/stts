@@ -1,0 +1,200 @@
+norad_id	status	reason
+26870	skip	no windows after feature extraction
+28488	skip	no windows after feature extraction
+31207	skip	no windows after feature extraction
+31377	skip	no windows after feature extraction
+31526	skip	no windows after feature extraction
+31875	skip	no windows after feature extraction
+32068	skip	no windows after feature extraction
+32147	skip	no windows after feature extraction
+32345	skip	no windows after feature extraction
+33604	skip	no windows after feature extraction
+33644	skip	no windows after feature extraction
+34205	skip	no windows after feature extraction
+34216	skip	no windows after feature extraction
+35087	skip	no windows after feature extraction
+35531	skip	no windows after feature extraction
+35855	skip	no windows after feature extraction
+35908	skip	no windows after feature extraction
+35958	skip	no_cache_file
+36018	skip	no windows after feature extraction
+36135	skip	no windows after feature extraction
+36143	skip	no windows after feature extraction
+36175	skip	no windows after feature extraction
+36189	skip	no windows after feature extraction
+36219	skip	no windows after feature extraction
+36252	skip	no windows after feature extraction
+36265	skip	no windows after feature extraction
+36388	skip	no windows after feature extraction
+36457	skip	no windows after feature extraction
+36471	skip	no windows after feature extraction
+36489	skip	no windows after feature extraction
+36526	skip	no windows after feature extraction
+36555	skip	no windows after feature extraction
+36655	skip	no windows after feature extraction
+37115	skip	no_cache_file
+37283	skip	no windows after feature extraction
+37480	skip	no windows after feature extraction
+37611	skip	no windows after feature extraction
+37723	skip	no windows after feature extraction
+37728	skip	no_cache_file
+38018	skip	no windows after feature extraction
+38587	skip	no windows after feature extraction
+38796	skip	no windows after feature extraction
+39062	skip	no windows after feature extraction
+40382	skip	no windows after feature extraction
+40503	skip	no windows after feature extraction
+40801	skip	no windows after feature extraction
+40809	skip	no windows after feature extraction
+42342	skip	no windows after feature extraction
+43060	skip	no windows after feature extraction
+43212	skip	no windows after feature extraction
+43218	skip	no windows after feature extraction
+43225	skip	no_cache_file
+43268	skip	no windows after feature extraction
+43269	skip	no windows after feature extraction
+43296	skip	no windows after feature extraction
+43444	skip	no windows after feature extraction
+43473	skip	no windows after feature extraction
+43494	skip	no windows after feature extraction
+43511	skip	no_cache_file
+43538	skip	no windows after feature extraction
+43703	skip	no windows after feature extraction
+43828	skip	no windows after feature extraction
+43830	skip	no windows after feature extraction
+43848	skip	no windows after feature extraction
+44063	skip	no windows after feature extraction
+44070	skip	no windows after feature extraction
+44111	skip	no windows after feature extraction
+44119	skip	no windows after feature extraction
+44122	skip	no windows after feature extraction
+44124	skip	no windows after feature extraction
+44127	skip	no windows after feature extraction
+44129	skip	no windows after feature extraction
+44132	skip	no windows after feature extraction
+44137	skip	no windows after feature extraction
+44138	skip	no windows after feature extraction
+44139	skip	no windows after feature extraction
+44143	skip	no windows after feature extraction
+44150	skip	no windows after feature extraction
+44156	skip	no windows after feature extraction
+44159	skip	no windows after feature extraction
+44167	skip	no windows after feature extraction
+44170	skip	no windows after feature extraction
+44172	skip	no windows after feature extraction
+44174	skip	no windows after feature extraction
+44176	skip	no windows after feature extraction
+44193	skip	no windows after feature extraction
+44206	skip	no windows after feature extraction
+44223	skip	no windows after feature extraction
+44224	skip	no windows after feature extraction
+44438	skip	no windows after feature extraction
+44456	skip	no windows after feature extraction
+44461	skip	no windows after feature extraction
+44462	skip	no windows after feature extraction
+44474	skip	no windows after feature extraction
+44501	skip	no windows after feature extraction
+44505	skip	no windows after feature extraction
+44535	skip	no windows after feature extraction
+44551	skip	no windows after feature extraction
+44702	skip	no windows after feature extraction
+44798	skip	no windows after feature extraction
+44834	skip	no windows after feature extraction
+44900	skip	no windows after feature extraction
+45112	skip	no windows after feature extraction
+45166	skip	no windows after feature extraction
+45420	skip	no windows after feature extraction
+45421	skip	no windows after feature extraction
+45477	skip	no windows after feature extraction
+45596	skip	no windows after feature extraction
+45861	skip	no_cache_file
+45935	skip	no_cache_file
+45938	skip	no windows after feature extraction
+46750	skip	no windows after feature extraction
+46778	skip	no windows after feature extraction
+46801	skip	no windows after feature extraction
+46802	skip	no windows after feature extraction
+47196	skip	no windows after feature extraction
+48805	skip	no windows after feature extraction
+48832	skip	no windows after feature extraction
+48870	skip	no windows after feature extraction
+49065	skip	no windows after feature extraction
+49118	skip	no windows after feature extraction
+49119	skip	no windows after feature extraction
+49130	skip	no windows after feature extraction
+49220	skip	no windows after feature extraction
+49339	skip	no windows after feature extraction
+49473	skip	no windows after feature extraction
+49500	skip	no windows after feature extraction
+49618	skip	no windows after feature extraction
+49698	skip	no windows after feature extraction
+49923	skip	no windows after feature extraction
+49953	skip	no windows after feature extraction
+50184	skip	no windows after feature extraction
+50211	skip	no windows after feature extraction
+50288	skip	no windows after feature extraction
+50353	skip	no windows after feature extraction
+50380	skip	no windows after feature extraction
+50557	skip	no windows after feature extraction
+51402	skip	no windows after feature extraction
+51415	skip	no windows after feature extraction
+51456	skip	no windows after feature extraction
+52204	skip	no windows after feature extraction
+52513	skip	no windows after feature extraction
+52819	skip	no windows after feature extraction
+53241	skip	no windows after feature extraction
+53279	skip	no windows after feature extraction
+53350	skip	no windows after feature extraction
+55968	skip	no windows after feature extraction
+55969	skip	no windows after feature extraction
+57287	skip	no windows after feature extraction
+57489	skip	no windows after feature extraction
+57922	skip	no windows after feature extraction
+58667	skip	no windows after feature extraction
+58963	skip	no windows after feature extraction
+59177	skip	no windows after feature extraction
+59277	skip	no_cache_file
+59295	skip	no windows after feature extraction
+59589	skip	no windows after feature extraction
+60227	skip	no windows after feature extraction
+60743	skip	no windows after feature extraction
+60752	skip	no windows after feature extraction
+60990	skip	no windows after feature extraction
+61225	skip	no windows after feature extraction
+61984	skip	no windows after feature extraction
+63028	skip	no windows after feature extraction
+63128	skip	no windows after feature extraction
+63522	skip	no windows after feature extraction
+65433	skip	no_cache_file
+65727	skip	no windows after feature extraction
+65944	skip	no windows after feature extraction
+66646	skip	no windows after feature extraction
+67230	skip	no windows after feature extraction
+67558	skip	no_cache_file
+67615	skip	no_cache_file
+67616	skip	no_cache_file
+67673	skip	no_cache_file
+67691	skip	no_cache_file
+67922	skip	no_cache_file
+68022	skip	no_cache_file
+68069	skip	no_cache_file
+68070	skip	no_cache_file
+68071	skip	no_cache_file
+68072	skip	no_cache_file
+68075	skip	no_cache_file
+68076	skip	no_cache_file
+68079	skip	no_cache_file
+68081	skip	no_cache_file
+68083	skip	no_cache_file
+68088	skip	no_cache_file
+68099	skip	no_cache_file
+68188	skip	no_cache_file
+68224	skip	no_cache_file
+68320	skip	no_cache_file
+68376	skip	no_cache_file
+68410	skip	no_cache_file
+68411	skip	no_cache_file
+68413	skip	no_cache_file
+68538	skip	no_cache_file
+68539	skip	no_cache_file
+68541	skip	no_cache_file

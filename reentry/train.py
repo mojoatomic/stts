@@ -19,7 +19,8 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from scipy.stats import mannwhitneyu, spearmanr
+from scipy.stats import entropy as scipy_entropy, mannwhitneyu, spearmanr
+from sklearn.cluster import KMeans
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.preprocessing import StandardScaler
 
@@ -30,6 +31,8 @@ from reentry.config import (
     BASIN_SIGMA_CUTOFF,
     K_NEIGHBORS,
     LDA_COMPONENTS,
+    MARKOV_K,
+    RANDOM_SEED,
     WINDOW_SIZE,
     WINDOW_STRIDE_TRAIN,
     V1_P_VALUE_THRESHOLD,
@@ -46,6 +49,8 @@ from reentry.features import build_feature_matrix
 SCALER_FILE = ARTIFACTS_DIR / "scaler.pkl"
 LDA_FILE = ARTIFACTS_DIR / "lda.pkl"
 BASIN_FILE = ARTIFACTS_DIR / "basin.npy"
+KMEANS_FILE = ARTIFACTS_DIR / "kmeans.pkl"
+MARKOV_TABLE_FILE = ARTIFACTS_DIR / "markov_table.npz"
 MODEL_META_FILE = ARTIFACTS_DIR / "model_meta.json"
 
 
@@ -81,6 +86,7 @@ def train():
     X_train = X_all[train_mask]
     y_train = y_all[train_mask]
     days_train = days_all[train_mask]
+    ids_train = [ids_all[i] for i in range(len(ids_all)) if train_mask[i]]
 
     assert (y_train == 1).sum() >= 10, \
         f"Insufficient precursor windows: {(y_train == 1).sum()}"
@@ -190,6 +196,67 @@ def train():
 
     np.save(BASIN_FILE, basin)
 
+    # ── Energy state: Markov table (P7–P9) ─────────────────
+    mu_nominal = float(np.mean(X_proj[y_train == 0]))
+
+    kmeans = KMeans(n_clusters=MARKOV_K, random_state=RANDOM_SEED, n_init=10)
+    train_cells = kmeans.fit_predict(X_proj.reshape(-1, 1))
+    cell_centers = kmeans.cluster_centers_.ravel()
+    cell_counts = np.bincount(train_cells, minlength=MARKOV_K)
+
+    print(f"\n  Markov: {MARKOV_K} cells, mu_nominal={mu_nominal:.4f}")
+    print(f"    Cell counts: {cell_counts.tolist()}")
+
+    # Within-satellite transitions (consecutive windows only)
+    transition_matrix = np.zeros((MARKOV_K, MARKOV_K), dtype=np.float64)
+    sat_windows = {}
+    for i, wid in enumerate(ids_train):
+        nid, start = wid.rsplit(":", 1)
+        sat_windows.setdefault(nid, []).append((i, int(start)))
+
+    for nid, windows in sat_windows.items():
+        windows.sort(key=lambda x: x[1])
+        for j in range(len(windows) - 1):
+            idx_curr, start_curr = windows[j]
+            idx_next, start_next = windows[j + 1]
+            if start_next - start_curr == WINDOW_STRIDE_TRAIN:
+                transition_matrix[train_cells[idx_curr],
+                                  train_cells[idx_next]] += 1
+
+    n_transitions = int(transition_matrix.sum())
+    row_sums = transition_matrix.sum(axis=1)
+    n_zero_rows = int((row_sums == 0).sum())
+    if n_zero_rows > 0:
+        print(f"    WARNING: {n_zero_rows} zero rows — uniform fallback")
+        transition_matrix[row_sums == 0] = 1.0 / MARKOV_K
+        row_sums[row_sums == 0] = 1.0
+    transition_matrix /= row_sums[:, np.newaxis]
+
+    # Failure basin cells: centroid distance to basin < epsilon
+    cell_basin_dists = np.array([_dist_to_basin(c) for c in cell_centers])
+    failure_cells = np.where(cell_basin_dists < best_eps)[0]
+    print(f"    Failure cells: {sorted(failure_cells.tolist())} (of {MARKOV_K})")
+    print(f"    Transitions: {n_transitions}")
+
+    exp_entropy = np.array([
+        scipy_entropy(transition_matrix[c]) for c in range(MARKOV_K)
+    ])
+
+    with open(KMEANS_FILE, "wb") as f:
+        pickle.dump(kmeans, f)
+
+    np.savez(
+        MARKOV_TABLE_FILE,
+        transition_matrix=transition_matrix,
+        cell_centers=cell_centers,
+        failure_cells=failure_cells,
+        cell_counts=cell_counts,
+        mu_nominal=np.array([mu_nominal]),
+        expected_entropy=exp_entropy,
+        train_proj=X_proj,
+        train_labels=y_train,
+    )
+
     meta = {
         "config": config_snapshot(),
         "training": {
@@ -210,10 +277,20 @@ def train():
             "train_f1": best_f1,
             "epsilon": best_eps,
         },
+        "markov": {
+            "k_cells": MARKOV_K,
+            "cell_counts": cell_counts.tolist(),
+            "failure_cells": sorted(failure_cells.tolist()),
+            "mu_nominal": mu_nominal,
+            "n_transitions": n_transitions,
+            "zero_rows": n_zero_rows,
+        },
         "artifact_checksums": {
             "scaler": md5_file(SCALER_FILE),
             "lda": md5_file(LDA_FILE),
             "basin": md5_file(BASIN_FILE),
+            "kmeans": md5_file(KMEANS_FILE),
+            "markov_table": md5_file(MARKOV_TABLE_FILE),
         },
     }
 
@@ -228,7 +305,8 @@ def load_model() -> dict:
     """Load the frozen trained model. NEVER calls .fit().
 
     Returns dict with: scaler, lda, basin, W, epsilon,
-    dist_to_basin, meta.
+    dist_to_basin, meta, and optional Markov artifacts
+    (kmeans, markov) if energy state training has been run.
     Verifies artifact checksums.
     """
     for path in [SCALER_FILE, LDA_FILE, BASIN_FILE, MODEL_META_FILE]:
@@ -265,6 +343,21 @@ def load_model() -> dict:
         dists = np.abs(basin - p)
         return np.mean(np.sort(dists)[:min(k, len(basin))])
 
+    # Markov artifacts (trained alongside canonical model)
+    kmeans_model = None
+    markov_data = None
+    if KMEANS_FILE.exists() and MARKOV_TABLE_FILE.exists():
+        if "kmeans" in checksums:
+            assert md5_file(KMEANS_FILE) == checksums["kmeans"], \
+                "KMeans checksum mismatch — retrain required"
+        if "markov_table" in checksums:
+            assert md5_file(MARKOV_TABLE_FILE) == checksums["markov_table"], \
+                "Markov table checksum mismatch — retrain required"
+
+        with open(KMEANS_FILE, "rb") as f:
+            kmeans_model = pickle.load(f)
+        markov_data = dict(np.load(MARKOV_TABLE_FILE, allow_pickle=True))
+
     return {
         "scaler": scaler,
         "lda": lda,
@@ -273,6 +366,8 @@ def load_model() -> dict:
         "epsilon": epsilon,
         "dist_to_basin": dist_to_basin,
         "meta": meta,
+        "kmeans": kmeans_model,
+        "markov": markov_data,
     }
 
 

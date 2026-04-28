@@ -134,29 +134,78 @@
       "date": "2022-02-03",
       "window_days": 30,
       "launch_intldes": "2022-010"
+    },
+    "energy_state": {
+      "markov_k": 20,
+      "mc_n_samples": 10000,
+      "mc_horizon": 10,
+      "entropy_window": 5,
+      "entropy_threshold": 2.0
     }
   },
   "training": {
     "n_satellites": 529,
-    "n_windows_total": 190790,
-    "n_windows_train": 147236,
-    "n_precursor": 3613,
-    "n_nominal": 143623,
-    "n_ambiguous": 43554
+    "n_windows_total": 188301,
+    "n_windows_train": 144878,
+    "n_precursor": 3606,
+    "n_nominal": 141272,
+    "n_ambiguous": 43423
   },
   "metrics": {
-    "v1_separation": 426.13885325744735,
+    "v1_separation": 374.71569300567216,
     "v1_p": 0.0,
     "v1_pass": true,
-    "v2_rho": -0.1820402153640034,
-    "v2_p": 2.7199488109054885e-28,
+    "v2_rho": -0.18914987414022827,
+    "v2_p": 2.1419403813299325e-30,
     "v2_pass": false,
-    "train_f1": 0.46966260277856525,
-    "epsilon": 0.5018796883788962
+    "train_f1": 0.470908569790771,
+    "epsilon": 0.4185495925814854
+  },
+  "markov": {
+    "k_cells": 20,
+    "cell_counts": [
+      12763,
+      363,
+      1622,
+      52372,
+      184,
+      9840,
+      859,
+      69,
+      427,
+      15337,
+      358,
+      5753,
+      1175,
+      1,
+      1026,
+      546,
+      48,
+      33062,
+      26,
+      9047
+    ],
+    "failure_cells": [
+      1,
+      2,
+      4,
+      6,
+      7,
+      10,
+      11,
+      14,
+      15,
+      18
+    ],
+    "mu_nominal": -0.15268833177442442,
+    "n_transitions": 144349,
+    "zero_rows": 0
   },
   "artifact_checksums": {
-    "scaler": "6f0c23775415be751869baba9cea3a55",
-    "lda": "87f3f361ad32e831b8226c44254273af",
-    "basin": "4fd9487c47187570f695a1a12eb42d8c"
+    "scaler": "179738a0a41f012e00bf8a3be66d2146",
+    "lda": "ff9f68405b79da4f2608c2fbee985702",
+    "basin": "0e5baf0bfd2f5f97f5198058dcfdc51d",
+    "kmeans": "cf9af7ee5de2b00510aba1ca17077f2c",
+    "markov_table": "bc7902e3073305bbba96d148f0c4a1bb"
   }
 }

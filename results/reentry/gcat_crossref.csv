@@ -1,0 +1,79 @@
+norad_id,sat_name,gcat_status,gcat_fail_date,gcat_fail_uncertain,gcat_reentry_date,launch_page_url
+44236,Starlink 22,R,,,2020-08-09,https://planet4589.org/space/con/sat/44200/S44236.html
+44242,Starlink 28,R,,,2020-08-21 ?,https://planet4589.org/space/con/sat/44200/S44242.html
+44243,Starlink 29,R,,,2020-10-13 ?,https://planet4589.org/space/con/sat/44200/S44243.html
+44248,Starlink 34,R,,,2020-09-02,https://planet4589.org/space/con/sat/44200/S44248.html
+44249,Starlink 61,R,,,2022-07-29,https://planet4589.org/space/con/sat/44200/S44249.html
+44252,Starlink 71,R,,,2022-10-23 ?,https://planet4589.org/space/con/sat/44200/S44252.html
+44255,Starlink 66,R,,,2020-08-21 ?,https://planet4589.org/space/con/sat/44200/S44255.html
+44256,Starlink 42,R,,,2020-09-16,https://planet4589.org/space/con/sat/44200/S44256.html
+44270,Starlink 58,R,,,2020-08-23 ?,https://planet4589.org/space/con/sat/44200/S44270.html
+44273,Starlink 60,R,,,2020-12-26 ?,https://planet4589.org/space/con/sat/44200/S44273.html
+44284,Starlink 73,R,,,2020-09-27 ?,https://planet4589.org/space/con/sat/44200/S44284.html
+44285,Starlink 50,R,,,2020-09-17 ?,https://planet4589.org/space/con/sat/44200/S44285.html
+44286,Starlink 75,R,,,2021-03-28,https://planet4589.org/space/con/sat/44200/S44286.html
+44288,Starlink 79,R,,,2020-10-03 ?,https://planet4589.org/space/con/sat/44200/S44288.html
+44290,Starlink 78,R,,,2020-09-16 ?,https://planet4589.org/space/con/sat/44200/S44290.html
+44293,Starlink 74,R,,,2020-09-29,https://planet4589.org/space/con/sat/44200/S44293.html
+44294,Starlink 53,R,,,2020-09-26 ?,https://planet4589.org/space/con/sat/44200/S44294.html
+44722,Starlink 1016,R,,,2023-02-09,https://planet4589.org/space/con/sat/44700/S44722.html
+44745,Starlink 1040,R,,,2020-09-02 ?,https://planet4589.org/space/con/sat/44700/S44745.html
+44929,Starlink 1121,R,,,2024-03-07,https://planet4589.org/space/con/sat/44900/S44929.html
+44935,Starlink 1072,R,,,2021-11-23 ?,https://planet4589.org/space/con/sat/44900/S44935.html
+44947,Starlink 1116,R,,,2023-06-08,https://planet4589.org/space/con/sat/44900/S44947.html
+44963,Starlink 1085,R,,,2023-04-04,https://planet4589.org/space/con/sat/44900/S44963.html
+45046,Starlink 1129,R,,,2023-04-27,https://planet4589.org/space/con/sat/45000/S45046.html
+45063,Starlink 1178,R,,,2021-10-31 ?,https://planet4589.org/space/con/sat/45000/S45063.html
+45069,Starlink 1163,R,,,2021-08-19,https://planet4589.org/space/con/sat/45000/S45069.html
+45070,Starlink 1164,R,,,2021-07-30 ?,https://planet4589.org/space/con/sat/45000/S45070.html
+45086,Starlink 1181,R,,,2023-05-18 ?,https://planet4589.org/space/con/sat/45000/S45086.html
+45091,Starlink 1127,R,,,2021-08-26 ?,https://planet4589.org/space/con/sat/45000/S45091.html
+45218,Starlink 1105,R,,,2021-06-16 ?,https://planet4589.org/space/con/sat/45200/S45218.html
+45231,Starlink 1229,R,,,2022-10-23,https://planet4589.org/space/con/sat/45200/S45231.html
+45363,Starlink 1311,R,,,2020-09-25,https://planet4589.org/space/con/sat/45300/S45363.html
+45533,Starlink 1339,R,,,2022-09-11,https://planet4589.org/space/con/sat/45500/S45533.html
+45537,Starlink 1353,R,,,2023-02-21,https://planet4589.org/space/con/sat/45500/S45537.html
+45575,Starlink 1326,R,,,2023-06-03,https://planet4589.org/space/con/sat/45500/S45575.html
+45737,Starlink 1473,R,,,2021-06-28 ?,https://planet4589.org/space/con/sat/45700/S45737.html
+45765,Starlink 1508,R,,,2021-10-25,https://planet4589.org/space/con/sat/45700/S45765.html
+46367,Starlink 1652,R,,,2021-07-25,https://planet4589.org/space/con/sat/46300/S46367.html
+46369,Starlink 1662,R,,,2021-11-22 ?,https://planet4589.org/space/con/sat/46300/S46369.html
+46373,Starlink 1691,R,,,2021-08-17 ?,https://planet4589.org/space/con/sat/46300/S46373.html
+46381,Starlink 1768,R,,,2021-09-12 ?,https://planet4589.org/space/con/sat/46300/S46381.html
+46695,Starlink 1794,R,,,2021-09-29,https://planet4589.org/space/con/sat/46600/S46695.html
+46708,Starlink 1809,R,,,2022-06-05 ?,https://planet4589.org/space/con/sat/46700/S46708.html
+46739,Starlink 1847,R,,,2021-07-14,https://planet4589.org/space/con/sat/46700/S46739.html
+46761,Starlink 1897,R,,,2021-08-23 ?,https://planet4589.org/space/con/sat/46700/S46761.html
+46769,Starlink 1919,R,,,2022-04-08,https://planet4589.org/space/con/sat/46700/S46769.html
+46774,Starlink 1939,R,,,2022-04-16 ?,https://planet4589.org/space/con/sat/46700/S46774.html
+46795,Starlink 1943,R,,,2021-12-20,https://planet4589.org/space/con/sat/46700/S46795.html
+47123,Starlink 1779,R,,,2021-08-26 ?,https://planet4589.org/space/con/sat/47100/S47123.html
+47130,Starlink 1839,R,,,2023-05-03 ?,https://planet4589.org/space/con/sat/47100/S47130.html
+47156,Starlink 1870,R,,,2022-04-23 ?,https://planet4589.org/space/con/sat/47100/S47156.html
+47180,Starlink 1914,R,,,2021-10-30,https://planet4589.org/space/con/sat/47100/S47180.html
+47349,Starlink 1952,R,,,2022-09-16 ?,https://planet4589.org/space/con/sat/47300/S47349.html
+47364,Starlink 2079,R,,,2021-12-14 ?,https://planet4589.org/space/con/sat/47300/S47364.html
+47413,Starlink 2199,R,,,2021-12-17,https://planet4589.org/space/con/sat/47400/S47413.html
+47569,Starlink 1968,R,,,2022-12-10,https://planet4589.org/space/con/sat/47500/S47569.html
+47669,Starlink 2060,R,,,2023-07-14,https://planet4589.org/space/con/sat/47600/S47669.html
+47678,Starlink 2091,R,,,2021-10-31,https://planet4589.org/space/con/sat/47600/S47678.html
+47765,Starlink 2183,R,,,2022-04-30,https://planet4589.org/space/con/sat/47700/S47765.html
+47893,Starlink 2353,R,,,2021-07-11,https://planet4589.org/space/con/sat/47800/S47893.html
+47987,Starlink 2311,R,,,2021-12-20,https://planet4589.org/space/con/sat/47900/S47987.html
+47988,Starlink 2306,R,,,2022-08-21 ?,https://planet4589.org/space/con/sat/47900/S47988.html
+48001,Starlink 2262,R,,,2021-11-29 ?,https://planet4589.org/space/con/sat/48000/S48001.html
+48012,Starlink 2216,R,,,2023-04-07 ?,https://planet4589.org/space/con/sat/48000/S48012.html
+48017,Starlink 2239,R,,,2022-07-11 ?,https://planet4589.org/space/con/sat/48000/S48017.html
+48601,Starlink 2276,R,,,2021-08-25,https://planet4589.org/space/con/sat/48600/S48601.html
+52099,Starlink 3662,R,,,2022-04-17 ?,https://planet4589.org/space/con/sat/52000/S52099.html
+52104,Starlink 3693,R,,,2022-04-18,https://planet4589.org/space/con/sat/52100/S52104.html
+52130,Starlink 3710,R,,,2022-04-17 ?,https://planet4589.org/space/con/sat/52100/S52130.html
+53710,Starlink 4696,R,,,2022-10-24 ?,https://planet4589.org/space/con/sat/53700/S53710.html
+53725,Starlink 4704,R,,,2022-10-30,https://planet4589.org/space/con/sat/53700/S53725.html
+53747,Starlink 4657,R,,,2022-10-07 ?,https://planet4589.org/space/con/sat/53700/S53747.html
+53791,Starlink 4736,R,,,2022-11-14 ?,https://planet4589.org/space/con/sat/53700/S53791.html
+54057,Starlink 5216,R,,,2023-04-06,https://planet4589.org/space/con/sat/54000/S54057.html
+55356,Starlink 5083,R,,,2023-03-23,https://planet4589.org/space/con/sat/55300/S55356.html
+55696,Starlink 30038,R,,,2023-05-12,https://planet4589.org/space/con/sat/55600/S55696.html
+55711,Starlink 30048,R,,,2023-06-04,https://planet4589.org/space/con/sat/55700/S55711.html
+56829,Starlink 30139,R,,,2023-07-07,https://planet4589.org/space/con/sat/56800/S56829.html

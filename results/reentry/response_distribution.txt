@@ -1,0 +1,20 @@
+STTS Energy State — Response Distribution
+Test reentry objects: 78
+
+P(failure) never exceeded 0.1:
+  0 / 78 (0.0%)
+  Framework stayed quiet.
+
+P(failure) reached 0.5 before final window:
+  76 / 78 (97.4%)
+  Framework crossed threshold with lead time.
+
+P(failure) only crossed 0.5 at or after final window:
+  0 / 78 (0.0%)
+  Framework crossed threshold late.
+
+P(failure) never reached 0.5:
+  2 / 78 (2.6%)
+
+Skipped objects (incomplete data):
+  0

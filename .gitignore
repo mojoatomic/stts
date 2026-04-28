@@ -4,6 +4,7 @@ artifacts/corpus.pkl
 artifacts/reentry/corpus.pkl
 artifacts/reentry/*.pkl
 artifacts/reentry/*.npy
+artifacts/reentry/*.npz
 results/*.png
 .env*
 .DS_Store

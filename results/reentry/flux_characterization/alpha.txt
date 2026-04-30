@@ -1,0 +1,22 @@
+Flux Accumulator — Part 2: α calibration
+======================================================================
+
+α = 4.27517  (6 significant figures)
+
+Formula: α = sqrt( Σ H² Δt / (2 · Σ D_KL Δt) )
+  Σ H²        = 1810038.989117
+  Σ D_KL      = 49516.699379
+  α² = Σ H² / (2 Σ D_KL) = 18.277056
+  α  = sqrt(...)         = 4.27517
+
+Pre-registered choices:
+  D_KL window W           = 5
+  D_KL log smoothing ε    = 1e-09
+
+Window accounting:
+  Objects                  = 78
+  Total windows            = 100,316
+  Finite-D_KL windows used = 99,926
+  Excluded early (W=5)     = 390
+
+α is frozen for all subsequent steps.

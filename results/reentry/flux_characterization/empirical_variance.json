@@ -1,0 +1,510 @@
+{
+  "n_objects": 78,
+  "sigma_failure": 5978.770707086307,
+  "var_empirical": 10347138.154654028,
+  "var_empirical_CI95": [
+    7424468.853215418,
+    13194660.632254438
+  ],
+  "BOOTSTRAP_B": 1000,
+  "BOOTSTRAP_SEED": 20260430,
+  "per_object": [
+    {
+      "norad_id": "44236",
+      "sigma_T": 5717.097893876957,
+      "starting_cell": 9,
+      "n_windows": 1075
+    },
+    {
+      "norad_id": "44242",
+      "sigma_T": 6186.582564880573,
+      "starting_cell": 11,
+      "n_windows": 1120
+    },
+    {
+      "norad_id": "44243",
+      "sigma_T": 6337.596990087804,
+      "starting_cell": 5,
+      "n_windows": 1247
+    },
+    {
+      "norad_id": "44248",
+      "sigma_T": 5847.779484001389,
+      "starting_cell": 2,
+      "n_windows": 1121
+    },
+    {
+      "norad_id": "44249",
+      "sigma_T": 11815.432281017924,
+      "starting_cell": 14,
+      "n_windows": 2772
+    },
+    {
+      "norad_id": "44252",
+      "sigma_T": 11856.946481561507,
+      "starting_cell": 14,
+      "n_windows": 2884
+    },
+    {
+      "norad_id": "44255",
+      "sigma_T": 6122.22663120345,
+      "starting_cell": 11,
+      "n_windows": 1125
+    },
+    {
+      "norad_id": "44256",
+      "sigma_T": 6478.856492897946,
+      "starting_cell": 14,
+      "n_windows": 1186
+    },
+    {
+      "norad_id": "44270",
+      "sigma_T": 6059.295313409036,
+      "starting_cell": 2,
+      "n_windows": 1069
+    },
+    {
+      "norad_id": "44273",
+      "sigma_T": 5834.732012255633,
+      "starting_cell": 11,
+      "n_windows": 1232
+    },
+    {
+      "norad_id": "44284",
+      "sigma_T": 6164.820802548506,
+      "starting_cell": 11,
+      "n_windows": 1200
+    },
+    {
+      "norad_id": "44285",
+      "sigma_T": 5524.956428530568,
+      "starting_cell": 11,
+      "n_windows": 1139
+    },
+    {
+      "norad_id": "44286",
+      "sigma_T": 7574.77252862099,
+      "starting_cell": 2,
+      "n_windows": 1583
+    },
+    {
+      "norad_id": "44288",
+      "sigma_T": 6053.48510954079,
+      "starting_cell": 14,
+      "n_windows": 1157
+    },
+    {
+      "norad_id": "44290",
+      "sigma_T": 5762.637201925976,
+      "starting_cell": 6,
+      "n_windows": 1139
+    },
+    {
+      "norad_id": "44293",
+      "sigma_T": 6008.239892552587,
+      "starting_cell": 14,
+      "n_windows": 1206
+    },
+    {
+      "norad_id": "44294",
+      "sigma_T": 6013.76771123901,
+      "starting_cell": 2,
+      "n_windows": 1198
+    },
+    {
+      "norad_id": "44722",
+      "sigma_T": 11433.681389040976,
+      "starting_cell": 12,
+      "n_windows": 3197
+    },
+    {
+      "norad_id": "44745",
+      "sigma_T": 4593.360168418586,
+      "starting_cell": 12,
+      "n_windows": 839
+    },
+    {
+      "norad_id": "44929",
+      "sigma_T": 9062.89990055007,
+      "starting_cell": 12,
+      "n_windows": 3095
+    },
+    {
+      "norad_id": "44935",
+      "sigma_T": 8002.301394274561,
+      "starting_cell": 19,
+      "n_windows": 1887
+    },
+    {
+      "norad_id": "44947",
+      "sigma_T": 11778.641790005611,
+      "starting_cell": 19,
+      "n_windows": 3338
+    },
+    {
+      "norad_id": "44963",
+      "sigma_T": 12810.974087103814,
+      "starting_cell": 19,
+      "n_windows": 3012
+    },
+    {
+      "norad_id": "45046",
+      "sigma_T": 8715.359572842606,
+      "starting_cell": 8,
+      "n_windows": 1966
+    },
+    {
+      "norad_id": "45063",
+      "sigma_T": 4875.796987793225,
+      "starting_cell": 8,
+      "n_windows": 1101
+    },
+    {
+      "norad_id": "45069",
+      "sigma_T": 4611.0843553978175,
+      "starting_cell": 8,
+      "n_windows": 970
+    },
+    {
+      "norad_id": "45070",
+      "sigma_T": 4597.5784265952525,
+      "starting_cell": 2,
+      "n_windows": 933
+    },
+    {
+      "norad_id": "45086",
+      "sigma_T": 8683.059126213826,
+      "starting_cell": 2,
+      "n_windows": 1979
+    },
+    {
+      "norad_id": "45091",
+      "sigma_T": 5069.199475817453,
+      "starting_cell": 2,
+      "n_windows": 987
+    },
+    {
+      "norad_id": "45218",
+      "sigma_T": 7122.90202291156,
+      "starting_cell": 2,
+      "n_windows": 1468
+    },
+    {
+      "norad_id": "45231",
+      "sigma_T": 11861.898409969208,
+      "starting_cell": 2,
+      "n_windows": 2807
+    },
+    {
+      "norad_id": "45363",
+      "sigma_T": 2664.1902314416943,
+      "starting_cell": 2,
+      "n_windows": 472
+    },
+    {
+      "norad_id": "45533",
+      "sigma_T": 10213.935457283447,
+      "starting_cell": 2,
+      "n_windows": 2525
+    },
+    {
+      "norad_id": "45537",
+      "sigma_T": 11339.704800501744,
+      "starting_cell": 14,
+      "n_windows": 2633
+    },
+    {
+      "norad_id": "45575",
+      "sigma_T": 12809.853780034167,
+      "starting_cell": 14,
+      "n_windows": 2928
+    },
+    {
+      "norad_id": "45737",
+      "sigma_T": 6835.397086990404,
+      "starting_cell": 2,
+      "n_windows": 1322
+    },
+    {
+      "norad_id": "45765",
+      "sigma_T": 7098.733634565754,
+      "starting_cell": 2,
+      "n_windows": 1515
+    },
+    {
+      "norad_id": "46367",
+      "sigma_T": 6791.258584842469,
+      "starting_cell": 12,
+      "n_windows": 947
+    },
+    {
+      "norad_id": "46369",
+      "sigma_T": 6314.416149869636,
+      "starting_cell": 12,
+      "n_windows": 1314
+    },
+    {
+      "norad_id": "46373",
+      "sigma_T": 5029.677569150492,
+      "starting_cell": 0,
+      "n_windows": 978
+    },
+    {
+      "norad_id": "46381",
+      "sigma_T": 5949.301521620028,
+      "starting_cell": 12,
+      "n_windows": 1181
+    },
+    {
+      "norad_id": "46695",
+      "sigma_T": 5185.839287007938,
+      "starting_cell": 12,
+      "n_windows": 1005
+    },
+    {
+      "norad_id": "46708",
+      "sigma_T": 7545.583056434598,
+      "starting_cell": 8,
+      "n_windows": 1619
+    },
+    {
+      "norad_id": "46739",
+      "sigma_T": 4799.9099221540455,
+      "starting_cell": 16,
+      "n_windows": 807
+    },
+    {
+      "norad_id": "46761",
+      "sigma_T": 4608.900925656349,
+      "starting_cell": 16,
+      "n_windows": 882
+    },
+    {
+      "norad_id": "46769",
+      "sigma_T": 6446.94062361636,
+      "starting_cell": 8,
+      "n_windows": 1506
+    },
+    {
+      "norad_id": "46774",
+      "sigma_T": 5110.998063650849,
+      "starting_cell": 16,
+      "n_windows": 1306
+    },
+    {
+      "norad_id": "46795",
+      "sigma_T": 6525.718915179868,
+      "starting_cell": 12,
+      "n_windows": 1279
+    },
+    {
+      "norad_id": "47123",
+      "sigma_T": 4823.980854254527,
+      "starting_cell": 19,
+      "n_windows": 869
+    },
+    {
+      "norad_id": "47130",
+      "sigma_T": 11291.857933413161,
+      "starting_cell": 19,
+      "n_windows": 2917
+    },
+    {
+      "norad_id": "47156",
+      "sigma_T": 7104.087140838186,
+      "starting_cell": 5,
+      "n_windows": 1545
+    },
+    {
+      "norad_id": "47180",
+      "sigma_T": 4790.424623144571,
+      "starting_cell": 19,
+      "n_windows": 1004
+    },
+    {
+      "norad_id": "47349",
+      "sigma_T": 8825.973367454782,
+      "starting_cell": 8,
+      "n_windows": 1865
+    },
+    {
+      "norad_id": "47364",
+      "sigma_T": 4753.616504754621,
+      "starting_cell": 8,
+      "n_windows": 918
+    },
+    {
+      "norad_id": "47413",
+      "sigma_T": 4470.187258984531,
+      "starting_cell": 11,
+      "n_windows": 925
+    },
+    {
+      "norad_id": "47569",
+      "sigma_T": 8333.259022364351,
+      "starting_cell": 8,
+      "n_windows": 1858
+    },
+    {
+      "norad_id": "47669",
+      "sigma_T": 9894.419778467127,
+      "starting_cell": 11,
+      "n_windows": 2314
+    },
+    {
+      "norad_id": "47678",
+      "sigma_T": 3755.193186645661,
+      "starting_cell": 11,
+      "n_windows": 764
+    },
+    {
+      "norad_id": "47765",
+      "sigma_T": 5446.7907836309805,
+      "starting_cell": 12,
+      "n_windows": 1203
+    },
+    {
+      "norad_id": "47893",
+      "sigma_T": 2100.0742852083144,
+      "starting_cell": 12,
+      "n_windows": 345
+    },
+    {
+      "norad_id": "47987",
+      "sigma_T": 3884.086305592314,
+      "starting_cell": 8,
+      "n_windows": 798
+    },
+    {
+      "norad_id": "47988",
+      "sigma_T": 7643.197259285858,
+      "starting_cell": 16,
+      "n_windows": 1582
+    },
+    {
+      "norad_id": "48001",
+      "sigma_T": 3637.8475421445323,
+      "starting_cell": 8,
+      "n_windows": 753
+    },
+    {
+      "norad_id": "48012",
+      "sigma_T": 9476.566274829946,
+      "starting_cell": 8,
+      "n_windows": 2086
+    },
+    {
+      "norad_id": "48017",
+      "sigma_T": 6557.436336041179,
+      "starting_cell": 8,
+      "n_windows": 1350
+    },
+    {
+      "norad_id": "48601",
+      "sigma_T": 2344.151138190889,
+      "starting_cell": 15,
+      "n_windows": 252
+    },
+    {
+      "norad_id": "52099",
+      "sigma_T": 434.3338725072743,
+      "starting_cell": 2,
+      "n_windows": 68
+    },
+    {
+      "norad_id": "52104",
+      "sigma_T": 480.48458006867907,
+      "starting_cell": 2,
+      "n_windows": 72
+    },
+    {
+      "norad_id": "52130",
+      "sigma_T": 399.2448202924761,
+      "starting_cell": 2,
+      "n_windows": 59
+    },
+    {
+      "norad_id": "53710",
+      "sigma_T": 1089.8573012544773,
+      "starting_cell": 2,
+      "n_windows": 162
+    },
+    {
+      "norad_id": "53725",
+      "sigma_T": 954.8595498253601,
+      "starting_cell": 2,
+      "n_windows": 151
+    },
+    {
+      "norad_id": "53747",
+      "sigma_T": 635.6625703597839,
+      "starting_cell": 14,
+      "n_windows": 67
+    },
+    {
+      "norad_id": "53791",
+      "sigma_T": 1215.7575175929733,
+      "starting_cell": 2,
+      "n_windows": 159
+    },
+    {
+      "norad_id": "54057",
+      "sigma_T": 2283.624158350338,
+      "starting_cell": 12,
+      "n_windows": 425
+    },
+    {
+      "norad_id": "55356",
+      "sigma_T": 729.3354699757211,
+      "starting_cell": 12,
+      "n_windows": 97
+    },
+    {
+      "norad_id": "55696",
+      "sigma_T": 1261.0633437223255,
+      "starting_cell": 11,
+      "n_windows": 183
+    },
+    {
+      "norad_id": "55711",
+      "sigma_T": 1741.8957320645368,
+      "starting_cell": 17,
+      "n_windows": 228
+    },
+    {
+      "norad_id": "56829",
+      "sigma_T": 556.3336258606288,
+      "starting_cell": 6,
+      "n_windows": 46
+    }
+  ],
+  "three_pass_44929": {
+    "target": "44929",
+    "target_idx": 19,
+    "sigma_T_full": 9062.89990055007,
+    "sigma_T_corrected": 13601.267513751516,
+    "full": {
+      "median": 5978.770707086307,
+      "var": 10347138.154654028,
+      "ci_lo": 7424468.853215418,
+      "ci_hi": 13194660.632254438,
+      "n": 78
+    },
+    "corrected": {
+      "median": 5978.770707086307,
+      "var": 10977143.70834512,
+      "ci_lo": 7803391.032045311,
+      "ci_hi": 13870361.557554785,
+      "n": 78
+    },
+    "excluded": {
+      "median": 5949.301521620028,
+      "var": 10354832.289496247,
+      "ci_lo": 7245516.264460011,
+      "ci_hi": 13490309.748139584,
+      "n": 77
+    },
+    "full_ci_halfwidth_var": 2885095.8895195103,
+    "load_bearing_var": false
+  }
+}

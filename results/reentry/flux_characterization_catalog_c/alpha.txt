@@ -1,0 +1,9 @@
+Flux Accumulator — Part 2: α (frozen from first run, commit 310a9b7)
+======================================================================
+
+α = 4.27517
+
+This value is the calibration produced by the first characterization
+run on the full 78-object corpus. Frozen across all C-restricted
+runs (n=39 and catalog-scale n=3,346). No recomputation under
+Interpretation C.

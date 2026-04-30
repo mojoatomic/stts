@@ -1,0 +1,10 @@
+Flux Accumulator — Part 1 sanity check (re-execution for catalog C run)
+======================================================================
+
+v_analytical = [5. 5.]
+Var_analytical = [17.5        15.83333333]
+mean_MC = [4.998158 5.005473]
+Var_MC  = [17.43513604 15.92010497]
+SE(Var_MC) = [0.04740886 0.04693591]
+|Var delta| = [0.06486396 0.08677163]    threshold = [0.23704432 0.23467956]
+Result: PASS

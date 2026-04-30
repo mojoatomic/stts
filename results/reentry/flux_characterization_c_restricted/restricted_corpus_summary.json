@@ -1,0 +1,437 @@
+{
+  "n_total": 78,
+  "n_included": 39,
+  "n_excluded_starting_in_basin": 39,
+  "n_excluded_never_reach_basin": 0,
+  "per_object": [
+    {
+      "norad_id": "44236",
+      "category": "included",
+      "tau_i": 3,
+      "c_first": 9,
+      "n_windows": 1075
+    },
+    {
+      "norad_id": "44243",
+      "category": "included",
+      "tau_i": 2,
+      "c_first": 5,
+      "n_windows": 1247
+    },
+    {
+      "norad_id": "44722",
+      "category": "included",
+      "tau_i": 14,
+      "c_first": 12,
+      "n_windows": 3197
+    },
+    {
+      "norad_id": "44745",
+      "category": "included",
+      "tau_i": 28,
+      "c_first": 12,
+      "n_windows": 839
+    },
+    {
+      "norad_id": "44929",
+      "category": "included",
+      "tau_i": 97,
+      "c_first": 12,
+      "n_windows": 3095
+    },
+    {
+      "norad_id": "44935",
+      "category": "included",
+      "tau_i": 9,
+      "c_first": 19,
+      "n_windows": 1887
+    },
+    {
+      "norad_id": "44947",
+      "category": "included",
+      "tau_i": 9,
+      "c_first": 19,
+      "n_windows": 3338
+    },
+    {
+      "norad_id": "44963",
+      "category": "included",
+      "tau_i": 9,
+      "c_first": 19,
+      "n_windows": 3012
+    },
+    {
+      "norad_id": "45046",
+      "category": "included",
+      "tau_i": 45,
+      "c_first": 8,
+      "n_windows": 1966
+    },
+    {
+      "norad_id": "45063",
+      "category": "included",
+      "tau_i": 50,
+      "c_first": 8,
+      "n_windows": 1101
+    },
+    {
+      "norad_id": "45069",
+      "category": "included",
+      "tau_i": 18,
+      "c_first": 8,
+      "n_windows": 970
+    },
+    {
+      "norad_id": "46367",
+      "category": "included",
+      "tau_i": 25,
+      "c_first": 12,
+      "n_windows": 947
+    },
+    {
+      "norad_id": "46369",
+      "category": "included",
+      "tau_i": 25,
+      "c_first": 12,
+      "n_windows": 1314
+    },
+    {
+      "norad_id": "46373",
+      "category": "included",
+      "tau_i": 38,
+      "c_first": 0,
+      "n_windows": 978
+    },
+    {
+      "norad_id": "46381",
+      "category": "included",
+      "tau_i": 24,
+      "c_first": 12,
+      "n_windows": 1181
+    },
+    {
+      "norad_id": "46695",
+      "category": "included",
+      "tau_i": 17,
+      "c_first": 12,
+      "n_windows": 1005
+    },
+    {
+      "norad_id": "46708",
+      "category": "included",
+      "tau_i": 21,
+      "c_first": 8,
+      "n_windows": 1619
+    },
+    {
+      "norad_id": "46739",
+      "category": "included",
+      "tau_i": 9,
+      "c_first": 16,
+      "n_windows": 807
+    },
+    {
+      "norad_id": "46761",
+      "category": "included",
+      "tau_i": 7,
+      "c_first": 16,
+      "n_windows": 882
+    },
+    {
+      "norad_id": "46769",
+      "category": "included",
+      "tau_i": 7,
+      "c_first": 8,
+      "n_windows": 1506
+    },
+    {
+      "norad_id": "46774",
+      "category": "included",
+      "tau_i": 93,
+      "c_first": 16,
+      "n_windows": 1306
+    },
+    {
+      "norad_id": "46795",
+      "category": "included",
+      "tau_i": 4,
+      "c_first": 12,
+      "n_windows": 1279
+    },
+    {
+      "norad_id": "47123",
+      "category": "included",
+      "tau_i": 17,
+      "c_first": 19,
+      "n_windows": 869
+    },
+    {
+      "norad_id": "47130",
+      "category": "included",
+      "tau_i": 18,
+      "c_first": 19,
+      "n_windows": 2917
+    },
+    {
+      "norad_id": "47156",
+      "category": "included",
+      "tau_i": 39,
+      "c_first": 5,
+      "n_windows": 1545
+    },
+    {
+      "norad_id": "47180",
+      "category": "included",
+      "tau_i": 17,
+      "c_first": 19,
+      "n_windows": 1004
+    },
+    {
+      "norad_id": "47349",
+      "category": "included",
+      "tau_i": 28,
+      "c_first": 8,
+      "n_windows": 1865
+    },
+    {
+      "norad_id": "47364",
+      "category": "included",
+      "tau_i": 26,
+      "c_first": 8,
+      "n_windows": 918
+    },
+    {
+      "norad_id": "47569",
+      "category": "included",
+      "tau_i": 58,
+      "c_first": 8,
+      "n_windows": 1858
+    },
+    {
+      "norad_id": "47765",
+      "category": "included",
+      "tau_i": 12,
+      "c_first": 12,
+      "n_windows": 1203
+    },
+    {
+      "norad_id": "47893",
+      "category": "included",
+      "tau_i": 20,
+      "c_first": 12,
+      "n_windows": 345
+    },
+    {
+      "norad_id": "47987",
+      "category": "included",
+      "tau_i": 26,
+      "c_first": 8,
+      "n_windows": 798
+    },
+    {
+      "norad_id": "47988",
+      "category": "included",
+      "tau_i": 171,
+      "c_first": 16,
+      "n_windows": 1582
+    },
+    {
+      "norad_id": "48001",
+      "category": "included",
+      "tau_i": 647,
+      "c_first": 8,
+      "n_windows": 753
+    },
+    {
+      "norad_id": "48012",
+      "category": "included",
+      "tau_i": 30,
+      "c_first": 8,
+      "n_windows": 2086
+    },
+    {
+      "norad_id": "48017",
+      "category": "included",
+      "tau_i": 28,
+      "c_first": 8,
+      "n_windows": 1350
+    },
+    {
+      "norad_id": "54057",
+      "category": "included",
+      "tau_i": 11,
+      "c_first": 12,
+      "n_windows": 425
+    },
+    {
+      "norad_id": "55356",
+      "category": "included",
+      "tau_i": 27,
+      "c_first": 12,
+      "n_windows": 97
+    },
+    {
+      "norad_id": "55711",
+      "category": "included",
+      "tau_i": 9,
+      "c_first": 17,
+      "n_windows": 228
+    },
+    {
+      "norad_id": "44242",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44248",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44249",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44252",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44255",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44256",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44270",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44273",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44284",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44285",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44286",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44288",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44290",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44293",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "44294",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "45070",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "45086",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "45091",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "45218",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "45231",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "45363",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "45533",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "45537",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "45575",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "45737",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "45765",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "47413",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "47669",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "47678",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "48601",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "52099",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "52104",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "52130",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "53710",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "53725",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "53747",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "53791",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "55696",
+      "category": "starting_in_basin"
+    },
+    {
+      "norad_id": "56829",
+      "category": "starting_in_basin"
+    }
+  ]
+}

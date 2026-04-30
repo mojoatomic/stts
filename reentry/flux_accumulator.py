@@ -270,6 +270,78 @@ def bootstrap_variance_ci(values: np.ndarray,
 
 # ── R^2 of linear fit (per object) ──────────────────────────────
 
+def c_restricted_corpus(per_object_trajectories: list[dict],
+                          failure_cells: Iterable[int]) -> dict:
+    """Partition the 78-object set under Interpretation C — Hybrid
+    Restricted-Corpus Semantics.
+
+    For each trajectory, classify:
+      - INCLUDED: first window's cell is transient AND a later window
+        falls in the failure basin. Compute first basin-entry index
+        τ_i (smallest t ≥ 1 with cells[t] ∈ F).
+      - EXCLUDED, starting-in-basin: cells[0] ∈ F.
+      - EXCLUDED, never-reach-basin: cells[0] ∉ F but no later window
+        is in F within the observation horizon.
+
+    Each trajectory dict must contain at minimum keys: 'nid', 'cells'
+    (1-D int array). The returned 'restricted' list copies the input
+    dict and adds 'tau_i' and 'c_first' fields.
+    """
+    F = set(int(c) for c in failure_cells)
+    restricted: list[dict] = []
+    starting_in_basin: list[str] = []
+    never_reach_basin: list[str] = []
+
+    for traj in per_object_trajectories:
+        cells = np.asarray(traj["cells"], dtype=np.int64)
+        if len(cells) == 0:
+            continue
+        c_first = int(cells[0])
+        if c_first in F:
+            starting_in_basin.append(traj["nid"])
+            continue
+        tau_i = None
+        for t in range(1, len(cells)):
+            if int(cells[t]) in F:
+                tau_i = t
+                break
+        if tau_i is None:
+            never_reach_basin.append(traj["nid"])
+            continue
+        out = dict(traj)
+        out["tau_i"] = int(tau_i)
+        out["c_first"] = c_first
+        restricted.append(out)
+
+    return {
+        "restricted": restricted,
+        "starting_in_basin": starting_in_basin,
+        "never_reach_basin": never_reach_basin,
+        "n_total": len(per_object_trajectories),
+        "n_included": len(restricted),
+        "n_starting_in_basin": len(starting_in_basin),
+        "n_never_reach_basin": len(never_reach_basin),
+    }
+
+
+def truncate_to_tau(traj: dict) -> dict:
+    """Return a copy of `traj` with H, dkl, cells truncated to indices
+    [0, tau_i] inclusive. Requires `tau_i` field set by
+    `c_restricted_corpus`."""
+    if "tau_i" not in traj:
+        raise ValueError(f"trajectory {traj.get('nid','?')} has no tau_i")
+    end = int(traj["tau_i"]) + 1
+    out = dict(traj)
+    out["cells"] = np.asarray(traj["cells"])[:end]
+    out["H"] = np.asarray(traj["H"])[:end]
+    if "dkl" in traj:
+        out["dkl"] = np.asarray(traj["dkl"])[:end]
+    if "days" in traj:
+        out["days"] = np.asarray(traj["days"])[:end]
+    out["n_windows"] = end
+    return out
+
+
 def variance_stderr(values: np.ndarray) -> float:
     """Asymptotic standard error of the sample variance (ddof=1) from
     the same MC sample, using SE(S^2) ≈ sqrt((μ_4 − μ_2^2 (N-3)/(N-1)) / N)

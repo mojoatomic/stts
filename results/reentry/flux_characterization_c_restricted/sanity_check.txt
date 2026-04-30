@@ -1,0 +1,26 @@
+Flux Accumulator — Part 1 sanity check (Kemeny-Snell vs MC; re-execution)
+======================================================================
+
+Toy chain: 3 states, transient=[0, 1], absorbing=2
+P =
+[[0.5 0.3 0.2]
+ [0.2 0.4 0.4]
+ [0.  0.  1. ]]
+kappa = [1. 2.]
+
+Analytical: v = [5. 5.]
+           Var = [17.5        15.83333333]
+
+MC (N=1,000,000 per start, seed=20260429):
+  mean_MC = [4.998158 5.005473]
+  Var_MC  = [17.43513604 15.92010497]
+  SE(Var_MC) = [0.04740886 0.04693591]  (empirical, from 4th central moment)
+
+|mean_a - mean_MC| = [0.001842 0.005473]
+|Var_a  - Var_MC|  = [0.06486396 0.08677163]
+Var threshold      = 5.0 × SE(Var_MC) = [0.23704432 0.23467956]
+
+Mean assertion (|delta| < 1e-2):                 PASS
+Var  assertion (|delta| < 5.0σ MC stderr): PASS
+
+Result: PASS — proceed to Parts 2-6 (re-execution under C).

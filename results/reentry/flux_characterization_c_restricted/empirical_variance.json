@@ -1,0 +1,286 @@
+{
+  "n_restricted": 39,
+  "sigma_failure": 118.34199889559007,
+  "var_empirical": 188153.09253169823,
+  "var_empirical_CI95": [
+    6351.2102167412695,
+    503014.2514818772
+  ],
+  "BOOTSTRAP_B": 1000,
+  "BOOTSTRAP_SEED": 20260430,
+  "per_object": [
+    {
+      "norad_id": "44236",
+      "starting_cell_c_first": 9,
+      "tau_i": 3,
+      "n_windows": 1075,
+      "sigma_raw_at_tau_i": 0.0
+    },
+    {
+      "norad_id": "44243",
+      "starting_cell_c_first": 5,
+      "tau_i": 2,
+      "n_windows": 1247,
+      "sigma_raw_at_tau_i": 0.0
+    },
+    {
+      "norad_id": "44722",
+      "starting_cell_c_first": 12,
+      "tau_i": 14,
+      "n_windows": 3197,
+      "sigma_raw_at_tau_i": 65.0360692280283
+    },
+    {
+      "norad_id": "44745",
+      "starting_cell_c_first": 12,
+      "tau_i": 28,
+      "n_windows": 839,
+      "sigma_raw_at_tau_i": 139.7714740149678
+    },
+    {
+      "norad_id": "44929",
+      "starting_cell_c_first": 12,
+      "tau_i": 97,
+      "n_windows": 3095,
+      "sigma_raw_at_tau_i": 348.54387803099013
+    },
+    {
+      "norad_id": "44935",
+      "starting_cell_c_first": 19,
+      "tau_i": 9,
+      "n_windows": 1887,
+      "sigma_raw_at_tau_i": 30.245861172877504
+    },
+    {
+      "norad_id": "44947",
+      "starting_cell_c_first": 19,
+      "tau_i": 9,
+      "n_windows": 3338,
+      "sigma_raw_at_tau_i": 42.432697880453745
+    },
+    {
+      "norad_id": "44963",
+      "starting_cell_c_first": 19,
+      "tau_i": 9,
+      "n_windows": 3012,
+      "sigma_raw_at_tau_i": 43.823742526647045
+    },
+    {
+      "norad_id": "45046",
+      "starting_cell_c_first": 8,
+      "tau_i": 45,
+      "n_windows": 1966,
+      "sigma_raw_at_tau_i": 214.83900845779033
+    },
+    {
+      "norad_id": "45063",
+      "starting_cell_c_first": 8,
+      "tau_i": 50,
+      "n_windows": 1101,
+      "sigma_raw_at_tau_i": 244.44861336853714
+    },
+    {
+      "norad_id": "45069",
+      "starting_cell_c_first": 8,
+      "tau_i": 18,
+      "n_windows": 970,
+      "sigma_raw_at_tau_i": 104.70157870074827
+    },
+    {
+      "norad_id": "46367",
+      "starting_cell_c_first": 12,
+      "tau_i": 25,
+      "n_windows": 947,
+      "sigma_raw_at_tau_i": 131.4945984813291
+    },
+    {
+      "norad_id": "46369",
+      "starting_cell_c_first": 12,
+      "tau_i": 25,
+      "n_windows": 1314,
+      "sigma_raw_at_tau_i": 136.245257759543
+    },
+    {
+      "norad_id": "46373",
+      "starting_cell_c_first": 0,
+      "tau_i": 38,
+      "n_windows": 978,
+      "sigma_raw_at_tau_i": 206.28160428815858
+    },
+    {
+      "norad_id": "46381",
+      "starting_cell_c_first": 12,
+      "tau_i": 24,
+      "n_windows": 1181,
+      "sigma_raw_at_tau_i": 135.3488327678287
+    },
+    {
+      "norad_id": "46695",
+      "starting_cell_c_first": 12,
+      "tau_i": 17,
+      "n_windows": 1005,
+      "sigma_raw_at_tau_i": 94.49560904393863
+    },
+    {
+      "norad_id": "46708",
+      "starting_cell_c_first": 8,
+      "tau_i": 21,
+      "n_windows": 1619,
+      "sigma_raw_at_tau_i": 118.34199889559007
+    },
+    {
+      "norad_id": "46739",
+      "starting_cell_c_first": 16,
+      "tau_i": 9,
+      "n_windows": 807,
+      "sigma_raw_at_tau_i": 67.93178624136102
+    },
+    {
+      "norad_id": "46761",
+      "starting_cell_c_first": 16,
+      "tau_i": 7,
+      "n_windows": 882,
+      "sigma_raw_at_tau_i": 39.18723079271797
+    },
+    {
+      "norad_id": "46769",
+      "starting_cell_c_first": 8,
+      "tau_i": 7,
+      "n_windows": 1506,
+      "sigma_raw_at_tau_i": 45.428566841276115
+    },
+    {
+      "norad_id": "46774",
+      "starting_cell_c_first": 16,
+      "tau_i": 93,
+      "n_windows": 1306,
+      "sigma_raw_at_tau_i": 496.9616863296522
+    },
+    {
+      "norad_id": "46795",
+      "starting_cell_c_first": 12,
+      "tau_i": 4,
+      "n_windows": 1279,
+      "sigma_raw_at_tau_i": 0.0
+    },
+    {
+      "norad_id": "47123",
+      "starting_cell_c_first": 19,
+      "tau_i": 17,
+      "n_windows": 869,
+      "sigma_raw_at_tau_i": 76.04166503273498
+    },
+    {
+      "norad_id": "47130",
+      "starting_cell_c_first": 19,
+      "tau_i": 18,
+      "n_windows": 2917,
+      "sigma_raw_at_tau_i": 79.87886124889378
+    },
+    {
+      "norad_id": "47156",
+      "starting_cell_c_first": 5,
+      "tau_i": 39,
+      "n_windows": 1545,
+      "sigma_raw_at_tau_i": 197.380306928621
+    },
+    {
+      "norad_id": "47180",
+      "starting_cell_c_first": 19,
+      "tau_i": 17,
+      "n_windows": 1004,
+      "sigma_raw_at_tau_i": 76.93157182053852
+    },
+    {
+      "norad_id": "47349",
+      "starting_cell_c_first": 8,
+      "tau_i": 28,
+      "n_windows": 1865,
+      "sigma_raw_at_tau_i": 155.9580743023518
+    },
+    {
+      "norad_id": "47364",
+      "starting_cell_c_first": 8,
+      "tau_i": 26,
+      "n_windows": 918,
+      "sigma_raw_at_tau_i": 141.35298634974262
+    },
+    {
+      "norad_id": "47569",
+      "starting_cell_c_first": 8,
+      "tau_i": 58,
+      "n_windows": 1858,
+      "sigma_raw_at_tau_i": 298.45740480825293
+    },
+    {
+      "norad_id": "47765",
+      "starting_cell_c_first": 12,
+      "tau_i": 12,
+      "n_windows": 1203,
+      "sigma_raw_at_tau_i": 62.415125856146915
+    },
+    {
+      "norad_id": "47893",
+      "starting_cell_c_first": 12,
+      "tau_i": 20,
+      "n_windows": 345,
+      "sigma_raw_at_tau_i": 105.9773593221866
+    },
+    {
+      "norad_id": "47987",
+      "starting_cell_c_first": 8,
+      "tau_i": 26,
+      "n_windows": 798,
+      "sigma_raw_at_tau_i": 140.75079226176902
+    },
+    {
+      "norad_id": "47988",
+      "starting_cell_c_first": 16,
+      "tau_i": 171,
+      "n_windows": 1582,
+      "sigma_raw_at_tau_i": 742.9591370593677
+    },
+    {
+      "norad_id": "48001",
+      "starting_cell_c_first": 8,
+      "tau_i": 647,
+      "n_windows": 753,
+      "sigma_raw_at_tau_i": 2703.223872852256
+    },
+    {
+      "norad_id": "48012",
+      "starting_cell_c_first": 8,
+      "tau_i": 30,
+      "n_windows": 2086,
+      "sigma_raw_at_tau_i": 162.04977933329226
+    },
+    {
+      "norad_id": "48017",
+      "starting_cell_c_first": 8,
+      "tau_i": 28,
+      "n_windows": 1350,
+      "sigma_raw_at_tau_i": 144.1350729751912
+    },
+    {
+      "norad_id": "54057",
+      "starting_cell_c_first": 12,
+      "tau_i": 11,
+      "n_windows": 425,
+      "sigma_raw_at_tau_i": 56.325795818573546
+    },
+    {
+      "norad_id": "55356",
+      "starting_cell_c_first": 12,
+      "tau_i": 27,
+      "n_windows": 97,
+      "sigma_raw_at_tau_i": 151.00499205696528
+    },
+    {
+      "norad_id": "55711",
+      "starting_cell_c_first": 17,
+      "tau_i": 9,
+      "n_windows": 228,
+      "sigma_raw_at_tau_i": 21.49806825162283
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "Kemeny_baseline": 147991.9398997442,
+  "catalog_Var_emp": 33396042.877546873,
+  "Var_AR1_term": 2359916.781186543,
+  "Var_pred_full_AR1": 2507908.721086287,
+  "r_AR1_point": 0.07509598458362343,
+  "r_AR1_CI95": [
+    0.004677128990188564,
+    0.18256604159178297
+  ],
+  "decision_band_point": "OUTSIDE",
+  "decision_band_ci_lo": "OUTSIDE",
+  "decision_band_ci_hi": "OUTSIDE",
+  "decision": "OUTSIDE",
+  "preregistered_decision_rule": "FULL: r_AR1 \u2208 [0.5, 1.5] (CI bracket also in same band). PARTIAL: \u2208 [0.2, 0.5] \u222a [1.5, 4.0]. OUTSIDE: outside [0.2, 4.0]. INCONCLUSIVE: 95 % CI spans two bands.",
+  "per_cell_contribution": [
+    {
+      "cell": 0,
+      "kappa_c": null,
+      "sigma2_c": 2.530736104535337,
+      "rho_lag1": 0.9312158936549886,
+      "E_visits": 9.916784490031752,
+      "factor_AR1": 28.076484471111407,
+      "contribution": 704.6289201581437,
+      "share_of_AR1_term": 0.0002985821050028142,
+      "n_qualifying_run_windows": 31755
+    },
+    {
+      "cell": 3,
+      "kappa_c": null,
+      "sigma2_c": 2.0866026746811297,
+      "rho_lag1": 0.897060020544762,
+      "E_visits": 38.96276582214666,
+      "factor_AR1": 18.42879734952416,
+      "contribution": 1498.2577484298542,
+      "share_of_AR1_term": 0.0006348773653266472,
+      "n_qualifying_run_windows": 277493
+    },
+    {
+      "cell": 5,
+      "kappa_c": null,
+      "sigma2_c": 0.7244821862373719,
+      "rho_lag1": 0.4482896492709162,
+      "E_visits": 4.691352468722782,
+      "factor_AR1": 2.6250905884890594,
+      "contribution": 8.922161286268471,
+      "share_of_AR1_term": 3.780710132406659e-06,
+      "n_qualifying_run_windows": 47410
+    },
+    {
+      "cell": 8,
+      "kappa_c": null,
+      "sigma2_c": 1.3370321138578964,
+      "rho_lag1": 0.8525974466924795,
+      "E_visits": 0.3650047014053955,
+      "factor_AR1": 12.568285997240997,
+      "contribution": 6.133612731344455,
+      "share_of_AR1_term": 2.5990800947906877e-06,
+      "n_qualifying_run_windows": 1149
+    },
+    {
+      "cell": 9,
+      "kappa_c": null,
+      "sigma2_c": 0.45946405745225555,
+      "rho_lag1": 0.5411990786364231,
+      "E_visits": 9.98365955165758,
+      "factor_AR1": 3.3591891534478844,
+      "contribution": 15.4090464980224,
+      "share_of_AR1_term": 6.529487234831596e-06,
+      "n_qualifying_run_windows": 303267
+    },
+    {
+      "cell": 12,
+      "kappa_c": null,
+      "sigma2_c": 1.386211107322364,
+      "rho_lag1": 0.8252248608636155,
+      "E_visits": 0.9874153673090429,
+      "factor_AR1": 10.44327511271105,
+      "contribution": 14.29440146633124,
+      "share_of_AR1_term": 6.0571633628301745e-06,
+      "n_qualifying_run_windows": 2674
+    },
+    {
+      "cell": 13,
+      "kappa_c": null,
+      "sigma2_c": 287798249.1569878,
+      "rho_lag1": 0.20972864910341363,
+      "E_visits": 0.003653444676409187,
+      "factor_AR1": 1.5307762931440452,
+      "contribution": 1609542.3586248234,
+      "share_of_AR1_term": 0.6820335240023003,
+      "n_qualifying_run_windows": 39
+    },
+    {
+      "cell": 16,
+      "kappa_c": null,
+      "sigma2_c": 19550255.380685017,
+      "rho_lag1": -0.0013988343549782931,
+      "E_visits": 0.03831041709858852,
+      "factor_AR1": 0.9972062392984923,
+      "contribution": 746885.9714915561,
+      "share_of_AR1_term": 0.3164882666396521,
+      "n_qualifying_run_windows": 162
+    },
+    {
+      "cell": 17,
+      "kappa_c": null,
+      "sigma2_c": 7.034033684523856,
+      "rho_lag1": 0.2942041534342552,
+      "E_visits": 24.0694177410714,
+      "factor_AR1": 1.833680602870621,
+      "contribution": 310.4514689576051,
+      "share_of_AR1_term": 0.0001315518714187511,
+      "n_qualifying_run_windows": 559949
+    },
+    {
+      "cell": 19,
+      "kappa_c": null,
+      "sigma2_c": 5.111022926142861,
+      "rho_lag1": 0.9244264538266534,
+      "E_visits": 7.148398386865855,
+      "factor_AR1": 25.464286794383145,
+      "contribution": 930.3537106355374,
+      "share_of_AR1_term": 0.0003942315754743541,
+      "n_qualifying_run_windows": 5265
+    }
+  ],
+  "sparse_cell_share_of_AR1_term": 0.9985217906419525,
+  "sparse_cell_dominated": true,
+  "sparse_cell_n_threshold": 1000,
+  "bulk_only": {
+    "Var_AR1_term": 3488.4510701631066,
+    "r_AR1": 0.004535878443004155
+  },
+  "linear_correction_term_for_comparison": {
+    "value": 1800755.5,
+    "source": "synthetic Test 3 (commit e4a9036)"
+  },
+  "AR1_to_linear_ratio": 1.310514826241843
+}

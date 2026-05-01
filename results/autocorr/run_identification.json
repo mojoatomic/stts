@@ -1,0 +1,55 @@
+{
+  "min_run_length": 3,
+  "per_cell": {
+    "0": {
+      "n_qualifying_runs": 2964,
+      "n_windows_in_qualifying_runs": 31755,
+      "n_trajectories_with_qualifying_run": 441
+    },
+    "3": {
+      "n_qualifying_runs": 15480,
+      "n_windows_in_qualifying_runs": 277493,
+      "n_trajectories_with_qualifying_run": 850
+    },
+    "5": {
+      "n_qualifying_runs": 4272,
+      "n_windows_in_qualifying_runs": 47410,
+      "n_trajectories_with_qualifying_run": 1434
+    },
+    "8": {
+      "n_qualifying_runs": 170,
+      "n_windows_in_qualifying_runs": 1149,
+      "n_trajectories_with_qualifying_run": 131
+    },
+    "9": {
+      "n_qualifying_runs": 16446,
+      "n_windows_in_qualifying_runs": 303267,
+      "n_trajectories_with_qualifying_run": 1239
+    },
+    "12": {
+      "n_qualifying_runs": 345,
+      "n_windows_in_qualifying_runs": 2674,
+      "n_trajectories_with_qualifying_run": 198
+    },
+    "13": {
+      "n_qualifying_runs": 4,
+      "n_windows_in_qualifying_runs": 39,
+      "n_trajectories_with_qualifying_run": 4
+    },
+    "16": {
+      "n_qualifying_runs": 15,
+      "n_windows_in_qualifying_runs": 162,
+      "n_trajectories_with_qualifying_run": 15
+    },
+    "17": {
+      "n_qualifying_runs": 25302,
+      "n_windows_in_qualifying_runs": 559949,
+      "n_trajectories_with_qualifying_run": 1039
+    },
+    "19": {
+      "n_qualifying_runs": 505,
+      "n_windows_in_qualifying_runs": 5265,
+      "n_trajectories_with_qualifying_run": 198
+    }
+  }
+}

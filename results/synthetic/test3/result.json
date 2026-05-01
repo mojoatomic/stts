@@ -1,0 +1,161 @@
+{
+  "config": {
+    "alpha_frozen": 4.27517,
+    "DKL_WINDOW": 5,
+    "DKL_EPS": 1e-09,
+    "catalog_var_emp_source": "results/reentry/flux_characterization_catalog_c/empirical_variance.json",
+    "catalog_pred_var_source": "results/reentry/flux_characterization_catalog_c/predicted_variance.json",
+    "n_restricted_objects": 1916,
+    "surviving_cells": [
+      0,
+      3,
+      5,
+      8,
+      9,
+      12,
+      13,
+      16,
+      17,
+      19
+    ]
+  },
+  "catalog_var_emp": 33396042.877546873,
+  "var_pred_weighted_recomputed": 147991.9398997442,
+  "var_starts_v": 84311.53106176274,
+  "var_pred_total": 232303.47096150694,
+  "E_visits_pi": [
+    9.916784490031752,
+    38.96276582214666,
+    4.691352468722782,
+    0.3650047014053955,
+    9.98365955165758,
+    0.9874153673090429,
+    0.003653444676409187,
+    0.03831041709858852,
+    24.0694177410714,
+    7.148398386865855
+  ],
+  "per_cell_sigma2_empirical": [
+    2.530736104535337,
+    2.0866026746811297,
+    0.7244821862373719,
+    1.3370321138578964,
+    0.45946405745225555,
+    1.386211107322364,
+    287798249.1569878,
+    19550255.380685017,
+    7.034033684523856,
+    5.111022926142861
+  ],
+  "per_cell_n_windows": [
+    33734,
+    281721,
+    48858,
+    1250,
+    308226,
+    2907,
+    41,
+    178,
+    566927,
+    5801
+  ],
+  "var_correction": 1800755.4993027507,
+  "var_pred_corrected": 1948747.439202495,
+  "var_pred_total_corrected": 2033058.9702642576,
+  "r_uncorrected": 0.004431421424459946,
+  "r_corrected": 0.05835264514265833,
+  "r_total_corrected": 0.06087724158574315,
+  "per_cell_contribution": [
+    {
+      "cell": 0,
+      "kappa_c": 3.903516223381847,
+      "sigma2_c_emp": 2.530736104535337,
+      "n_windows": 33734,
+      "E_visits_pi": 9.916784490031752,
+      "contribution_to_correction": 25.096764549819405,
+      "share_of_correction": 1.393679739394761e-05
+    },
+    {
+      "cell": 3,
+      "kappa_c": 2.9218223758409656,
+      "sigma2_c_emp": 2.0866026746811297,
+      "n_windows": 281721,
+      "E_visits_pi": 38.96276582214666,
+      "contribution_to_correction": 81.29981137746572,
+      "share_of_correction": 4.51476124376379e-05
+    },
+    {
+      "cell": 5,
+      "kappa_c": 4.164635893152242,
+      "sigma2_c_emp": 0.7244821862373719,
+      "n_windows": 48858,
+      "E_visits_pi": 4.691352468722782,
+      "contribution_to_correction": 3.398801292950373,
+      "share_of_correction": 1.8874307446326737e-06
+    },
+    {
+      "cell": 8,
+      "kappa_c": 5.500578026499003,
+      "sigma2_c_emp": 1.3370321138578964,
+      "n_windows": 1250,
+      "E_visits_pi": 0.3650047014053955,
+      "contribution_to_correction": 0.4880230074881262,
+      "share_of_correction": 2.7101014417398023e-07
+    },
+    {
+      "cell": 9,
+      "kappa_c": 3.9590525935275025,
+      "sigma2_c_emp": 0.45946405745225555,
+      "n_windows": 308226,
+      "E_visits_pi": 9.98365955165758,
+      "contribution_to_correction": 4.5871327258265575,
+      "share_of_correction": 2.5473378965676836e-06
+    },
+    {
+      "cell": 12,
+      "kappa_c": 4.752685143353401,
+      "sigma2_c_emp": 1.386211107322364,
+      "n_windows": 2907,
+      "E_visits_pi": 0.9874153673090429,
+      "contribution_to_correction": 1.368766149704587,
+      "share_of_correction": 7.601066053856678e-07
+    },
+    {
+      "cell": 13,
+      "kappa_c": 4231.380762856938,
+      "sigma2_c_emp": 287798249.1569878,
+      "n_windows": 41,
+      "E_visits_pi": 0.003653444676409187,
+      "contribution_to_correction": 1051454.9812624818,
+      "share_of_correction": 0.5838965821121208
+    },
+    {
+      "cell": 16,
+      "kappa_c": 551.3334849790068,
+      "sigma2_c_emp": 19550255.380685017,
+      "n_windows": 178,
+      "E_visits_pi": 0.03831041709858852,
+      "contribution_to_correction": 748978.4380179674,
+      "share_of_correction": 0.41592455961287944
+    },
+    {
+      "cell": 17,
+      "kappa_c": 3.6400033328798034,
+      "sigma2_c_emp": 7.034033684523856,
+      "n_windows": 566927,
+      "E_visits_pi": 24.0694177410714,
+      "contribution_to_correction": 169.30509515757234,
+      "share_of_correction": 9.40189244031891e-05
+    },
+    {
+      "cell": 19,
+      "kappa_c": 4.10723883026075,
+      "sigma2_c_emp": 5.111022926142861,
+      "n_windows": 5801,
+      "E_visits_pi": 7.148398386865855,
+      "contribution_to_correction": 36.53562804047403,
+      "share_of_correction": 2.028905537404748e-05
+    }
+  ],
+  "preregistered_decision": "If r_corrected \u2248 1 (within \u00b110 %), within-cell heteroscedasticity is the verified failure mode of the canonical specification on the catalog-scale reentry result. If r_corrected \u2260 1 even with the full empirical correction, other structural issues are present."
+}
